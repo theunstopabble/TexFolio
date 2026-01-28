@@ -1,0 +1,120 @@
+\documentclass[a4paper,10pt]{article}
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES
+%----------------------------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[empty]{fullpage}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref} 
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{geometry}
+\usepackage{xcolor}
+
+% Margins - Strictly Optimized for ONE PAGE
+\geometry{left=0.5in, top=0.35in, right=0.5in, bottom=0.35in}
+
+% PREVENT PARAGRAPH INDENTATION
+\setlength{\parindent}{0pt}
+
+% Custom Section Formatting
+\titleformat{\section}{
+  \vspace{-8pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\titlerule \vspace{-4pt}]
+
+% Custom Itemize Formatting (Tight lists)
+\setlist[itemize]{leftmargin=*, nosep}
+
+%----------------------------------------------------------------------------------------
+%	RESUME STARTS HERE
+%----------------------------------------------------------------------------------------
+\begin{document}
+
+%----------HEADER----------
+\begin{center}
+    {\Huge \textbf{<<FULL_NAME>>}} \\ \vspace{2pt}
+    \small
+    <<LOCATION>> \\ \vspace{2pt}
+    \href{mailto:<<EMAIL>>}{<<EMAIL>>} $|$ 
+    \href{tel:<<PHONE>>}{<<PHONE>>}
+    <<#LINKEDIN>>
+    $|$ \href{<<LINKEDIN>>}{LinkedIn}
+    <</LINKEDIN>>
+    <<#GITHUB>>
+    $|$ \href{<<GITHUB>>}{GitHub}
+    <</GITHUB>>
+\end{center}
+
+\vspace{-6pt}
+
+%----------SUMMARY----------
+<<#SUMMARY>>
+\section{Professional Summary}
+<<SUMMARY>>
+<</SUMMARY>>
+
+%----------EDUCATION----------
+<<#HAS_EDUCATION>>
+\section{Education}
+<<#EDUCATION>>
+\textbf{<<INSTITUTION>>} \hfill <<LOCATION>> \\
+\textit{<<DEGREE>> in <<FIELD>><<#GPA>> -- GPA: <<GPA>><</GPA>>} \hfill <<START_DATE>> -- <<END_DATE>>
+
+\vspace{2pt}
+<</EDUCATION>>
+<</HAS_EDUCATION>>
+
+%----------TECHNICAL SKILLS----------
+<<#HAS_SKILLS>>
+\section{Technical Skills}
+\begin{itemize}
+<<#SKILLS>>
+    \item \textbf{<<CATEGORY>>:} <<SKILLS_LIST>>
+<</SKILLS>>
+\end{itemize}
+<</HAS_SKILLS>>
+
+%----------EXPERIENCE----------
+<<#HAS_EXPERIENCE>>
+\section{Experience}
+<<#EXPERIENCE>>
+\textbf{<<COMPANY>>} \hfill <<LOCATION>> \\
+\textit{<<POSITION>>} \hfill <<START_DATE>> -- <<END_DATE>>
+\begin{itemize}
+<<#DESCRIPTION>>
+    \item <<.>>
+<</DESCRIPTION>>
+\end{itemize}
+
+\vspace{4pt}
+<</EXPERIENCE>>
+<</HAS_EXPERIENCE>>
+
+%----------PROJECTS----------
+<<#HAS_PROJECTS>>
+\section{Projects}
+<<#PROJECTS>>
+\noindent
+\textbf{<<NAME>>} $|$ \textit{<<TECHNOLOGIES>>}
+<<#DESCRIPTION>>
+\begin{itemize}
+    \item <<DESCRIPTION>>
+\end{itemize}
+<</DESCRIPTION>>
+
+\vspace{4pt}
+<</PROJECTS>>
+<</HAS_PROJECTS>>
+
+%----------CERTIFICATIONS----------
+<<#HAS_CERTIFICATIONS>>
+\section{Certifications}
+\begin{itemize}
+<<#CERTIFICATIONS>>
+    \item \textbf{<<NAME>>}<<#ISSUER>> (<<ISSUER>>)<</ISSUER>>
+<</CERTIFICATIONS>>
+\end{itemize}
+<</HAS_CERTIFICATIONS>>
+
+\end{document}

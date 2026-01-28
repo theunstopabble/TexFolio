@@ -1,0 +1,31 @@
+{
+  "name": "texfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-Powered LaTeX Resume Builder SaaS",
+  "scripts": {
+    "dev:api": "npm run dev --workspace=@texfolio/api",
+    "dev:web": "npm run dev --workspace=@texfolio/web",
+    "build:api": "npm run build --workspace=@texfolio/api",
+    "build:web": "npm run build --workspace=@texfolio/web",
+    "build:deploy": "npm run build --workspace=@texfolio/shared && npm run build --workspace=@texfolio/api",
+    "start:deploy": "npm run start --workspace=@texfolio/api",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\""
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "resume-builder",
+    "ai",
+    "latex",
+    "mern",
+    "saas"
+  ],
+  "author": "Gautam",
+  "license": "MIT"
+}

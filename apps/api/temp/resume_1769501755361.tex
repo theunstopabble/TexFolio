@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+% Colors
+\definecolor{primary}{RGB}{0, 79, 144}
+
+% Remove page numbers
+\pagestyle{empty}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries\color{primary}}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{12pt}{6pt}
+
+\begin{document}
+
+% Header
+\begin{center}
+    {\Huge\bfseries Gautam Kumar} \\[6pt]
+    \small
+    +91 9876543210 $|$
+    \href{mailto:gautam@example.com}{gautam@example.com} $|$
+    New Delhi, India
+    $|$ \href{https:&#x2F;&#x2F;linkedin.com&#x2F;in&#x2F;gautam}{LinkedIn}
+    $|$ \href{https:&#x2F;&#x2F;github.com&#x2F;gautam}{GitHub}
+\end{center}
+
+% Summary
+\section{Summary}
+Full Stack Developer with 3+ years of experience building scalable web applications using React, Node.js, and MongoDB.
+
+% Experience
+\section{Experience}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{Tech Corp} & Remote \\
+      \textit{\small Full Stack Developer} & \textit{\small Jan 2022 -- Present} \\
+    \end{tabular*}\vspace{-5pt}
+    \begin{itemize}[leftmargin=0.15in]
+        \item \small{Built REST APIs using Node.js and Express}
+    \end{itemize}
+    \begin{itemize}[leftmargin=0.15in]
+        \item \small{Developed React dashboards for 10k+ users}
+    \end{itemize}
+    \begin{itemize}[leftmargin=0.15in]
+        \item \small{Implemented CI&#x2F;CD pipelines with GitHub Actions}
+    \end{itemize}
+\end{itemize}
+
+% Education
+\section{Education}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{Delhi University} & New Delhi \\
+      \textit{\small B.Tech in Computer Science -- GPA: 8.5} & \textit{\small 2018 -- 2022} \\
+    \end{tabular*}
+\end{itemize}
+
+% Projects
+\section{Projects}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item \textbf{E-Commerce Platform} -- Full-stack e-commerce app with payment integration \\
+    \small\textit{Technologies: React, Node.js, Stripe}
+\end{itemize}
+
+% Skills
+\section{Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+    \item \textbf{Frontend:} React, TypeScript, Tailwind CSS
+    \item \textbf{Backend:} Node.js, Express, MongoDB
+\end{itemize}
+
+\end{document}

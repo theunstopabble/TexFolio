@@ -1,0 +1,100 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+% Colors
+\definecolor{primary}{RGB}{0, 79, 144}
+
+% Remove page numbers
+\pagestyle{empty}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries\color{primary}}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{12pt}{6pt}
+
+\begin{document}
+
+% Header
+\begin{center}
+    {\Huge\bfseries <<FULL_NAME>>} \\[6pt]
+    \small
+    <<PHONE>> $|$
+    \href{mailto:<<EMAIL>>}{<<EMAIL>>} $|$
+    <<LOCATION>>
+    <<#LINKEDIN>>
+    $|$ \href{<<LINKEDIN>>}{LinkedIn}
+    <</LINKEDIN>>
+    <<#GITHUB>>
+    $|$ \href{<<GITHUB>>}{GitHub}
+    <</GITHUB>>
+\end{center}
+
+% Summary
+<<#SUMMARY>>
+\section{Summary}
+<<SUMMARY>>
+<</SUMMARY>>
+
+% Experience
+<<#HAS_EXPERIENCE>>
+\section{Experience}
+\begin{itemize}[leftmargin=0.15in, label={}]
+<<#EXPERIENCE>>
+    \item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{<<COMPANY>>} & <<LOCATION>> \\
+      \textit{\small <<POSITION>>} & \textit{\small <<START_DATE>> -- <<END_DATE>>} \\
+    \end{tabular*}\vspace{-5pt}
+    <<#DESCRIPTION>>
+    \begin{itemize}[leftmargin=0.15in]
+        \item \small{<<.>>}
+    \end{itemize}
+    <</DESCRIPTION>>
+<</EXPERIENCE>>
+\end{itemize}
+<</HAS_EXPERIENCE>>
+
+% Education
+<<#HAS_EDUCATION>>
+\section{Education}
+\begin{itemize}[leftmargin=0.15in, label={}]
+<<#EDUCATION>>
+    \item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{<<INSTITUTION>>} & <<LOCATION>> \\
+      \textit{\small <<DEGREE>> in <<FIELD>><<#GPA>> -- GPA: <<GPA>><</GPA>>} & \textit{\small <<START_DATE>> -- <<END_DATE>>} \\
+    \end{tabular*}
+<</EDUCATION>>
+\end{itemize}
+<</HAS_EDUCATION>>
+
+% Projects
+<<#HAS_PROJECTS>>
+\section{Projects}
+\begin{itemize}[leftmargin=0.15in, label={}]
+<<#PROJECTS>>
+    \item \textbf{<<NAME>>} -- <<DESCRIPTION>> \\
+    \small\textit{Technologies: <<TECHNOLOGIES>>}
+<</PROJECTS>>
+\end{itemize}
+<</HAS_PROJECTS>>
+
+% Skills
+<<#HAS_SKILLS>>
+\section{Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]
+<<#SKILLS>>
+    \item \textbf{<<CATEGORY>>:} <<SKILLS_LIST>>
+<</SKILLS>>
+\end{itemize}
+<</HAS_SKILLS>>
+
+\end{document}

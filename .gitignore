@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment files (SENSITIVE - never commit!)
+.env
+.env.local
+.env.development
+.env.production
+*.env
+
+# IDE & Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Docker
+docker-compose.override.yml
+
+# OS files
+Thumbs.db
+*.tmp
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Personal Notes
+LEARNING_NOTES.md
