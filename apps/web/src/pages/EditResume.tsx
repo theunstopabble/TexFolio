@@ -179,8 +179,17 @@ const EditResume = () => {
     }
   };
 
-  const handleDownload = () => {
-    window.open(`http://localhost:5000/api/resumes/${id}/pdf`, "_blank");
+  const handleDownload = async () => {
+    try {
+      setLoading(true);
+      const url = await resumeApi.generatePdf(id!);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast.error("Failed to download PDF");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
