@@ -44,3 +44,6 @@ Thumbs.db
 
 # Personal Notes
 LEARNING_NOTES.md
+
+# Temporary API files
+apps/api/temp/
