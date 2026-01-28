@@ -229,7 +229,7 @@ router.get("/:id/pdf", async (req: Request, res: Response) => {
     console.error("PDF generation error:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to generate PDF",
+      error: `Failed to generate PDF: ${error instanceof Error ? error.message : String(error)}`,
     });
   }
 });
