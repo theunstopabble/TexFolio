@@ -33,16 +33,16 @@
 
 %----------HEADER----------
 \begin{center}
-    {\Huge \textbf{<<FULL_NAME>>}} \\ \vspace{2pt}
+    {\Huge \textbf{<<&FULL_NAME>>}} \\ \vspace{2pt}
     \small
-    <<LOCATION>> \\ \vspace{2pt}
-    \href{mailto:<<EMAIL>>}{<<EMAIL>>} $|$ 
-    \href{tel:<<PHONE>>}{<<PHONE>>}
+    <<&LOCATION>> \\ \vspace{2pt}
+    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>} $|$ 
+    \href{tel:<<&PHONE>>}{<<&PHONE>>}
     <<#LINKEDIN>>
-    $|$ \href{<<LINKEDIN>>}{LinkedIn}
+    $|$ \href{<<&LINKEDIN>>}{LinkedIn}
     <</LINKEDIN>>
     <<#GITHUB>>
-    $|$ \href{<<GITHUB>>}{GitHub}
+    $|$ \href{<<&GITHUB>>}{GitHub}
     <</GITHUB>>
 \end{center}
 
@@ -51,15 +51,15 @@
 %----------SUMMARY----------
 <<#SUMMARY>>
 \section{Professional Summary}
-<<SUMMARY>>
+<<&SUMMARY>>
 <</SUMMARY>>
 
 %----------EDUCATION----------
 <<#HAS_EDUCATION>>
 \section{Education}
 <<#EDUCATION>>
-\textbf{<<INSTITUTION>>} \hfill <<LOCATION>> \\
-\textit{<<DEGREE>> in <<FIELD>><<#GPA>> -- GPA: <<GPA>><</GPA>>} \hfill <<START_DATE>> -- <<END_DATE>>
+\textbf{<<&INSTITUTION>>} \hfill <<&LOCATION>> \\
+\textit{<<&DEGREE>> in <<&FIELD>><<#GPA>> -- GPA: <<&GPA>><</GPA>>} \hfill <<&START_DATE>> -- <<&END_DATE>>
 
 \vspace{2pt}
 <</EDUCATION>>
@@ -70,7 +70,7 @@
 \section{Technical Skills}
 \begin{itemize}
 <<#SKILLS>>
-    \item \textbf{<<CATEGORY>>:} <<SKILLS_LIST>>
+    \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
 <</SKILLS>>
 \end{itemize}
 <</HAS_SKILLS>>
@@ -79,11 +79,11 @@
 <<#HAS_EXPERIENCE>>
 \section{Experience}
 <<#EXPERIENCE>>
-\textbf{<<COMPANY>>} \hfill <<LOCATION>> \\
-\textit{<<POSITION>>} \hfill <<START_DATE>> -- <<END_DATE>>
+\textbf{<<&COMPANY>>} \hfill <<&LOCATION>> \\
+\textit{<<&POSITION>>} \hfill <<&START_DATE>> -- <<&END_DATE>>
 \begin{itemize}
 <<#DESCRIPTION>>
-    \item <<.>>
+    \item <<&.>>
 <</DESCRIPTION>>
 \end{itemize}
 
@@ -96,10 +96,10 @@
 \section{Projects}
 <<#PROJECTS>>
 \noindent
-\textbf{<<NAME>>} $|$ \textit{<<TECHNOLOGIES>>}
+\textbf{<<&NAME>>} $|$ \textit{<<&TECHNOLOGIES>>}
 <<#DESCRIPTION>>
 \begin{itemize}
-    \item <<DESCRIPTION>>
+    \item <<&DESCRIPTION>>
 \end{itemize}
 <</DESCRIPTION>>
 
@@ -112,7 +112,7 @@
 \section{Certifications}
 \begin{itemize}
 <<#CERTIFICATIONS>>
-    \item \textbf{<<NAME>>}<<#ISSUER>> (<<ISSUER>>)<</ISSUER>>
+    \item \textbf{<<&NAME>>}<<#ISSUER>> (<<&ISSUER>>)<</ISSUER>>
 <</CERTIFICATIONS>>
 \end{itemize}
 <</HAS_CERTIFICATIONS>>

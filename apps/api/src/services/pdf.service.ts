@@ -69,14 +69,11 @@ const transformResumeData = (resume: IResume) => {
   return {
     FULL_NAME: escapeLatex(resume.personalInfo.fullName),
     EMAIL: escapeLatex(resume.personalInfo.email),
+    EMAIL_RAW: resume.personalInfo.email, // Raw email for mailto:
     PHONE: escapeLatex(resume.personalInfo.phone),
     LOCATION: escapeLatex(resume.personalInfo.location),
-    LINKEDIN: resume.personalInfo.linkedin
-      ? escapeLatex(resume.personalInfo.linkedin)
-      : null,
-    GITHUB: resume.personalInfo.github
-      ? escapeLatex(resume.personalInfo.github)
-      : null,
+    LINKEDIN: resume.personalInfo.linkedin || null, // Raw URL for href
+    GITHUB: resume.personalInfo.github || null, // Raw URL for href
     SUMMARY: resume.summary ? escapeLatex(resume.summary) : null,
 
     HAS_EXPERIENCE: resume.experience && resume.experience.length > 0,

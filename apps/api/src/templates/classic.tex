@@ -24,23 +24,23 @@
 
 % Header
 \begin{center}
-    {\Huge\bfseries <<FULL_NAME>>} \\[6pt]
+    {\Huge\bfseries <<&FULL_NAME>>} \\[6pt]
     \small
-    <<PHONE>> $|$
-    \href{mailto:<<EMAIL>>}{<<EMAIL>>} $|$
-    <<LOCATION>>
+    <<&PHONE>> $|$
+    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>} $|$
+    <<&LOCATION>>
     <<#LINKEDIN>>
-    $|$ \href{<<LINKEDIN>>}{LinkedIn}
+    $|$ \href{<<&LINKEDIN>>}{LinkedIn}
     <</LINKEDIN>>
     <<#GITHUB>>
-    $|$ \href{<<GITHUB>>}{GitHub}
+    $|$ \href{<<&GITHUB>>}{GitHub}
     <</GITHUB>>
 \end{center}
 
 % Summary
 <<#SUMMARY>>
 \section{Summary}
-<<SUMMARY>>
+<<&SUMMARY>>
 <</SUMMARY>>
 
 % Experience
@@ -50,12 +50,12 @@
 <<#EXPERIENCE>>
     \item
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
-      \textbf{<<COMPANY>>} & <<LOCATION>> \\
-      \textit{\small <<POSITION>>} & \textit{\small <<START_DATE>> -- <<END_DATE>>} \\
+      \textbf{<<&COMPANY>>} & <<&LOCATION>> \\
+      \textit{\small <<&POSITION>>} & \textit{\small <<&START_DATE>> -- <<&END_DATE>>} \\
     \end{tabular*}\vspace{-5pt}
     <<#DESCRIPTION>>
     \begin{itemize}[leftmargin=0.15in]
-        \item \small{<<.>>}
+        \item \small{<<&.>>}
     \end{itemize}
     <</DESCRIPTION>>
 <</EXPERIENCE>>
@@ -69,8 +69,8 @@
 <<#EDUCATION>>
     \item
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
-      \textbf{<<INSTITUTION>>} & <<LOCATION>> \\
-      \textit{\small <<DEGREE>> in <<FIELD>><<#GPA>> -- GPA: <<GPA>><</GPA>>} & \textit{\small <<START_DATE>> -- <<END_DATE>>} \\
+      \textbf{<<&INSTITUTION>>} & <<&LOCATION>> \\
+      \textit{\small <<&DEGREE>> in <<&FIELD>><<#GPA>> -- GPA: <<&GPA>><</GPA>>} & \textit{\small <<&START_DATE>> -- <<&END_DATE>>} \\
     \end{tabular*}
 <</EDUCATION>>
 \end{itemize}
@@ -81,8 +81,8 @@
 \section{Projects}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#PROJECTS>>
-    \item \textbf{<<NAME>>} -- <<DESCRIPTION>> \\
-    \small\textit{Technologies: <<TECHNOLOGIES>>}
+    \item \textbf{<<&NAME>>} -- <<&DESCRIPTION>> \\
+    \small\textit{Technologies: <<&TECHNOLOGIES>>}
 <</PROJECTS>>
 \end{itemize}
 <</HAS_PROJECTS>>
@@ -92,7 +92,7 @@
 \section{Skills}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#SKILLS>>
-    \item \textbf{<<CATEGORY>>:} <<SKILLS_LIST>>
+    \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
 <</SKILLS>>
 \end{itemize}
 <</HAS_SKILLS>>
