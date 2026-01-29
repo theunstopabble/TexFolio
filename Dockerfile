@@ -35,6 +35,9 @@ COPY . .
 # Build the project (Shared first, then API)
 RUN npm run build:deploy
 
+# FIX: Copy LaTeX templates to dist folder (tsc doesn't copy non-ts files)
+RUN cp -r apps/api/src/templates apps/api/dist/templates
+
 # Expose the API port
 EXPOSE 10000
 # We will use the PORT env var provided by Render
