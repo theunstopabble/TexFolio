@@ -39,10 +39,10 @@ export const resumeApi = {
   getById: (id: string) => api.get(`/resumes/${id}`),
 
   // Create new resume
-  create: (data: any) => api.post("/resumes", data),
+  create: (data: unknown) => api.post("/resumes", data),
 
   // Update resume
-  update: (id: string, data: any) => api.put(`/resumes/${id}`, data),
+  update: (id: string, data: unknown) => api.put(`/resumes/${id}`, data),
 
   // Delete resume
   delete: (id: string) => api.delete(`/resumes/${id}`),
@@ -61,6 +61,10 @@ export const authApi = {
   login: (data: { email: string; password: string }) =>
     api.post("/auth/login", data),
   getMe: () => api.get("/auth/me"),
+};
+
+export const analyticsApi = {
+  getStats: () => api.get("/analytics"),
 };
 
 export default api;
