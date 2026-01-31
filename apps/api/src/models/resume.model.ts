@@ -46,6 +46,10 @@ export interface IResume extends Document {
   userId: string;
   title: string;
   templateId: string;
+  customization?: {
+    primaryColor: string;
+    fontFamily?: string;
+  };
   personalInfo: {
     fullName: string;
     email: string;
@@ -140,6 +144,10 @@ const resumeSchema = new Schema<IResume>(
     templateId: {
       type: String,
       default: "classic",
+    },
+    customization: {
+      primaryColor: { type: String, default: "#2563EB" }, // Default Blue
+      fontFamily: { type: String, default: "serif" }, // serif | sans
     },
     personalInfo: {
       fullName: { type: String, required: true },

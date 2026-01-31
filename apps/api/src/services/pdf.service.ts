@@ -66,7 +66,17 @@ const escapeLatex = (text: string): string => {
 
 // Transform resume data to template variables
 const transformResumeData = (resume: IResume) => {
+  // Default Blue (#2563EB) if not set
+  const primaryColor = resume.customization?.primaryColor || "#2563EB";
+  const primaryColorHex = primaryColor.replace("#", ""); // LaTeX xcolor HTML model needs "RRGGBB"
+
+  // Font Family
+  const fontFamily = resume.customization?.fontFamily || "serif";
+  const isSans = fontFamily === "sans";
+
   return {
+    PRIMARY_COLOR: primaryColorHex,
+    IS_SANS: isSans,
     FULL_NAME: escapeLatex(resume.personalInfo.fullName),
     EMAIL: escapeLatex(resume.personalInfo.email),
     EMAIL_RAW: resume.personalInfo.email, // Raw email for mailto:

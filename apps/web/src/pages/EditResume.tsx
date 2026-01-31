@@ -51,6 +51,10 @@ interface Certification {
 interface ResumeFormData {
   title: string;
   templateId: string;
+  customization: {
+    primaryColor: string;
+    fontFamily: string;
+  };
   personalInfo: {
     fullName: string;
     email: string;
@@ -134,7 +138,11 @@ const EditResume = () => {
         // Reset form with fetched data
         reset({
           title: data.title,
-          templateId: data.templateId,
+          templateId: data.templateId || "classic",
+          customization: data.customization || {
+            primaryColor: "#2563EB",
+            fontFamily: "serif",
+          },
           personalInfo: data.personalInfo,
           summary: data.summary || "",
           experience: data.experience || [],
@@ -308,6 +316,90 @@ const EditResume = () => {
                   {/* Hidden input to register the field if needed, mostly handled by setValue or onChange above */}
                   <input type="hidden" {...register("templateId")} />
                 </div>
+
+                {/* Color Picker (Only for Premium) */}
+                {watch("templateId") === "premium" && (
+                  <div>
+                    <label className="form-label mb-2 block">
+                      Accent Color
+                    </label>
+                    <div className="flex gap-3">
+                      {[
+                        { name: "Blue", value: "#2563EB" },
+                        { name: "Green", value: "#059669" },
+                        { name: "Purple", value: "#7C3AED" },
+                        { name: "Red", value: "#DC2626" },
+                        { name: "Black", value: "#1F2937" },
+                      ].map((color) => (
+                        <button
+                          key={color.value}
+                          type="button"
+                          onClick={() =>
+                            register("customization.primaryColor").onChange({
+                              target: {
+                                name: "customization.primaryColor",
+                                value: color.value,
+                              },
+                            })
+                          }
+                          className={`w-8 h-8 rounded-full border-2 transition-all ${
+                            watch("customization.primaryColor") === color.value
+                              ? "border-slate-800 scale-110 shadow-md"
+                              : "border-transparent hover:scale-105"
+                          }`}
+                          style={{ backgroundColor: color.value }}
+                          title={color.name}
+                        />
+                      ))}
+                      <input
+                        type="hidden"
+                        {...register("customization.primaryColor")}
+                      />
+                    </div>
+
+                    <label className="form-label mb-2 block mt-4">
+                      Font Style
+                    </label>
+                    <div className="flex gap-3">
+                      {[
+                        {
+                          name: "Classic (Serif)",
+                          value: "serif",
+                          class: "font-serif",
+                        },
+                        {
+                          name: "Modern (Sans)",
+                          value: "sans",
+                          class: "font-sans",
+                        },
+                      ].map((font) => (
+                        <button
+                          key={font.value}
+                          type="button"
+                          onClick={() =>
+                            register("customization.fontFamily").onChange({
+                              target: {
+                                name: "customization.fontFamily",
+                                value: font.value,
+                              },
+                            })
+                          }
+                          className={`px-4 py-2 rounded-lg border-2 transition-all ${font.class} ${
+                            watch("customization.fontFamily") === font.value
+                              ? "border-slate-800 bg-slate-100 text-slate-900"
+                              : "border-slate-200 text-slate-500 hover:border-slate-300"
+                          }`}
+                        >
+                          {font.name}
+                        </button>
+                      ))}
+                      <input
+                        type="hidden"
+                        {...register("customization.fontFamily")}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -3,14 +3,21 @@
 %----------------------------------------------------------------------------------------
 %	PACKAGES
 %----------------------------------------------------------------------------------------
+<<#IS_SANS>>
+\renewcommand{\familydefault}{\sfdefault}
+<</IS_SANS>>
 \usepackage[utf8]{inputenc}
 \usepackage[empty]{fullpage}
-\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue, pdfnewwindow=true]{hyperref} 
+\usepackage[colorlinks=true, urlcolor=primaryObject, linkcolor=primaryObject, pdfnewwindow=true]{hyperref} 
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{tabularx}
 \usepackage{geometry}
 \usepackage{xcolor}
+
+% Define Custom Color from User Input (Default fallback handled in API)
+% Expects "RRGGBB" format from <<&PRIMARY_COLOR>>
+\definecolor{primaryObject}{HTML}{<<&PRIMARY_COLOR>>}
 
 % Margins - Strictly Optimized for ONE PAGE
 \geometry{left=0.5in, top=0.35in, right=0.5in, bottom=0.35in}
@@ -20,7 +27,7 @@
 
 % Custom Section Formatting
 \titleformat{\section}{
-  \vspace{-8pt}\scshape\raggedright\large\bfseries
+  \vspace{-8pt}\scshape\raggedright\large\bfseries\color{primaryObject}
 }{}{0em}{}[\titlerule \vspace{-4pt}]
 
 % Custom Itemize Formatting (Tight lists)
