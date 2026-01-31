@@ -47,3 +47,6 @@ LEARNING_NOTES.md
 
 # Temporary API files
 apps/api/temp/
+
+# Agent local files
+.agent/
