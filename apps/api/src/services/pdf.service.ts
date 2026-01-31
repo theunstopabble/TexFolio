@@ -74,6 +74,116 @@ const transformResumeData = (resume: IResume) => {
   const fontFamily = resume.customization?.fontFamily || "serif";
   const isSans = fontFamily === "sans";
 
+  // Section Data Builders
+  const buildExperience = () => ({
+    IS_EXPERIENCE: true,
+    TITLE: "Experience",
+    EXPERIENCE: resume.experience?.map((exp) => ({
+      COMPANY: escapeLatex(exp.company),
+      POSITION: escapeLatex(exp.position),
+      LOCATION: escapeLatex(exp.location || ""),
+      START_DATE: escapeLatex(exp.startDate),
+      END_DATE: escapeLatex(exp.endDate),
+      DESCRIPTION: exp.description?.map((d) => escapeLatex(d)) || [],
+    })),
+  });
+
+  const buildEducation = () => ({
+    IS_EDUCATION: true,
+    TITLE: "Education",
+    EDUCATION: resume.education?.map((edu) => ({
+      INSTITUTION: escapeLatex(edu.institution),
+      DEGREE: escapeLatex(edu.degree),
+      FIELD: escapeLatex(edu.field),
+      LOCATION: escapeLatex(edu.location || ""),
+      START_DATE: escapeLatex(edu.startDate),
+      END_DATE: escapeLatex(edu.endDate),
+      GPA: edu.gpa ? escapeLatex(edu.gpa) : null,
+    })),
+  });
+
+  const buildSkills = () => ({
+    IS_SKILLS: true,
+    TITLE: "Technical Skills",
+    SKILLS: resume.skills?.map((skill) => ({
+      CATEGORY: escapeLatex(skill.category),
+      SKILLS_LIST: escapeLatex(
+        Array.isArray(skill.skills) ? skill.skills.join(", ") : skill.skills,
+      ),
+    })),
+  });
+
+  const buildProjects = () => ({
+    IS_PROJECTS: true,
+    TITLE: "Projects",
+    PROJECTS: resume.projects?.map((proj) => ({
+      NAME: escapeLatex(proj.name),
+      DESCRIPTION: proj.description ? escapeLatex(proj.description) : null,
+      TECHNOLOGIES: escapeLatex(
+        Array.isArray(proj.technologies)
+          ? proj.technologies.join(", ")
+          : proj.technologies,
+      ),
+      SOURCE_CODE: proj.sourceCode || null,
+      LIVE_URL: proj.liveUrl || null,
+    })),
+  });
+
+  const buildCertifications = () => ({
+    IS_CERTIFICATIONS: true,
+    TITLE: "Certifications",
+    CERTIFICATIONS: resume.certifications?.map((cert) => ({
+      NAME: escapeLatex(cert.name),
+      ISSUER: cert.issuer ? escapeLatex(cert.issuer) : null,
+    })),
+  });
+
+  const buildSummary = () => ({
+    IS_SUMMARY: true,
+    TITLE: "Professional Summary",
+    SUMMARY: resume.summary ? escapeLatex(resume.summary) : null,
+  });
+
+  // Default Order
+  const defaultOrder = [
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+  ];
+  const order =
+    resume.sectionOrder && resume.sectionOrder.length > 0
+      ? resume.sectionOrder
+      : defaultOrder;
+
+  const dynamicSections: any[] = [];
+
+  order.forEach((section) => {
+    switch (section) {
+      case "summary":
+        if (resume.summary) dynamicSections.push(buildSummary());
+        break;
+      case "experience":
+        if (resume.experience?.length) dynamicSections.push(buildExperience());
+        break;
+      case "education":
+        if (resume.education?.length) dynamicSections.push(buildEducation());
+        break;
+      case "skills":
+        if (resume.skills?.length) dynamicSections.push(buildSkills());
+        break;
+      case "projects":
+        if (resume.projects?.length) dynamicSections.push(buildProjects());
+        break;
+      case "certifications":
+        if (resume.certifications?.length)
+          dynamicSections.push(buildCertifications());
+        break;
+    }
+  });
+
   return {
     PRIMARY_COLOR: primaryColorHex,
     IS_SANS: isSans,
@@ -84,49 +194,9 @@ const transformResumeData = (resume: IResume) => {
     LOCATION: escapeLatex(resume.personalInfo.location),
     LINKEDIN: resume.personalInfo.linkedin || null, // Raw URL for href
     GITHUB: resume.personalInfo.github || null, // Raw URL for href
-    SUMMARY: resume.summary ? escapeLatex(resume.summary) : null,
 
-    HAS_EXPERIENCE: resume.experience && resume.experience.length > 0,
-    EXPERIENCE: resume.experience?.map((exp) => ({
-      COMPANY: escapeLatex(exp.company),
-      POSITION: escapeLatex(exp.position),
-      LOCATION: escapeLatex(exp.location || ""),
-      START_DATE: escapeLatex(exp.startDate),
-      END_DATE: escapeLatex(exp.endDate),
-      DESCRIPTION: exp.description?.map((d) => escapeLatex(d)) || [],
-    })),
-
-    HAS_EDUCATION: resume.education && resume.education.length > 0,
-    EDUCATION: resume.education?.map((edu) => ({
-      INSTITUTION: escapeLatex(edu.institution),
-      DEGREE: escapeLatex(edu.degree),
-      FIELD: escapeLatex(edu.field),
-      LOCATION: escapeLatex(edu.location || ""),
-      START_DATE: escapeLatex(edu.startDate),
-      END_DATE: escapeLatex(edu.endDate),
-      GPA: edu.gpa ? escapeLatex(edu.gpa) : null,
-    })),
-
-    HAS_PROJECTS: resume.projects && resume.projects.length > 0,
-    PROJECTS: resume.projects?.map((proj) => ({
-      NAME: escapeLatex(proj.name),
-      DESCRIPTION: escapeLatex(proj.description),
-      TECHNOLOGIES: escapeLatex(proj.technologies?.join(", ") || ""),
-      SOURCE_CODE: proj.sourceCode || null,
-      LIVE_URL: proj.liveUrl || null,
-    })),
-
-    HAS_SKILLS: resume.skills && resume.skills.length > 0,
-    SKILLS: resume.skills?.map((skill) => ({
-      CATEGORY: escapeLatex(skill.category),
-      SKILLS_LIST: escapeLatex(skill.skills?.join(", ") || ""),
-    })),
-    HAS_CERTIFICATIONS:
-      resume.certifications && resume.certifications.length > 0,
-    CERTIFICATIONS: resume.certifications?.map((cert) => ({
-      NAME: escapeLatex(cert.name),
-      ISSUER: cert.issuer ? escapeLatex(cert.issuer) : null,
-    })),
+    // Dynamic Sections
+    DYNAMIC_SECTIONS: dynamicSections,
   };
 };
 

@@ -50,6 +50,7 @@ export interface IResume extends Document {
     primaryColor: string;
     fontFamily?: string;
   };
+  sectionOrder: string[];
   personalInfo: {
     fullName: string;
     email: string;
@@ -144,6 +145,17 @@ const resumeSchema = new Schema<IResume>(
     templateId: {
       type: String,
       default: "classic",
+    },
+    sectionOrder: {
+      type: [String],
+      default: [
+        "summary",
+        "experience",
+        "education",
+        "skills",
+        "projects",
+        "certifications",
+      ],
     },
     customization: {
       primaryColor: { type: String, default: "#2563EB" }, // Default Blue

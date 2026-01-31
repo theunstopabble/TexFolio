@@ -56,35 +56,19 @@
 \vspace{-6pt}
 
 %----------SUMMARY----------
-<<#SUMMARY>>
-\section{Professional Summary}
+%----------DYNAMIC SECTIONS----------
+<<#DYNAMIC_SECTIONS>>
+
+% SUMMARY
+<<#IS_SUMMARY>>
+\section{<<&TITLE>>}
 <<&SUMMARY>>
-<</SUMMARY>>
+\vspace{6pt}
+<</IS_SUMMARY>>
 
-%----------EDUCATION----------
-<<#HAS_EDUCATION>>
-\section{Education}
-<<#EDUCATION>>
-\textbf{<<&INSTITUTION>>} \hfill <<&LOCATION>> \\
-\textit{<<&DEGREE>> in <<&FIELD>><<#GPA>> -- GPA: <<&GPA>><</GPA>>} \hfill <<&START_DATE>> -- <<&END_DATE>>
-
-\vspace{2pt}
-<</EDUCATION>>
-<</HAS_EDUCATION>>
-
-%----------TECHNICAL SKILLS----------
-<<#HAS_SKILLS>>
-\section{Technical Skills}
-\begin{itemize}
-<<#SKILLS>>
-    \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
-<</SKILLS>>
-\end{itemize}
-<</HAS_SKILLS>>
-
-%----------EXPERIENCE----------
-<<#HAS_EXPERIENCE>>
-\section{Experience}
+% EXPERIENCE
+<<#IS_EXPERIENCE>>
+\section{<<&TITLE>>}
 <<#EXPERIENCE>>
 \textbf{<<&COMPANY>>} \hfill <<&LOCATION>> \\
 \textit{<<&POSITION>>} \hfill <<&START_DATE>> -- <<&END_DATE>>
@@ -93,14 +77,35 @@
     \item <<&.>>
 <</DESCRIPTION>>
 \end{itemize}
-
 \vspace{4pt}
 <</EXPERIENCE>>
-<</HAS_EXPERIENCE>>
+<</IS_EXPERIENCE>>
 
-%----------PROJECTS----------
-<<#HAS_PROJECTS>>
-\section{Projects}
+% EDUCATION
+<<#IS_EDUCATION>>
+\section{<<&TITLE>>}
+<<#EDUCATION>>
+\textbf{<<&INSTITUTION>>} \hfill <<&LOCATION>> \\
+\textit{<<&DEGREE>> in <<&FIELD>><<#GPA>> -- GPA: <<&GPA>><</GPA>>} \hfill <<&START_DATE>> -- <<&END_DATE>>
+\vspace{2pt}
+<</EDUCATION>>
+\vspace{4pt}
+<</IS_EDUCATION>>
+
+% SKILLS
+<<#IS_SKILLS>>
+\section{<<&TITLE>>}
+\begin{itemize}
+<<#SKILLS>>
+    \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
+<</SKILLS>>
+\end{itemize}
+\vspace{4pt}
+<</IS_SKILLS>>
+
+% PROJECTS
+<<#IS_PROJECTS>>
+\section{<<&TITLE>>}
 <<#PROJECTS>>
 \noindent
 \textbf{<<&NAME>>} $|$ \textit{<<&TECHNOLOGIES>>} \hfill
@@ -114,19 +119,21 @@
     \item <<&DESCRIPTION>>
 \end{itemize}
 <</DESCRIPTION>>
-
 \vspace{4pt}
 <</PROJECTS>>
-<</HAS_PROJECTS>>
+<</IS_PROJECTS>>
 
-%----------CERTIFICATIONS----------
-<<#HAS_CERTIFICATIONS>>
-\section{Certifications}
+% CERTIFICATIONS
+<<#IS_CERTIFICATIONS>>
+\section{<<&TITLE>>}
 \begin{itemize}
 <<#CERTIFICATIONS>>
     \item \textbf{<<&NAME>>}<<#ISSUER>> (<<&ISSUER>>)<</ISSUER>>
 <</CERTIFICATIONS>>
 \end{itemize}
-<</HAS_CERTIFICATIONS>>
+\vspace{4pt}
+<</IS_CERTIFICATIONS>>
+
+<</DYNAMIC_SECTIONS>>
 
 \end{document}

@@ -10,6 +10,23 @@ import type { AIAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
 import TemplateSelector from "../components/TemplateSelector";
 import { useAuth } from "../context/AuthContext";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Types (same as CreateResume)
 interface Experience {
@@ -70,6 +87,61 @@ interface ResumeFormData {
   skills: Skill[];
   projects: Project[];
   certifications: Certification[];
+}
+
+// Sortable Section Wrapper
+function SortableSection({
+  id,
+  children,
+}: {
+  id: string;
+  children: React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1000 : 1,
+    position: "relative" as any,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} className="mb-6 group">
+      <div
+        {...listeners}
+        className="absolute -left-8 top-6 cursor-move p-2 text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+        title="Drag to reorder"
+      >
+        <span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <circle cx="4" cy="6" r="1"></circle>
+            <circle cx="4" cy="12" r="1"></circle>
+            <circle cx="4" cy="18" r="1"></circle>
+          </svg>
+        </span>
+      </div>
+      {children}
+    </div>
+  );
 }
 
 // AI Writer Helper Component
@@ -166,6 +238,39 @@ const EditResume = () => {
     useForm<ResumeFormData>();
   const formData = watch();
 
+  // Sortable State
+  const [sectionOrder, setSectionOrder] = useState<string[]>([
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+  ]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setSectionOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over?.id as string);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+
+        // Sync with RHF
+        setValue("sectionOrder" as any, newOrder, { shouldDirty: true });
+        return newOrder;
+      });
+    }
+  };
+
   // Field Arrays
   const {
     fields: expFields,
@@ -208,6 +313,14 @@ const EditResume = () => {
             primaryColor: "#2563EB",
             fontFamily: "serif",
           },
+          sectionOrder: data.sectionOrder || [
+            "summary",
+            "experience",
+            "education",
+            "skills",
+            "projects",
+            "certifications",
+          ],
           personalInfo: data.personalInfo,
           summary: data.summary || "",
           experience: data.experience || [],
@@ -224,6 +337,10 @@ const EditResume = () => {
             })) || [],
           certifications: data.certifications || [],
         });
+
+        if (data.sectionOrder) {
+          setSectionOrder(data.sectionOrder);
+        }
       } catch (error) {
         console.error("Error fetching resume:", error);
         toast.error("Failed to load resume");
@@ -292,6 +409,336 @@ const EditResume = () => {
       toast.error("Failed to download PDF");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const renderSectionContent = (section: string) => {
+    switch (section) {
+      case "summary":
+        return (
+          <div className="card shadow-lg">
+            <h2 className="card-title mb-4">📝 Professional Summary</h2>
+            <AIWriterButton
+              type="improve"
+              originalText={watch("summary")}
+              onResult={(text) => setValue("summary", text)}
+            />
+            <textarea
+              {...register("summary")}
+              className="form-input min-h-[120px]"
+              placeholder="Your professional summary..."
+            />
+          </div>
+        );
+      case "experience":
+        return (
+          <div className="card shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="card-title">💼 Experience</h2>
+              <button
+                type="button"
+                onClick={() =>
+                  appendExp({
+                    company: "",
+                    position: "",
+                    location: "",
+                    startDate: "",
+                    endDate: "",
+                    description: [],
+                  })
+                }
+                className="btn btn-secondary text-sm"
+              >
+                + Add
+              </button>
+            </div>
+            <div className="space-y-4">
+              {expFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-slate-50 rounded-lg border"
+                >
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Experience #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeExp(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <input
+                      {...register(`experience.${index}.company`)}
+                      className="form-input"
+                      placeholder="Company"
+                    />
+                    <input
+                      {...register(`experience.${index}.position`)}
+                      className="form-input"
+                      placeholder="Position"
+                    />
+                    <input
+                      {...register(`experience.${index}.location`)}
+                      className="form-input"
+                      placeholder="Location"
+                    />
+                    <input
+                      {...register(`experience.${index}.startDate`)}
+                      className="form-input"
+                      placeholder="Start Date"
+                    />
+                    <input
+                      {...register(`experience.${index}.endDate`)}
+                      className="form-input"
+                      placeholder="End Date"
+                    />
+                  </div>
+                  <textarea
+                    {...register(`experience.${index}.description` as any)}
+                    className="form-input"
+                    placeholder="Description (one per line)"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case "education":
+        return (
+          <div className="card shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="card-title">🎓 Education</h2>
+              <button
+                type="button"
+                onClick={() =>
+                  appendEdu({
+                    institution: "",
+                    degree: "",
+                    field: "",
+                    location: "",
+                    startDate: "",
+                    endDate: "",
+                  })
+                }
+                className="btn btn-secondary text-sm"
+              >
+                + Add
+              </button>
+            </div>
+            <div className="space-y-4">
+              {eduFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-slate-50 rounded-lg border"
+                >
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Education #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeEdu(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      {...register(`education.${index}.institution`)}
+                      className="form-input"
+                      placeholder="Institution"
+                    />
+                    <input
+                      {...register(`education.${index}.degree`)}
+                      className="form-input"
+                      placeholder="Degree"
+                    />
+                    <input
+                      {...register(`education.${index}.field`)}
+                      className="form-input"
+                      placeholder="Field"
+                    />
+                    <input
+                      {...register(`education.${index}.location`)}
+                      className="form-input"
+                      placeholder="Location"
+                    />
+                    <input
+                      {...register(`education.${index}.startDate`)}
+                      className="form-input"
+                      placeholder="Start Date"
+                    />
+                    <input
+                      {...register(`education.${index}.endDate`)}
+                      className="form-input"
+                      placeholder="End Date"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case "skills":
+        return (
+          <div className="card shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="card-title">🛠️ Skills</h2>
+              <button
+                type="button"
+                onClick={() => appendSkill({ category: "", skills: [] })}
+                className="btn btn-secondary text-sm"
+              >
+                + Add
+              </button>
+            </div>
+            <div className="space-y-4">
+              {skillFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-slate-50 rounded-lg border"
+                >
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Skill #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      {...register(`skills.${index}.category`)}
+                      className="form-input"
+                      placeholder="Category"
+                    />
+                    <input
+                      {...register(`skills.${index}.skills` as any)}
+                      className="form-input"
+                      placeholder="Skills (comma separated)"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case "projects":
+        return (
+          <div className="card shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="card-title">🚀 Projects</h2>
+              <button
+                type="button"
+                onClick={() =>
+                  appendProj({ name: "", description: "", technologies: [] })
+                }
+                className="btn btn-secondary text-sm"
+              >
+                + Add
+              </button>
+            </div>
+            <div className="space-y-4">
+              {projFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-slate-50 rounded-lg border"
+                >
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Project #{index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeProj(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <input
+                      {...register(`projects.${index}.name`)}
+                      className="form-input"
+                      placeholder="Project Name"
+                    />
+                    <input
+                      {...register(`projects.${index}.technologies` as any)}
+                      className="form-input"
+                      placeholder="Technologies (comma separated)"
+                    />
+                    <input
+                      {...register(`projects.${index}.sourceCode`)}
+                      className="form-input"
+                      placeholder="Source Code URL"
+                    />
+                    <input
+                      {...register(`projects.${index}.liveUrl`)}
+                      className="form-input"
+                      placeholder="Live Demo URL"
+                    />
+                  </div>
+                  <textarea
+                    {...register(`projects.${index}.description`)}
+                    className="form-input"
+                    placeholder="Description"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      case "certifications":
+        return (
+          <div className="card shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="card-title">🏆 Certifications</h2>
+              <button
+                type="button"
+                onClick={() => appendCert({ name: "", issuer: "" })}
+                className="btn btn-secondary text-sm"
+              >
+                + Add
+              </button>
+            </div>
+            <div className="space-y-4">
+              {certFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="p-4 bg-slate-50 rounded-lg border"
+                >
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">
+                      Certification #{index + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCert(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      {...register(`certifications.${index}.name`)}
+                      className="form-input"
+                      placeholder="Certification Name"
+                    />
+                    <input
+                      {...register(`certifications.${index}.issuer`)}
+                      className="form-input"
+                      placeholder="Issuer"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      default:
+        return null;
     }
   };
 
@@ -505,324 +952,23 @@ const EditResume = () => {
               </div>
             </div>
 
-            {/* Summary */}
-            <div className="card shadow-lg">
-              <h2 className="card-title mb-4">📝 Professional Summary</h2>
-              <AIWriterButton
-                type="improve"
-                originalText={watch("summary")}
-                onResult={(text) => setValue("summary", text)}
-              />
-              <textarea
-                {...register("summary")}
-                className="form-input min-h-[120px]"
-                placeholder="Your professional summary..."
-              />
-            </div>
-
-            {/* Experience */}
-            <div className="card shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title">💼 Experience</h2>
-                <button
-                  type="button"
-                  onClick={() =>
-                    appendExp({
-                      company: "",
-                      position: "",
-                      location: "",
-                      startDate: "",
-                      endDate: "",
-                      description: [],
-                    })
-                  }
-                  className="btn btn-secondary text-sm"
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="space-y-4">
-                {expFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="p-4 bg-slate-50 rounded-lg border"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">
-                        Experience #{index + 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeExp(index)}
-                        className="text-red-500 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mb-2">
-                      <input
-                        {...register(`experience.${index}.company`)}
-                        className="form-input"
-                        placeholder="Company"
-                      />
-                      <input
-                        {...register(`experience.${index}.position`)}
-                        className="form-input"
-                        placeholder="Position"
-                      />
-                      <input
-                        {...register(`experience.${index}.location`)}
-                        className="form-input"
-                        placeholder="Location"
-                      />
-                      <input
-                        {...register(`experience.${index}.startDate`)}
-                        className="form-input"
-                        placeholder="Start Date"
-                      />
-                      <input
-                        {...register(`experience.${index}.endDate`)}
-                        className="form-input"
-                        placeholder="End Date"
-                      />
-                    </div>
-                    <textarea
-                      {...register(`experience.${index}.description` as any)}
-                      className="form-input"
-                      placeholder="Description (one per line)"
-                    />
-                  </div>
+            {/* Drag & Drop Sections */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={sectionOrder}
+                strategy={verticalListSortingStrategy}
+              >
+                {sectionOrder.map((sectionId) => (
+                  <SortableSection key={sectionId} id={sectionId}>
+                    {renderSectionContent(sectionId)}
+                  </SortableSection>
                 ))}
-              </div>
-            </div>
-
-            {/* Education */}
-            <div className="card shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title">🎓 Education</h2>
-                <button
-                  type="button"
-                  onClick={() =>
-                    appendEdu({
-                      institution: "",
-                      degree: "",
-                      field: "",
-                      location: "",
-                      startDate: "",
-                      endDate: "",
-                    })
-                  }
-                  className="btn btn-secondary text-sm"
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="space-y-4">
-                {eduFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="p-4 bg-slate-50 rounded-lg border"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">
-                        Education #{index + 1}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeEdu(index)}
-                        className="text-red-500 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        {...register(`education.${index}.institution`)}
-                        className="form-input"
-                        placeholder="Institution"
-                      />
-                      <input
-                        {...register(`education.${index}.degree`)}
-                        className="form-input"
-                        placeholder="Degree"
-                      />
-                      <input
-                        {...register(`education.${index}.field`)}
-                        className="form-input"
-                        placeholder="Field"
-                      />
-                      <input
-                        {...register(`education.${index}.location`)}
-                        className="form-input"
-                        placeholder="Location"
-                      />
-                      <input
-                        {...register(`education.${index}.startDate`)}
-                        className="form-input"
-                        placeholder="Start Date"
-                      />
-                      <input
-                        {...register(`education.${index}.endDate`)}
-                        className="form-input"
-                        placeholder="End Date"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Skills */}
-            <div className="card shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title">🛠️ Skills</h2>
-                <button
-                  type="button"
-                  onClick={() => appendSkill({ category: "", skills: [] })}
-                  className="btn btn-secondary text-sm"
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="space-y-4">
-                {skillFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="p-4 bg-slate-50 rounded-lg border"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Skill #{index + 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeSkill(index)}
-                        className="text-red-500 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        {...register(`skills.${index}.category`)}
-                        className="form-input"
-                        placeholder="Category"
-                      />
-                      <input
-                        {...register(`skills.${index}.skills` as any)}
-                        className="form-input"
-                        placeholder="Skills (comma separated)"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Projects */}
-            <div className="card shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title">🚀 Projects</h2>
-                <button
-                  type="button"
-                  onClick={() =>
-                    appendProj({ name: "", description: "", technologies: [] })
-                  }
-                  className="btn btn-secondary text-sm"
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="space-y-4">
-                {projFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="p-4 bg-slate-50 rounded-lg border"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Project #{index + 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeProj(index)}
-                        className="text-red-500 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mb-2">
-                      <input
-                        {...register(`projects.${index}.name`)}
-                        className="form-input"
-                        placeholder="Project Name"
-                      />
-                      <input
-                        {...register(`projects.${index}.technologies` as any)}
-                        className="form-input"
-                        placeholder="Technologies (comma separated)"
-                      />
-                      <input
-                        {...register(`projects.${index}.sourceCode`)}
-                        className="form-input"
-                        placeholder="Source Code URL"
-                      />
-                      <input
-                        {...register(`projects.${index}.liveUrl`)}
-                        className="form-input"
-                        placeholder="Live Demo URL"
-                      />
-                    </div>
-                    <textarea
-                      {...register(`projects.${index}.description`)}
-                      className="form-input"
-                      placeholder="Description"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Certifications */}
-            <div className="card shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="card-title">🏆 Certifications</h2>
-                <button
-                  type="button"
-                  onClick={() => appendCert({ name: "", issuer: "" })}
-                  className="btn btn-secondary text-sm"
-                >
-                  + Add
-                </button>
-              </div>
-              <div className="space-y-4">
-                {certFields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="p-4 bg-slate-50 rounded-lg border"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium">Cert #{index + 1}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeCert(index)}
-                        className="text-red-500 text-sm"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        {...register(`certifications.${index}.name`)}
-                        className="form-input"
-                        placeholder="Certification Name"
-                      />
-                      <input
-                        {...register(`certifications.${index}.issuer`)}
-                        className="form-input"
-                        placeholder="Issuer"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              </SortableContext>
+            </DndContext>
 
             {/* Submit */}
             <div className="flex justify-end gap-4 pt-4 border-t">
