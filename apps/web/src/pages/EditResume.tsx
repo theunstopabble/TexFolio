@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 // Force HMR Update
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
-import { resumeApi } from "../services/api";
+import { resumeApi, aiApi } from "../services/api";
 import toast from "react-hot-toast";
 import ResumePreview from "../components/ResumePreview";
 import { analyzeResume } from "../services/ai";
-import type { AIAnalysisResult } from "../services/ai";
+import type { ATSAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
 import TemplateSelector from "../components/TemplateSelector";
 import { useAuth } from "../context/AuthContext";
@@ -73,6 +73,7 @@ interface ResumeFormData {
     primaryColor: string;
     fontFamily: string;
   };
+  sectionOrder: string[];
   personalInfo: {
     fullName: string;
     email: string;
@@ -218,7 +219,7 @@ const EditResume = () => {
   // AI State
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiResult, setAiResult] = useState<AIAnalysisResult | null>(null);
+  const [aiResult, setAiResult] = useState<ATSAnalysisResult | null>(null);
 
   const handleAnalyze = async () => {
     setIsAIModalOpen(true);
