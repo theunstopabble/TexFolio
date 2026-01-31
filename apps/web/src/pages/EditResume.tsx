@@ -8,6 +8,7 @@ import ResumePreview from "../components/ResumePreview";
 import { analyzeResume } from "../services/ai";
 import type { ATSAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
+import CoverLetterModal from "../components/CoverLetterModal";
 import TemplateSelector from "../components/TemplateSelector";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -400,6 +401,8 @@ const EditResume = () => {
     }
   };
 
+  const [clModalOpen, setClModalOpen] = useState(false);
+
   const [atsModalOpen, setAtsModalOpen] = useState(false);
   const [atsResult, setAtsResult] = useState<any>(null);
   const [atsLoading, setAtsLoading] = useState(false);
@@ -786,6 +789,13 @@ const EditResume = () => {
           >
             <span>📊</span> Check ATS Score
           </button>
+          <button
+            type="button"
+            onClick={() => setClModalOpen(true)}
+            className="btn bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2"
+          >
+            <span>✍️</span> Cover Letter
+          </button>
           <button onClick={handleDownload} className="btn btn-secondary">
             📥 Download PDF
           </button>
@@ -1055,6 +1065,11 @@ const EditResume = () => {
           onClose={() => setAtsModalOpen(false)}
           result={atsResult}
           isLoading={atsLoading}
+        />
+        <CoverLetterModal
+          isOpen={clModalOpen}
+          onClose={() => setClModalOpen(false)}
+          resumeData={formData}
         />
       </div>
     </div>

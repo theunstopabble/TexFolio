@@ -69,7 +69,12 @@ export const analyticsApi = {
 
 export const aiApi = {
   analyze: (data: any) => api.post("/ai/analyze", data),
-  generateCoverLetter: (data: any) => api.post("/ai/cover-letter", data),
+  generateCoverLetter: (data: {
+    resume: any;
+    jobDescription: string;
+    jobTitle?: string;
+    company?: string;
+  }) => api.post("/ai/cover-letter", data),
   improveText: (text: string) => api.post("/ai/improve", { text }),
   generateBullets: (jobTitle: string) =>
     api.post("/ai/generate-bullets", { jobTitle }),

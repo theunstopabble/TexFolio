@@ -93,6 +93,7 @@ export class AIService {
       2. Content: meaningful connections between the candidate's skills/experience and the job requirements.
       3. Format: Markdown. Use standard cover letter formatting (Dear Hiring Manager, Body, Sincerely).
       4. Length: 300-400 words.
+      5. Do not use placeholders like [Your Name] if the name is available in the resume. 
       
       Output ONLY the Markdown text of the cover letter. No preamble.
     `;
