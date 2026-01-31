@@ -15,6 +15,8 @@ const envSchema = z.object({
   CLERK_PUBLISHABLE_KEY: z.string().min(1, "Clerk Publishable Key is required"),
   GROQ_API_KEY: z.string().optional(), // Groq Key
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
 });
 
 // Parse and validate environment variables

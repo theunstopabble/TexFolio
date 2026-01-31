@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { resumeApi, analyticsApi } from "../services/api";
+import { resumeApi, analyticsApi, authApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import AnalyticsChart from "../components/AnalyticsChart";
@@ -25,17 +25,24 @@ const Dashboard = () => {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [stats, setStats] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resumesRes, statsRes] = await Promise.all([
+        const [resumesRes, statsRes, userRes] = await Promise.all([
           resumeApi.getAll(),
           analyticsApi.getStats(),
+          authApi.getMe(),
         ]);
 
         setResumes(resumesRes.data.data || []);
         setStats(statsRes.data.data);
+        // We can update local state or just check isPro here
+        // Ideally update global user context, but let's just use a local override for now
+        if (userRes.data?.data?.isPro) {
+          setIsPro(true);
+        }
       } catch (error) {
         console.error("Dashboard error:", error);
         toast.error("Failed to load dashboard data");
@@ -163,23 +170,35 @@ const Dashboard = () => {
             )}
           </div>
 
-          <Link
-            to="/cover-letter"
-            className="block bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all group"
-          >
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-4xl group-hover:scale-110 transition-transform">
-                ✍️
-              </span>
-              <span className="bg-white/20 text-xs px-2 py-1 rounded-full font-medium">
-                New
-              </span>
+          {isPro ? (
+            <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-4xl">👑</span>
+                <span className="bg-white/20 text-xs px-2 py-1 rounded-full font-medium">
+                  Active
+                </span>
+              </div>
+              <h3 className="text-lg font-bold mb-1">TexFolio Pro</h3>
+              <p className="text-green-50 text-sm">
+                You have access to all premium features.
+              </p>
             </div>
-            <h3 className="text-lg font-bold mb-1">AI Cover Letter</h3>
-            <p className="text-indigo-100 text-sm">
-              Generate tailored letters from your resume & JD.
-            </p>
-          </Link>
+          ) : (
+            <Link
+              to="/pricing"
+              className="block bg-slate-900 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all group"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-4xl group-hover:scale-110 transition-transform">
+                  🚀
+                </span>
+              </div>
+              <h3 className="text-lg font-bold mb-1">Upgrade to Pro</h3>
+              <p className="text-slate-300 text-sm">
+                Unlock AI Cover Letters & unlimited templates.
+              </p>
+            </Link>
+          )}
         </div>
       </div>
 

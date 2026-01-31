@@ -1,10 +1,12 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 // User document interface
 export interface IUser extends Document {
   email: string;
   password: string;
   fullName: string;
+  isPro: boolean;
+  subscriptionId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,29 +16,36 @@ const userSchema = new Schema<IUser>(
   {
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters'],
+      required: [true, "Password is required"],
+      minlength: [8, "Password must be at least 8 characters"],
       select: false, // Don't return password in queries by default
     },
     fullName: {
       type: String,
-      required: [true, 'Full name is required'],
+      required: [true, "Full name is required"],
       trim: true,
-      maxlength: [100, 'Name cannot exceed 100 characters'],
+      maxlength: [100, "Name cannot exceed 100 characters"],
+    },
+    isPro: {
+      type: Boolean,
+      default: false,
+    },
+    subscriptionId: {
+      type: String,
     },
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt
-  }
+  },
 );
 
 // Create and export the model
-export const User = mongoose.model<IUser>('User', userSchema);
+export const User = mongoose.model<IUser>("User", userSchema);

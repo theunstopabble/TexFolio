@@ -9,6 +9,7 @@ import EditResume from "./pages/EditResume";
 import Templates from "./pages/Templates";
 import Dashboard from "./pages/Dashboard";
 import CoverLetter from "./pages/CoverLetter";
+import Pricing from "./pages/Pricing";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -81,6 +82,7 @@ function App() {
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/cover-letter" element={<CoverLetter />} />
+                <Route path="/pricing" element={<Pricing />} />
               </Routes>
             </main>
           </div>

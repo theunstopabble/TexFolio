@@ -73,4 +73,9 @@ export const aiApi = {
     api.post("/ai/cover-letter", data),
 };
 
+export const paymentApi = {
+  createOrder: (amount: number) => api.post("/payments/order", { amount }),
+  verifyPayment: (data: unknown) => api.post("/payments/verify", data),
+};
+
 export default api;

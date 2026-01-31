@@ -70,6 +70,7 @@ const Header = () => {
           <nav className="hidden md:flex items-center gap-2">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/templates">Templates</NavLink>
+            <NavLink to="/pricing">Pricing</NavLink>
 
             {user && (
               <>
@@ -206,6 +207,7 @@ const Header = () => {
         <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-200">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/templates">Templates</NavLink>
+          <NavLink to="/pricing">Pricing</NavLink>
 
           {user ? (
             <>
