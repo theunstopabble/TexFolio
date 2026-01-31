@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PublicResume from "./pages/PublicResume";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
@@ -49,6 +50,9 @@ function App() {
             <main>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/r/:shareId" element={<PublicResume />} />
+
+                {/* Clerk Auth Routes */}
 
                 {/* Clerk Auth Routes */}
                 <Route

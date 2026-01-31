@@ -188,6 +188,71 @@ export class ResumeController {
       res.status(500).json({ success: false, error: "Failed to generate PDF" });
     }
   }
+
+  // Toggle visibility
+  async toggleVisibility(req: Request, res: Response) {
+    try {
+      const userId = req.userId;
+      const { id } = req.params as { id: string };
+
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Unauthorized" });
+      }
+
+      const resume = await resumeService.findById(id, userId);
+      if (!resume) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Resume not found" });
+      }
+
+      // Toggle
+      resume.isPublic = !resume.isPublic;
+
+      // Generate shareId if making public and doesn't exist
+      if (resume.isPublic && !resume.shareId) {
+        const { nanoid } = await import("nanoid");
+        resume.shareId = nanoid(10); // 10 char unique ID
+      }
+
+      await resume.save();
+
+      res.status(200).json({
+        success: true,
+        data: {
+          isPublic: resume.isPublic,
+          shareId: resume.shareId,
+          url: resume.isPublic ? `/r/${resume.shareId}` : null,
+        },
+      });
+    } catch (error) {
+      console.error("Error toggling visibility:", error);
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to update visibility" });
+    }
+  }
+
+  // Get public resume
+  async getPublicResume(req: Request, res: Response) {
+    try {
+      const { shareId } = req.params;
+
+      const { Resume } = await import("../models/resume.model.js"); // Lazy load to avoid circular dependency if any
+      const resume = await Resume.findOne({ shareId, isPublic: true });
+
+      if (!resume) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Resume not found or private" });
+      }
+
+      res.status(200).json({ success: true, data: resume });
+    } catch (error) {
+      console.error("Error fetching public resume:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch resume" });
+    }
+  }
 }
 
 export const resumeController = new ResumeController();

@@ -54,6 +54,9 @@ export const resumeApi = {
     });
     return URL.createObjectURL(response.data);
   },
+
+  // Toggle Visibility
+  toggleVisibility: (id: string) => api.patch(`/resumes/${id}/visibility`),
 };
 export const authApi = {
   register: (data: { name: string; email: string; password: string }) =>

@@ -68,6 +68,8 @@ export interface IResume extends Document {
   certifications: ICertification[];
   languages: string[];
   atsScore?: number;
+  isPublic: boolean;
+  shareId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -178,6 +180,8 @@ const resumeSchema = new Schema<IResume>(
     certifications: [certificationSchema],
     languages: [{ type: String }],
     atsScore: { type: Number, min: 0, max: 100 },
+    isPublic: { type: Boolean, default: false },
+    shareId: { type: String, unique: true, sparse: true },
   },
   {
     timestamps: true,
