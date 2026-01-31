@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
@@ -6,7 +5,7 @@ import clsx from "clsx";
 interface TemplateSelectorProps {
   currentTemplate: string;
   onSelect: (templateId: string) => void;
-  isSaving?: boolean;
+  // isSaving?: boolean; // Removed unused prop
 }
 
 const TEMPLATES = [
@@ -30,11 +29,10 @@ const TEMPLATES = [
 const TemplateSelector = ({
   currentTemplate,
   onSelect,
-  isSaving = false,
 }: TemplateSelectorProps) => {
-  const { user, isPro } = useAuth(); // Assuming isPro is exposed in AuthContext now
-  // Fallback if isPro is not in context yet (we might need to fix AuthContext first)
-  const userIsPro = (user as any)?.isPro || false;
+  const { user } = useAuth();
+  // simplified check
+  const userIsPro = user?.isPro || false;
 
   const handleSelect = (templateId: string, isPremium: boolean) => {
     if (isPremium && !userIsPro) {
