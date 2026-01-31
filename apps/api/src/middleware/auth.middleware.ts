@@ -17,7 +17,7 @@ export const authMiddleware = [
     }
 
     // Map Clerk's userId to our legacy property
-    (req as any).userId = auth.userId;
+    req.userId = auth.userId;
     next();
   },
 ];

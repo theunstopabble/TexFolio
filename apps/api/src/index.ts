@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { env, connectDatabase, disconnectDatabase } from "./config/index.js";
@@ -22,6 +22,10 @@ app.use(
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+// Rate Limiter
+import { apiLimiter } from "./middleware/rate-limit.middleware.js";
+app.use("/api", apiLimiter);
+
 // API routes
 app.use("/api", apiRoutes);
 
@@ -44,12 +48,19 @@ app.get("/health", (_req: Request, res: Response) => {
 });
 
 // 404 handler
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    error: "Route not found",
-  });
+import { errorMiddleware } from "./middleware/error.middleware.js";
+
+// ... (other imports)
+
+// 404 handler
+app.use((_req: Request, _res: Response, next: NextFunction) => {
+  const error = new Error("Route not found");
+  (error as any).statusCode = 404;
+  next(error);
 });
+
+// Global Error Handler
+app.use(errorMiddleware);
 
 // Start server
 const startServer = async (): Promise<void> => {
