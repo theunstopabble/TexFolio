@@ -71,6 +71,7 @@ const EditResume = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
 
   // AI State
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
@@ -246,9 +247,35 @@ const EditResume = () => {
         </div>
       </div>
 
+      {/* Mobile Tab Toggle */}
+      <div className="lg:hidden flex mb-6 bg-slate-100 p-1 rounded-lg">
+        <button
+          onClick={() => setActiveTab("editor")}
+          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+            activeTab === "editor"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          ✏️ Editor
+        </button>
+        <button
+          onClick={() => setActiveTab("preview")}
+          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+            activeTab === "preview"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          👀 Preview
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Left Column: Form */}
-        <div className="space-y-6">
+        <div
+          className={`space-y-6 ${activeTab === "preview" ? "hidden lg:block" : "block"}`}
+        >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Info */}
             <div className="card shadow-lg">
@@ -643,7 +670,9 @@ const EditResume = () => {
         </div>
 
         {/* Right Column: Live Preview (Sticky) */}
-        <div className="hidden lg:block sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700">
+        <div
+          className={`${activeTab === "editor" ? "hidden lg:block" : "block"} lg:sticky lg:top-24 h-[calc(100vh-8rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700`}
+        >
           <div className="flex justify-between items-center mb-4 text-white">
             <h3 className="font-bold text-lg flex items-center gap-2">
               👀 Live Preview

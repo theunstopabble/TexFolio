@@ -94,15 +94,20 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   const containerStyle = isPremium
     ? {
         fontFamily: "'Times New Roman', Times, serif",
-        padding: "0.35in 0.5in", // LaTeX Geometry
+        // padding: "0.35in 0.5in", // Moved to class for responsiveness
         color: "#000",
-        fontSize: "10pt",
         lineHeight: "1.3",
       }
     : {
         fontFamily: "'Times New Roman', Times, serif",
-        // Classic uses default padding from classname (p-[8%])
       };
+
+  const paddingClass = isPremium ? "p-4 sm:p-8 md:p-[0.5in]" : "p-[8%]"; // Classic uses relative padding
+
+  // Scale down font on mobile to simulate A4 look
+  const fontSizeClass = isPremium
+    ? "text-[10px] sm:text-[11px] md:text-[10pt]"
+    : "text-xs sm:text-sm";
 
   const headerStyle = isPremium
     ? "text-center pb-2 mb-2" // LaTeX Header
@@ -123,7 +128,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
     >
       {/* Container */}
       <div
-        className={`w-full h-full overflow-hidden text-slate-900 leading-normal ${!isPremium ? "p-[8%]" : ""}`}
+        className={`w-full h-full overflow-hidden text-slate-900 leading-normal ${paddingClass} ${fontSizeClass}`}
         style={containerStyle}
       >
         {/* Header */}
