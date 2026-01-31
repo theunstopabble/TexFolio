@@ -88,6 +88,24 @@ class AIController {
         .json({ success: false, error: "Failed to generate bullets" });
     }
   }
+  async checkATSScore(req: Request, res: Response) {
+    try {
+      const { resumeData, jobDescription } = req.body;
+      if (!resumeData)
+        return res
+          .status(400)
+          .json({ success: false, message: "Resume data is required" });
+
+      const analysis = await aiService.calculateATSScore(
+        resumeData,
+        jobDescription,
+      );
+      res.json({ success: true, data: analysis });
+    } catch (error) {
+      console.error("ATS Check Error:", error);
+      res.status(500).json({ success: false, message: "ATS analysis failed" });
+    }
+  }
 }
 
 export const aiController = new AIController();

@@ -18,4 +18,6 @@ router.post(
   aiController.generateBullets,
 );
 
+router.post("/ats-check", authMiddleware as any, aiController.checkATSScore);
+
 export default router;

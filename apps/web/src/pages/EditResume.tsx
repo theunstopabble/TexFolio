@@ -399,6 +399,28 @@ const EditResume = () => {
     }
   };
 
+  const [atsModalOpen, setAtsModalOpen] = useState(false);
+  const [atsResult, setAtsResult] = useState<any>(null);
+  const [atsLoading, setAtsLoading] = useState(false);
+
+  const handleATSCheck = async () => {
+    try {
+      setAtsLoading(true);
+      setAtsModalOpen(true);
+      const data = watch();
+      // Remove internal fields before sending
+      const { _id, ...cleanData } = data as any;
+      const res = await aiApi.checkATSScore(cleanData);
+      setAtsResult(res.data.data);
+    } catch (error) {
+      console.error("ATS Check Error:", error);
+      toast.error("Failed to analyze resume");
+      setAtsModalOpen(false);
+    } finally {
+      setAtsLoading(false);
+    }
+  };
+
   const handleDownload = async () => {
     try {
       setLoading(true);
@@ -1020,6 +1042,12 @@ const EditResume = () => {
             result={aiResult}
           />
         </div>
+        <AIAnalysisModal
+          isOpen={atsModalOpen}
+          onClose={() => setAtsModalOpen(false)}
+          result={atsResult}
+          isLoading={atsLoading}
+        />
       </div>
     </div>
   );

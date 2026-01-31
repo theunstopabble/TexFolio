@@ -196,6 +196,57 @@ export class AIService {
       return ["Failed to generate suggestions. Please try again."];
     }
   }
+
+  async calculateATSScore(
+    resumeData: any,
+    jobDescription?: string,
+  ): Promise<any> {
+    const resumeText = JSON.stringify(resumeData);
+
+    const prompt = `Analyze this resume data for ATS (Applicant Tracking System) compatibility.
+    ${jobDescription ? `Job Description: ${jobDescription}` : ""}
+    Resume Data: ${resumeText}
+
+    Return a JSON object with the following structure (do not add any markdown formatting or extra text, just the RAW JSON):
+    {
+      "score": number, // 0-100 based on keywords, impact, and formatting
+      "summary": string, // Brief summary of analysis (max 2 sentences)
+      "keywords_found": string[], // Important keywords found in the resume
+      "keywords_missing": string[], // Important keywords missing (if JD provided) or general suggestions
+      "formatting_issues": string[], // Potential parsing issues
+      "suggestions": string[] // 3-5 actionable improvements
+    }`;
+
+    try {
+      const response = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert ATS scanner and resume analyzer. Return purely JSON output.",
+          },
+          { role: "user", content: prompt },
+        ],
+        model: "llama-3.1-8b-instant",
+        temperature: 0.3,
+        response_format: { type: "json_object" },
+      });
+
+      const content = response.choices[0]?.message?.content || "{}";
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("ATS Score Calculation Failed:", error);
+      // Return a dummy result on failure
+      return {
+        score: 0,
+        summary: "Could not calculate score due to AI service error.",
+        keywords_found: [],
+        keywords_missing: [],
+        formatting_issues: [],
+        suggestions: ["Please try again later."],
+      };
+    }
+  }
 }
 
 export const aiService = new AIService();

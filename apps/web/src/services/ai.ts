@@ -1,12 +1,12 @@
 import api from "./api";
 
-export interface AIAnalysisResult {
-  atsScore: number;
-  summaryFeedback: string;
-  improvements: {
-    section: string;
-    tip: string;
-  }[];
+export interface ATSAnalysisResult {
+  score: number;
+  summary: string;
+  keywords_found: string[];
+  keywords_missing: string[];
+  formatting_issues: string[];
+  suggestions: string[];
 }
 
 export const analyzeResume = async (
