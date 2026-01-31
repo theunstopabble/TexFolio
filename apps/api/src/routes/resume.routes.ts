@@ -7,7 +7,7 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 const router = Router();
 
 // Protect all routes
-router.use(authMiddleware);
+router.use(authMiddleware as any);
 
 // GET /api/resumes - Get current user's resumes
 router.get("/", async (req: Request, res: Response) => {

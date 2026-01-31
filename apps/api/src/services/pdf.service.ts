@@ -102,6 +102,8 @@ const transformResumeData = (resume: IResume) => {
       NAME: escapeLatex(proj.name),
       DESCRIPTION: escapeLatex(proj.description),
       TECHNOLOGIES: escapeLatex(proj.technologies?.join(", ") || ""),
+      SOURCE_CODE: proj.sourceCode || null,
+      LIVE_URL: proj.liveUrl || null,
     })),
 
     HAS_SKILLS: resume.skills && resume.skills.length > 0,

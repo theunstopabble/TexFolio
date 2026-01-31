@@ -5,7 +5,7 @@
 %----------------------------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[empty]{fullpage}
-\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref} 
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue, pdfnewwindow=true]{hyperref} 
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{tabularx}
@@ -96,7 +96,12 @@
 \section{Projects}
 <<#PROJECTS>>
 \noindent
-\textbf{<<&NAME>>} $|$ \textit{<<&TECHNOLOGIES>>}
+\textbf{<<&NAME>>} $|$ \textit{<<&TECHNOLOGIES>>} \hfill
+{\footnotesize
+<<#SOURCE_CODE>>\href{<<&SOURCE_CODE>>}{[Source Code]}<</SOURCE_CODE>>
+<<#SOURCE_CODE>><<#LIVE_URL>> $|$ <</LIVE_URL>><</SOURCE_CODE>>
+<<#LIVE_URL>>\href{<<&LIVE_URL>>}{[Live Demo]}<</LIVE_URL>>
+}
 <<#DESCRIPTION>>
 \begin{itemize}
     \item <<&DESCRIPTION>>

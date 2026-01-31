@@ -1,11 +1,6 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
-import { authApi } from "../services/api";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { useUser, useAuth as useClerkAuth } from "@clerk/clerk-react";
+import { setTokenProvider } from "../services/api";
 
 interface User {
   id: string;
@@ -25,54 +20,48 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
-  );
-  const [isLoading, setIsLoading] = useState(true);
+  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
+  const { getToken, signOut } = useClerkAuth();
 
+  // Register the token provider with the API service
   useEffect(() => {
-    const initAuth = async () => {
-      const savedToken = localStorage.getItem("token");
-      if (savedToken) {
-        try {
-          const response = await authApi.getMe();
-          setUser(response.data.data);
-        } catch {
-          localStorage.removeItem("token");
-          setToken(null);
-        }
+    setTokenProvider(async () => {
+      return await getToken();
+    });
+  }, [getToken]);
+
+  // Map Clerk user to our app's User interface
+  const user: User | null = clerkUser
+    ? {
+        id: clerkUser.id,
+        name: clerkUser.fullName || "User",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
       }
-      setIsLoading(false);
-    };
-    initAuth();
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    const response = await authApi.login({ email, password });
-    const { user: userData, token: newToken } = response.data.data;
-    setUser(userData);
-    setToken(newToken);
-    localStorage.setItem("token", newToken);
-  };
-
-  const register = async (name: string, email: string, password: string) => {
-    const response = await authApi.register({ name, email, password });
-    const { user: userData, token: newToken } = response.data.data;
-    setUser(userData);
-    setToken(newToken);
-    localStorage.setItem("token", newToken);
-  };
+    : null;
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
+    signOut();
+  };
+
+  // Deprecated methods stubs
+  const login = async () => {
+    console.warn("Manual login is deprecated. Use Clerk UI.");
+  };
+
+  const register = async () => {
+    console.warn("Manual register is deprecated. Use Clerk UI.");
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, login, register, logout }}
+      value={{
+        user,
+        token: null, // Token is handled automatically via interceptor now
+        isLoading: !isUserLoaded,
+        login,
+        register,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 // Sub-document interfaces
 interface IExperience {
@@ -25,7 +25,9 @@ interface IProject {
   description: string;
   technologies: string[];
   link?: string;
-  github?: string;
+  github?: string; // Keeping for backward compatibility
+  sourceCode?: string; // New field
+  liveUrl?: string; // New field
 }
 
 interface ISkillCategory {
@@ -41,7 +43,7 @@ interface ICertification {
 
 // Main Resume interface
 export interface IResume extends Document {
-  userId: Types.ObjectId;
+  userId: string;
   title: string;
   templateId: string;
   personalInfo: {
@@ -75,7 +77,7 @@ const experienceSchema = new Schema<IExperience>(
     description: [{ type: String }],
     location: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const educationSchema = new Schema<IEducation>(
@@ -88,7 +90,7 @@ const educationSchema = new Schema<IEducation>(
     gpa: { type: String },
     location: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const projectSchema = new Schema<IProject>(
@@ -98,8 +100,10 @@ const projectSchema = new Schema<IProject>(
     technologies: [{ type: String }],
     link: { type: String },
     github: { type: String },
+    sourceCode: { type: String },
+    liveUrl: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const skillCategorySchema = new Schema<ISkillCategory>(
@@ -107,7 +111,7 @@ const skillCategorySchema = new Schema<ISkillCategory>(
     category: { type: String, required: true },
     skills: [{ type: String }],
   },
-  { _id: false }
+  { _id: false },
 );
 
 const certificationSchema = new Schema<ICertification>(
@@ -116,27 +120,26 @@ const certificationSchema = new Schema<ICertification>(
     issuer: { type: String },
     date: { type: String },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Main Resume schema
 const resumeSchema = new Schema<IResume>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User ID is required'],
+      type: String,
+      required: [true, "User ID is required"],
       index: true,
     },
     title: {
       type: String,
-      required: [true, 'Resume title is required'],
-      default: 'My Resume',
-      maxlength: [100, 'Title cannot exceed 100 characters'],
+      required: [true, "Resume title is required"],
+      default: "My Resume",
+      maxlength: [100, "Title cannot exceed 100 characters"],
     },
     templateId: {
       type: String,
-      default: 'classic',
+      default: "classic",
     },
     personalInfo: {
       fullName: { type: String, required: true },
@@ -158,11 +161,11 @@ const resumeSchema = new Schema<IResume>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Index for faster user resume queries
 resumeSchema.index({ userId: 1, createdAt: -1 });
 
 // Create and export the model
-export const Resume = mongoose.model<IResume>('Resume', resumeSchema);
+export const Resume = mongoose.model<IResume>("Resume", resumeSchema);

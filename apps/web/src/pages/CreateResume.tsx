@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { resumeApi } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import ResumePreview from "../components/ResumePreview";
 
 // --- Types ---
 interface Experience {
@@ -32,6 +34,8 @@ interface Project {
   name: string;
   description: string;
   technologies: string[];
+  sourceCode?: string;
+  liveUrl?: string;
 }
 
 interface Certification {
@@ -108,19 +112,23 @@ const CreateResume = () => {
     return `${monthNames[parseInt(month) - 1]} ${year}`;
   };
 
+  // Pre-fill user data
+  const { user } = useAuth(); // Using our custom hook which now wraps Clerk
+
   const {
     register,
     control,
     handleSubmit,
     trigger,
+    watch,
     formState: { errors },
   } = useForm<ResumeFormData>({
     defaultValues: {
       title: "My Resume",
       templateId: "premium",
       personalInfo: {
-        fullName: "",
-        email: "",
+        fullName: user?.name || "",
+        email: user?.email || "",
         phone: "",
         location: "",
         linkedin: "",
@@ -152,6 +160,8 @@ const CreateResume = () => {
       certifications: [{ name: "", issuer: "" }],
     },
   });
+
+  const formData = watch();
 
   // Field Arrays
   const {
@@ -313,15 +323,15 @@ const CreateResume = () => {
 
   // --- Main Form View ---
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header & Progress */}
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold text-slate-900 mb-6">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-slate-900 mb-4">
           Create Your Resume
         </h1>
 
         {/* Progress Bar */}
-        <div className="hidden md:flex justify-between items-center relative mb-8 px-4">
+        <div className="hidden md:flex justify-between items-center relative mb-8 px-4 max-w-4xl mx-auto">
           {/* Line background */}
           <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -z-10 rounded"></div>
           {/* Line progress */}
@@ -365,502 +375,551 @@ const CreateResume = () => {
         </div>
       </div>
 
-      <form className="max-w-3xl mx-auto">
-        {/* Step 1: Basics */}
-        {currentStep === 0 && (
-          <div className="card animate-fade-in">
-            <h2 className="card-title mb-6">📋 Resume Settings</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="form-group">
-                <label className="form-label">Resume Title</label>
-                <input
-                  {...register("title", { required: true })}
-                  className="form-input"
-                  placeholder="e.g. Frontend Developer Resume"
-                />
-                {errors.title && (
-                  <span className="text-red-500 text-sm">Required</span>
-                )}
-              </div>
-              <div className="form-group">
-                <label className="form-label">Select Template</label>
-                <select {...register("templateId")} className="form-input">
-                  <option value="premium">Premium (Recommended)</option>
-                  <option value="classic">Classic</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Profile */}
-        {currentStep === 1 && (
-          <div className="card animate-fade-in">
-            <h2 className="card-title mb-6">👤 Personal Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="form-group">
-                <label className="form-label">Full Name *</label>
-                <input
-                  {...register("personalInfo.fullName", { required: true })}
-                  className="form-input"
-                  placeholder="John Doe"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email *</label>
-                <input
-                  {...register("personalInfo.email", { required: true })}
-                  type="email"
-                  className="form-input"
-                  placeholder="john@example.com"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Phone *</label>
-                <input
-                  {...register("personalInfo.phone", { required: true })}
-                  className="form-input"
-                  placeholder="+91 12345 67890"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Location *</label>
-                <input
-                  {...register("personalInfo.location", { required: true })}
-                  className="form-input"
-                  placeholder="City, Country"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">LinkedIn (Optional)</label>
-                <input
-                  {...register("personalInfo.linkedin")}
-                  className="form-input"
-                  placeholder="linkedin.com/in/username"
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">GitHub (Optional)</label>
-                <input
-                  {...register("personalInfo.github")}
-                  className="form-input"
-                  placeholder="github.com/username"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Summary */}
-        {currentStep === 2 && (
-          <div className="card animate-fade-in">
-            <h2 className="card-title mb-6">📝 Professional Summary</h2>
-            <div className="form-group">
-              <label className="form-label">Summary</label>
-              <textarea
-                {...register("summary")}
-                className="form-input min-h-[200px]"
-                placeholder="Detail your professional background, key achievements, and career goals here..."
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Education */}
-        {currentStep === 3 && (
-          <div className="card animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="card-title">🎓 Education</h2>
-              <button
-                type="button"
-                onClick={() =>
-                  appendEdu({
-                    institution: "",
-                    degree: "",
-                    field: "",
-                    location: "",
-                    startDate: "",
-                    endDate: "",
-                  })
-                }
-                className="btn btn-secondary text-sm"
-              >
-                + Add Education
-              </button>
-            </div>
-            <div className="space-y-6">
-              {eduFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="p-4 bg-slate-50 rounded-lg border border-slate-200"
-                >
-                  <div className="flex justify-between mb-4">
-                    <span className="font-semibold text-slate-700">
-                      Education #{index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeEdu(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
-                    >
-                      Remove
-                    </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        {/* Left Column: Form */}
+        <div className="space-y-6">
+          <form className="space-y-6">
+            {/* Step 1: Basics */}
+            {currentStep === 0 && (
+              <div className="card animate-fade-in shadow-lg">
+                <h2 className="card-title mb-6">📋 Resume Settings</h2>
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="form-group">
+                    <label className="form-label">Resume Title</label>
+                    <input
+                      {...register("title", { required: true })}
+                      className="form-input"
+                      placeholder="e.g. Frontend Developer Resume"
+                    />
+                    {errors.title && (
+                      <span className="text-red-500 text-sm">Required</span>
+                    )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      {...register(`education.${index}.institution`)}
-                      className="form-input"
-                      placeholder="Institution / University"
-                    />
-                    <input
-                      {...register(`education.${index}.degree`)}
-                      className="form-input"
-                      placeholder="Degree (e.g. B.Tech)"
-                    />
-                    <input
-                      {...register(`education.${index}.field`)}
-                      className="form-input"
-                      placeholder="Field of Study"
-                    />
-                    <input
-                      {...register(`education.${index}.location`)}
-                      className="form-input"
-                      placeholder="Location"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-xs text-slate-500">
-                          Start Date
-                        </label>
-                        <input
-                          type="month"
-                          {...register(`education.${index}.startDate`)}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-500">
-                          End Date
-                        </label>
-                        <input
-                          type="month"
-                          {...register(`education.${index}.endDate`)}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                    <input
-                      {...register(`education.${index}.gpa`)}
-                      className="form-input"
-                      placeholder="GPA / CGPA (Optional)"
-                    />
+                  <div className="form-group">
+                    <label className="form-label">Select Template</label>
+                    <select {...register("templateId")} className="form-input">
+                      <option value="premium">Premium (Recommended)</option>
+                      <option value="classic">Classic</option>
+                    </select>
                   </div>
                 </div>
-              ))}
-              {eduFields.length === 0 && (
-                <p className="text-center text-slate-500 py-4">
-                  No education details added yet.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Step 5: Experience */}
-        {currentStep === 4 && (
-          <div className="card animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="card-title">💼 Work Experience</h2>
-              <button
-                type="button"
-                onClick={() =>
-                  appendExp({
-                    company: "",
-                    position: "",
-                    location: "",
-                    startDate: "",
-                    endDate: "",
-                    description: [""],
-                  })
-                }
-                className="btn btn-secondary text-sm"
-              >
-                + Add Experience
-              </button>
-            </div>
-            <div className="space-y-6">
-              {expFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="p-4 bg-slate-50 rounded-lg border border-slate-200"
-                >
-                  <div className="flex justify-between mb-4">
-                    <span className="font-semibold text-slate-700">
-                      Experience #{index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeExp(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
-                    >
-                      Remove
-                    </button>
+            {/* Step 2: Profile */}
+            {currentStep === 1 && (
+              <div className="card animate-fade-in shadow-lg">
+                <h2 className="card-title mb-6">👤 Personal Information</h2>
+                <div className="space-y-4">
+                  <div className="form-group">
+                    <label className="form-label">Full Name *</label>
+                    <input
+                      {...register("personalInfo.fullName", { required: true })}
+                      className="form-input"
+                      placeholder="John Doe"
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="form-group">
+                    <label className="form-label">Email *</label>
                     <input
-                      {...register(`experience.${index}.company`)}
+                      {...register("personalInfo.email", { required: true })}
+                      type="email"
                       className="form-input"
-                      placeholder="Company Name"
+                      placeholder="john@example.com"
                     />
-                    <input
-                      {...register(`experience.${index}.position`)}
-                      className="form-input"
-                      placeholder="Job Title"
-                    />
-                    <input
-                      {...register(`experience.${index}.location`)}
-                      className="form-input"
-                      placeholder="Location"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-xs text-slate-500">
-                          Start Date
-                        </label>
-                        <input
-                          type="month"
-                          {...register(`experience.${index}.startDate`)}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-slate-500">
-                          End Date
-                        </label>
-                        <input
-                          type="month"
-                          {...register(`experience.${index}.endDate`)}
-                          className="form-input"
-                        />
-                      </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="form-group">
+                      <label className="form-label">Phone *</label>
+                      <input
+                        {...register("personalInfo.phone", { required: true })}
+                        className="form-input"
+                        placeholder="+91..."
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Location *</label>
+                      <input
+                        {...register("personalInfo.location", {
+                          required: true,
+                        })}
+                        className="form-input"
+                        placeholder="City, Country"
+                      />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="form-group">
+                      <label className="form-label">LinkedIn</label>
+                      <input
+                        {...register("personalInfo.linkedin")}
+                        className="form-input"
+                        placeholder="username"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">GitHub</label>
+                      <input
+                        {...register("personalInfo.github")}
+                        className="form-input"
+                        placeholder="username"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Summary */}
+            {currentStep === 2 && (
+              <div className="card animate-fade-in shadow-lg">
+                <h2 className="card-title mb-6">📝 Professional Summary</h2>
+                <div className="form-group">
+                  <label className="form-label">Summary</label>
                   <textarea
-                    {...register(`experience.${index}.description` as any)}
-                    className="form-input min-h-[100px]"
-                    placeholder="Description (Bullet points recommended, one per line)"
+                    {...register("summary")}
+                    className="form-input min-h-[200px]"
+                    placeholder="Detail your professional background, key achievements, and career goals here..."
                   />
                 </div>
-              ))}
-              {expFields.length === 0 && (
-                <p className="text-center text-slate-500 py-4">
-                  No experience details added yet.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Step 6: Skills */}
-        {currentStep === 5 && (
-          <div className="card animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="card-title">🛠️ Technical Skills</h2>
-              <button
-                type="button"
-                onClick={() => appendSkill({ category: "", skills: [] })}
-                className="btn btn-secondary text-sm"
-              >
-                + Add Category
-              </button>
-            </div>
-            <div className="space-y-4">
-              {skillFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="p-4 bg-slate-50 rounded-lg border border-slate-200"
-                >
-                  <div className="flex justify-between mb-3">
-                    <span className="font-semibold text-slate-700">
-                      Skill Group #{index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeSkill(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <input
-                      {...register(`skills.${index}.category`)}
-                      className="form-input"
-                      placeholder="Category (e.g. Languages, Frameworks)"
-                    />
-                    <input
-                      {...register(`skills.${index}.skills` as any)}
-                      className="form-input"
-                      placeholder="Skills (comma separated, e.g. React, Node.js, Python)"
-                    />
-                  </div>
+            {/* Step 4: Education */}
+            {currentStep === 3 && (
+              <div className="card animate-fade-in shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="card-title">🎓 Education</h2>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      appendEdu({
+                        institution: "",
+                        degree: "",
+                        field: "",
+                        location: "",
+                        startDate: "",
+                        endDate: "",
+                      })
+                    }
+                    className="btn btn-secondary text-sm"
+                  >
+                    + Add Education
+                  </button>
                 </div>
-              ))}
-              {skillFields.length === 0 && (
-                <p className="text-center text-slate-500 py-4">
-                  No skills added yet.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Step 7: Projects */}
-        {currentStep === 6 && (
-          <div className="card animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="card-title">🚀 Notable Projects</h2>
-              <button
-                type="button"
-                onClick={() =>
-                  appendProj({ name: "", description: "", technologies: [] })
-                }
-                className="btn btn-secondary text-sm"
-              >
-                + Add Project
-              </button>
-            </div>
-            <div className="space-y-6">
-              {projFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="p-4 bg-slate-50 rounded-lg border border-slate-200"
-                >
-                  <div className="flex justify-between mb-3">
-                    <span className="font-semibold text-slate-700">
-                      Project #{index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeProj(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
+                <div className="space-y-6">
+                  {eduFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-4 bg-slate-50 rounded-lg border border-slate-200"
                     >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="space-y-4">
-                    <input
-                      {...register(`projects.${index}.name`)}
-                      className="form-input"
-                      placeholder="Project Name"
-                    />
-                    <input
-                      {...register(`projects.${index}.technologies` as any)}
-                      className="form-input"
-                      placeholder="Technologies Used (comma separated)"
-                    />
-                    <textarea
-                      {...register(`projects.${index}.description`)}
-                      className="form-input min-h-[80px]"
-                      placeholder="Brief description of the project..."
-                    />
-                  </div>
+                      <div className="flex justify-between mb-4">
+                        <span className="font-semibold text-slate-700">
+                          Education #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeEdu(index)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <input
+                          {...register(`education.${index}.institution`)}
+                          className="form-input"
+                          placeholder="Institution / University"
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <input
+                            {...register(`education.${index}.degree`)}
+                            className="form-input"
+                            placeholder="Degree"
+                          />
+                          <input
+                            {...register(`education.${index}.field`)}
+                            className="form-input"
+                            placeholder="Field of Study"
+                          />
+                        </div>
+                        <input
+                          {...register(`education.${index}.location`)}
+                          className="form-input"
+                          placeholder="Location"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-slate-500">
+                              Start Date
+                            </label>
+                            <input
+                              type="month"
+                              {...register(`education.${index}.startDate`)}
+                              className="form-input"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-500">
+                              End Date
+                            </label>
+                            <input
+                              type="month"
+                              {...register(`education.${index}.endDate`)}
+                              className="form-input"
+                            />
+                          </div>
+                        </div>
+                        <input
+                          {...register(`education.${index}.gpa`)}
+                          className="form-input"
+                          placeholder="GPA / CGPA (Optional)"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {eduFields.length === 0 && (
+                    <p className="text-center text-slate-500 py-4">
+                      No education details added yet.
+                    </p>
+                  )}
                 </div>
-              ))}
-              {projFields.length === 0 && (
-                <p className="text-center text-slate-500 py-4">
-                  No projects added yet.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {/* Step 8: Certifications */}
-        {currentStep === 7 && (
-          <div className="card animate-fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="card-title">🏆 Certifications</h2>
-              <button
-                type="button"
-                onClick={() => appendCert({ name: "", issuer: "" })}
-                className="btn btn-secondary text-sm"
-              >
-                + Add Cert
-              </button>
-            </div>
-            <div className="space-y-4">
-              {certFields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="p-4 bg-slate-50 rounded-lg border border-slate-200"
-                >
-                  <div className="flex justify-between mb-3">
-                    <span className="font-semibold text-slate-700">
-                      Certification #{index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeCert(index)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
+            {/* Step 5: Experience */}
+            {currentStep === 4 && (
+              <div className="card animate-fade-in shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="card-title">💼 Work Experience</h2>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      appendExp({
+                        company: "",
+                        position: "",
+                        location: "",
+                        startDate: "",
+                        endDate: "",
+                        description: [""],
+                      })
+                    }
+                    className="btn btn-secondary text-sm"
+                  >
+                    + Add Experience
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  {expFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-4 bg-slate-50 rounded-lg border border-slate-200"
                     >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      {...register(`certifications.${index}.name`)}
-                      className="form-input"
-                      placeholder="Certification Name"
-                    />
-                    <input
-                      {...register(`certifications.${index}.issuer`)}
-                      className="form-input"
-                      placeholder="Issuing Organization"
-                    />
-                  </div>
+                      <div className="flex justify-between mb-4">
+                        <span className="font-semibold text-slate-700">
+                          Experience #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeExp(index)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <input
+                          {...register(`experience.${index}.company`)}
+                          className="form-input"
+                          placeholder="Company Name"
+                        />
+                        <input
+                          {...register(`experience.${index}.position`)}
+                          className="form-input"
+                          placeholder="Job Title"
+                        />
+                        <input
+                          {...register(`experience.${index}.location`)}
+                          className="form-input"
+                          placeholder="Location"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-slate-500">
+                              Start Date
+                            </label>
+                            <input
+                              type="month"
+                              {...register(`experience.${index}.startDate`)}
+                              className="form-input"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-slate-500">
+                              End Date
+                            </label>
+                            <input
+                              type="month"
+                              {...register(`experience.${index}.endDate`)}
+                              className="form-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <textarea
+                        {...register(`experience.${index}.description` as any)}
+                        className="form-input min-h-[100px] mt-3"
+                        placeholder="Description (Bullet points recommended, one per line)"
+                      />
+                    </div>
+                  ))}
+                  {expFields.length === 0 && (
+                    <p className="text-center text-slate-500 py-4">
+                      No experience details added yet.
+                    </p>
+                  )}
                 </div>
-              ))}
-              {certFields.length === 0 && (
-                <p className="text-center text-slate-500 py-4">
-                  No certifications added yet.
-                </p>
-              )}
+              </div>
+            )}
+
+            {/* Step 6: Skills */}
+            {currentStep === 5 && (
+              <div className="card animate-fade-in shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="card-title">🛠️ Technical Skills</h2>
+                  <button
+                    type="button"
+                    onClick={() => appendSkill({ category: "", skills: [] })}
+                    className="btn btn-secondary text-sm"
+                  >
+                    + Add Category
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {skillFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+                    >
+                      <div className="flex justify-between mb-3">
+                        <span className="font-semibold text-slate-700">
+                          Skill Group #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(index)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-4">
+                        <input
+                          {...register(`skills.${index}.category`)}
+                          className="form-input"
+                          placeholder="Category (e.g. Languages)"
+                        />
+                        <input
+                          {...register(`skills.${index}.skills` as any)}
+                          className="form-input"
+                          placeholder="Skills (comma separated)"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {skillFields.length === 0 && (
+                    <p className="text-center text-slate-500 py-4">
+                      No skills added yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: Projects */}
+            {currentStep === 6 && (
+              <div className="card animate-fade-in shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="card-title">🚀 Notable Projects</h2>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      appendProj({
+                        name: "",
+                        description: "",
+                        technologies: [],
+                      })
+                    }
+                    className="btn btn-secondary text-sm"
+                  >
+                    + Add Project
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  {projFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+                    >
+                      <div className="flex justify-between mb-3">
+                        <span className="font-semibold text-slate-700">
+                          Project #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeProj(index)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        <input
+                          {...register(`projects.${index}.name`)}
+                          className="form-input"
+                          placeholder="Project Name"
+                        />
+                        <input
+                          {...register(`projects.${index}.technologies` as any)}
+                          className="form-input"
+                          placeholder="Technologies (comma separated)"
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <input
+                            {...register(`projects.${index}.sourceCode`)}
+                            className="form-input"
+                            placeholder="Source Code URL"
+                          />
+                          <input
+                            {...register(`projects.${index}.liveUrl`)}
+                            className="form-input"
+                            placeholder="Live Demo URL"
+                          />
+                        </div>
+                        <textarea
+                          {...register(`projects.${index}.description`)}
+                          className="form-input min-h-[80px]"
+                          placeholder="Brief description of the project..."
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {projFields.length === 0 && (
+                    <p className="text-center text-slate-500 py-4">
+                      No projects added yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Step 8: Certifications */}
+            {currentStep === 7 && (
+              <div className="card animate-fade-in shadow-lg">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="card-title">🏆 Certifications</h2>
+                  <button
+                    type="button"
+                    onClick={() => appendCert({ name: "", issuer: "" })}
+                    className="btn btn-secondary text-sm"
+                  >
+                    + Add
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {certFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+                    >
+                      <div className="flex justify-between mb-2">
+                        <span className="font-semibold text-slate-700">
+                          Cert #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeCert(index)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <input
+                          {...register(`certifications.${index}.name`)}
+                          className="form-input"
+                          placeholder="Certification Name"
+                        />
+                        <input
+                          {...register(`certifications.${index}.issuer`)}
+                          className="form-input"
+                          placeholder="Issuer"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {certFields.length === 0 && (
+                    <p className="text-center text-slate-500 py-4">
+                      No certifications added yet.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex justify-between pt-6">
+              <div>
+                {currentStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="btn btn-secondary px-6"
+                  >
+                    ← Back
+                  </button>
+                )}
+              </div>
+              <div>
+                {currentStep < STEPS.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="btn btn-primary px-8"
+                  >
+                    Next Step →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubmit(onSubmit)}
+                    disabled={loading}
+                    className="btn btn-primary px-8 bg-green-600 hover:bg-green-700"
+                  >
+                    {loading ? "Generating..." : "✨ Generate Resume"}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between mt-8 mb-12">
-          <button
-            type="button"
-            onClick={handleBack}
-            disabled={currentStep === 0 || loading}
-            className={`btn btn-secondary px-8 ${currentStep === 0 ? "invisible" : ""}`}
-          >
-            ← Back
-          </button>
-
-          {currentStep < STEPS.length - 1 ? (
-            <button
-              type="button"
-              onClick={handleNext}
-              className="btn btn-primary px-8"
-            >
-              Next Step →
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit(onSubmit)}
-              disabled={loading}
-              className="btn btn-success px-8 text-lg"
-            >
-              {loading ? "⏳ Generating..." : "✨ Create Resume"}
-            </button>
-          )}
+          </form>
         </div>
-      </form>
+
+        {/* Right Column: Live Preview (Sticky) */}
+        <div className="hidden lg:block sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700">
+          <div className="flex justify-between items-center mb-4 text-white">
+            <h3 className="font-bold text-lg flex items-center gap-2">
+              👀 Live Preview
+              <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-normal">
+                {formData.templateId === "premium" ? "Premium" : "Classic"}
+              </span>
+            </h3>
+            <span className="text-xs text-slate-400">
+              Updates automatically
+            </span>
+          </div>
+          <ResumePreview data={formData as unknown as any} />
+        </div>
+      </div>
     </div>
   );
 };

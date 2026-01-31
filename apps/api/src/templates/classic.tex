@@ -5,7 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[margin=0.75in]{geometry}
-\usepackage{hyperref}
+\usepackage[pdfnewwindow=true, colorlinks=true, urlcolor=primary, linkcolor=primary]{hyperref}
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{xcolor}
@@ -82,7 +82,11 @@
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#PROJECTS>>
     \item \textbf{<<&NAME>>} -- <<&DESCRIPTION>> \\
-    \small\textit{Technologies: <<&TECHNOLOGIES>>}
+    \small\textit{Technologies: <<&TECHNOLOGIES>>} \hfill
+    {\scriptsize
+    <<#SOURCE_CODE>>\href{<<&SOURCE_CODE>>}{[Source]}<</SOURCE_CODE>>
+    <<#LIVE_URL>> \href{<<&LIVE_URL>>}{[Demo]}<</LIVE_URL>>
+    }
 <</PROJECTS>>
 \end{itemize}
 <</HAS_PROJECTS>>

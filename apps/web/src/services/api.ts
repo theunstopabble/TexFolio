@@ -12,11 +12,20 @@ const api = axios.create({
   timeout: 60000, // 60 seconds timeout for PDF generation
 });
 
+// Token provider to be set by the app
+let getToken: (() => Promise<string | null>) | null = null;
+
+export const setTokenProvider = (provider: () => Promise<string | null>) => {
+  getToken = provider;
+};
+
 // Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(async (config) => {
+  if (getToken) {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
