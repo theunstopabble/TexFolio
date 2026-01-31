@@ -779,6 +779,13 @@ const EditResume = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Edit Resume</h1>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleATSCheck}
+            className="btn bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+          >
+            <span>📊</span> Check ATS Score
+          </button>
           <button onClick={handleDownload} className="btn btn-secondary">
             📥 Download PDF
           </button>

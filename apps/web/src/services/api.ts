@@ -73,6 +73,7 @@ export const aiApi = {
   improveText: (text: string) => api.post("/ai/improve", { text }),
   generateBullets: (jobTitle: string) =>
     api.post("/ai/generate-bullets", { jobTitle }),
+  checkATSScore: (data: any) => api.post("/ai/ats-check", data),
 };
 
 export const paymentApi = {
