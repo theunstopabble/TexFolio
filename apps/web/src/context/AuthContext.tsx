@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: mongoUser,
         isPro: Boolean(mongoUser?.isPro),
         token: null,
-        isLoading: !isUserLoaded || (clerkUser && !mongoUser), // Wait for mongo sync
+        isLoading: Boolean(!isUserLoaded || (clerkUser && !mongoUser)), // Wait for mongo sync
         login,
         register,
         logout,
