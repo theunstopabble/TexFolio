@@ -67,4 +67,10 @@ export const analyticsApi = {
   getStats: () => api.get("/analytics"),
 };
 
+export const aiApi = {
+  analyzeResume: (data: unknown) => api.post("/ai/analyze", data),
+  generateCoverLetter: (data: { resume: unknown; jobDescription: string }) =>
+    api.post("/ai/cover-letter", data),
+};
+
 export default api;

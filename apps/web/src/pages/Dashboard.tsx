@@ -163,15 +163,23 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg">
-            <h3 className="text-lg font-bold mb-2">Upgrade to Pro 🚀</h3>
-            <p className="text-slate-300 text-sm mb-4">
-              Get AI Cover Letters and unlimited templates.
+          <Link
+            to="/cover-letter"
+            className="block bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all group"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-4xl group-hover:scale-110 transition-transform">
+                ✍️
+              </span>
+              <span className="bg-white/20 text-xs px-2 py-1 rounded-full font-medium">
+                New
+              </span>
+            </div>
+            <h3 className="text-lg font-bold mb-1">AI Cover Letter</h3>
+            <p className="text-indigo-100 text-sm">
+              Generate tailored letters from your resume & JD.
             </p>
-            <button className="w-full bg-white text-slate-900 py-2 rounded-lg font-bold hover:bg-slate-100 transition-colors">
-              Coming Soon
-            </button>
-          </div>
+          </Link>
         </div>
       </div>
 

@@ -72,6 +72,50 @@ export class AIService {
       );
     }
   }
+
+  async generateCoverLetter(resume: IResume, jobDescription: string) {
+    if (!env.GROQ_API_KEY) {
+      throw new Error("AI Service unavailable: Groq API Key required.");
+    }
+
+    const prompt = `
+      Act as a professional Resume Writer and Career Coach.
+      Write a compelling, professional cover letter based on the following Resume and Job Description.
+      
+      RESUME DATA:
+      ${JSON.stringify(resume, null, 2)}
+      
+      JOB DESCRIPTION:
+      ${jobDescription}
+      
+      REQUIREMENTS:
+      1. Tone: Professional, confident, and tailored to the job.
+      2. Content: meaningful connections between the candidate's skills/experience and the job requirements.
+      3. Format: Markdown. Use standard cover letter formatting (Dear Hiring Manager, Body, Sincerely).
+      4. Length: 300-400 words.
+      
+      Output ONLY the Markdown text of the cover letter. No preamble.
+    `;
+
+    try {
+      const chatCompletion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: "You are a professional career coach.",
+          },
+          { role: "user", content: prompt },
+        ],
+        model: "llama-3.1-8b-instant",
+        temperature: 0.7,
+      });
+
+      return chatCompletion.choices[0]?.message?.content || "";
+    } catch (error: any) {
+      console.error("Groq Cover Letter Generation Failed:", error);
+      throw new Error("Failed to generate cover letter.");
+    }
+  }
 }
 
 export const aiService = new AIService();

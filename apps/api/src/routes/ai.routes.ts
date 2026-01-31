@@ -6,5 +6,10 @@ const router = Router();
 
 // Protect AI route so only logged-in users can use it
 router.post("/analyze", authMiddleware as any, aiController.analyze);
+router.post(
+  "/cover-letter",
+  authMiddleware as any,
+  aiController.generateCoverLetter,
+);
 
 export default router;
