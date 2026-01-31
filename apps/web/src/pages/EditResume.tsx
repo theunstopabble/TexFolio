@@ -9,6 +9,7 @@ import { analyzeResume } from "../services/ai";
 import type { AIAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
 import TemplateSelector from "../components/TemplateSelector";
+import { useAuth } from "../context/AuthContext";
 
 // Types (same as CreateResume)
 interface Experience {
@@ -71,6 +72,70 @@ interface ResumeFormData {
   certifications: Certification[];
 }
 
+// AI Writer Helper Component
+const AIWriterButton = ({
+  onResult,
+  originalText,
+  jobTitle,
+  type = "improve",
+}: {
+  onResult: (text: string) => void;
+  originalText?: string;
+  jobTitle?: string;
+  type?: "improve" | "generate";
+}) => {
+  const [loading, setLoading] = useState(false);
+  const { isPro } = useAuth();
+
+  const handleAI = async () => {
+    if (!isPro) {
+      alert("AI Writer is a Pro feature! Please upgrade.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { aiApi } = await import("../services/api"); // Lazy load
+
+      let resultText = "";
+      if (type === "improve" && originalText) {
+        const res = await aiApi.improveText(originalText);
+        if (res.data.success) resultText = res.data.data.improvedText;
+      } else if (type === "generate" && jobTitle) {
+        const res = await aiApi.generateBullets(jobTitle);
+        if (res.data.success) resultText = res.data.data.bullets[0]; // Take first bullet for now
+      }
+
+      if (resultText) onResult(resultText);
+      else alert("AI could not generate a suggestion.");
+    } catch (err) {
+      console.error("AI Error:", err);
+      alert("AI Service Failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleAI}
+      disabled={loading}
+      className="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-700 font-semibold mb-1"
+    >
+      {loading ? (
+        <span className="animate-pulse">✨ Thinking...</span>
+      ) : (
+        <>
+          <span>
+            ✨ {type === "improve" ? "Improve with AI" : "Generate Point"}
+          </span>
+        </>
+      )}
+    </button>
+  );
+};
+
+// Main Component
 const EditResume = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -97,7 +162,7 @@ const EditResume = () => {
     }
   };
 
-  const { register, control, handleSubmit, reset, watch } =
+  const { register, control, handleSubmit, reset, watch, setValue } =
     useForm<ResumeFormData>();
   const formData = watch();
 
@@ -443,6 +508,11 @@ const EditResume = () => {
             {/* Summary */}
             <div className="card shadow-lg">
               <h2 className="card-title mb-4">📝 Professional Summary</h2>
+              <AIWriterButton
+                type="improve"
+                originalText={watch("summary")}
+                onResult={(text) => setValue("summary", text)}
+              />
               <textarea
                 {...register("summary")}
                 className="form-input min-h-[120px]"

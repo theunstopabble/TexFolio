@@ -62,6 +62,32 @@ class AIController {
       });
     }
   }
+  async improveText(req: Request, res: Response) {
+    try {
+      const { text, type } = req.body;
+      if (!text) return res.status(400).json({ error: "Text is required" });
+
+      const improvedText = await aiService.improveText(text, type);
+      res.json({ success: true, data: { improvedText } });
+    } catch (error) {
+      res.status(500).json({ success: false, error: "Failed to improve text" });
+    }
+  }
+
+  async generateBullets(req: Request, res: Response) {
+    try {
+      const { jobTitle, skills } = req.body;
+      if (!jobTitle)
+        return res.status(400).json({ error: "Job Title is required" });
+
+      const bullets = await aiService.generateBullets(jobTitle, skills);
+      res.json({ success: true, data: { bullets } });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to generate bullets" });
+    }
+  }
 }
 
 export const aiController = new AIController();

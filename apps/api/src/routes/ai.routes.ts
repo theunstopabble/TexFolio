@@ -11,5 +11,11 @@ router.post(
   authMiddleware as any,
   aiController.generateCoverLetter,
 );
+router.post("/improve", authMiddleware as any, aiController.improveText);
+router.post(
+  "/generate-bullets",
+  authMiddleware as any,
+  aiController.generateBullets,
+);
 
 export default router;

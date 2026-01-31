@@ -116,6 +116,86 @@ export class AIService {
       throw new Error("Failed to generate cover letter.");
     }
   }
+  async improveText(
+    text: string,
+    type: "grammar" | "professional" = "professional",
+  ) {
+    if (!env.GROQ_API_KEY) {
+      throw new Error("AI Service unavailable: Groq API Key required.");
+    }
+
+    const sysPrompt =
+      type === "grammar"
+        ? "Fix grammar and spelling mistakes. Keep the tone natural."
+        : "Rewrite this text to be professional, action-oriented, and suitable for a manufacturing/tech resume. Keep it concise.";
+
+    const prompt = `
+      ${sysPrompt}
+      
+      Original Text: "${text}"
+      
+      Output ONLY the improved text. No quotes, no preamble.
+    `;
+
+    try {
+      const chatCompletion = await this.groq.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a professional resume editor." },
+          { role: "user", content: prompt },
+        ],
+        model: "llama-3.1-8b-instant",
+        temperature: 0.3,
+      });
+
+      return chatCompletion.choices[0]?.message?.content || text;
+    } catch (error: any) {
+      console.error("Groq Text Improvement Failed:", error);
+      throw new Error("Failed to improve text.");
+    }
+  }
+
+  async generateBullets(jobTitle: string, skills?: string[]) {
+    if (!env.GROQ_API_KEY) {
+      throw new Error("AI Service unavailable: Groq API Key required.");
+    }
+
+    const prompt = `
+      Generate 5 strong, quantifiable, and action-oriented bullet points for a "${jobTitle}" role.
+      ${skills?.length ? `Incorporate these skills: ${skills.join(", ")}.` : ""}
+      
+      Output MUST be a valid JSON array of strings:
+      ["Developed...", "Managed...", "Optimized..."]
+      
+      Do not include markdown ticks. Just the raw JSON.
+    `;
+
+    try {
+      const chatCompletion = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant that outputs only valid JSON array.",
+          },
+          { role: "user", content: prompt },
+        ],
+        model: "llama-3.1-8b-instant",
+        temperature: 0.6,
+      });
+
+      let text = chatCompletion.choices[0]?.message?.content || "[]";
+      text = text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      return JSON.parse(text);
+    } catch (error: any) {
+      console.error("Groq Bullet Generation Failed:", error);
+      // Fallback
+      return ["Failed to generate suggestions. Please try again."];
+    }
+  }
 }
 
 export const aiService = new AIService();

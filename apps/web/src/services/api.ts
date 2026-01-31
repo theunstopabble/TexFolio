@@ -68,9 +68,11 @@ export const analyticsApi = {
 };
 
 export const aiApi = {
-  analyzeResume: (data: unknown) => api.post("/ai/analyze", data),
-  generateCoverLetter: (data: { resume: unknown; jobDescription: string }) =>
-    api.post("/ai/cover-letter", data),
+  analyze: (data: any) => api.post("/ai/analyze", data),
+  generateCoverLetter: (data: any) => api.post("/ai/cover-letter", data),
+  improveText: (text: string) => api.post("/ai/improve", { text }),
+  generateBullets: (jobTitle: string) =>
+    api.post("/ai/generate-bullets", { jobTitle }),
 };
 
 export const paymentApi = {
