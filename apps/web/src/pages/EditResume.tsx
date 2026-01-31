@@ -8,6 +8,7 @@ import ResumePreview from "../components/ResumePreview";
 import { analyzeResume } from "../services/ai";
 import type { AIAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
+import TemplateSelector from "../components/TemplateSelector";
 
 // Types (same as CreateResume)
 interface Experience {
@@ -277,23 +278,35 @@ const EditResume = () => {
           className={`space-y-6 ${activeTab === "preview" ? "hidden lg:block" : "block"}`}
         >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Info */}
+            {/* Basic Info & Template */}
             <div className="card shadow-lg">
               <h2 className="card-title mb-4">📋 Resume Settings</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-6">
                 <div>
                   <label className="form-label">Resume Title</label>
                   <input
                     {...register("title", { required: true })}
                     className="form-input"
+                    placeholder="e.g. Software Engineer Resume"
                   />
                 </div>
+
                 <div>
-                  <label className="form-label">Template</label>
-                  <select {...register("templateId")} className="form-input">
-                    <option value="premium">Premium</option>
-                    <option value="classic">Classic</option>
-                  </select>
+                  <label className="form-label mb-2 block">
+                    Design Template
+                  </label>
+                  <TemplateSelector
+                    currentTemplate={watch("templateId")}
+                    onSelect={(id) => {
+                      // Update form value
+                      const event = {
+                        target: { name: "templateId", value: id },
+                      };
+                      register("templateId").onChange(event);
+                    }}
+                  />
+                  {/* Hidden input to register the field if needed, mostly handled by setValue or onChange above */}
+                  <input type="hidden" {...register("templateId")} />
                 </div>
               </div>
             </div>

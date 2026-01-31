@@ -40,7 +40,7 @@ class PaymentController {
       if (isValid) {
         // Update User Role to PRO in DB
         // @ts-ignore - Validated by middleware
-        const userId = req.userId;
+        const userId = req.mongoUserId;
 
         await User.findByIdAndUpdate(userId, {
           isPro: true,

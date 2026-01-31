@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { useUser, useAuth as useClerkAuth } from "@clerk/clerk-react";
 import { setTokenProvider } from "../services/api";
 
@@ -6,10 +12,12 @@ interface User {
   id: string;
   name: string;
   email: string;
+  isPro: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
+  isPro: boolean;
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -22,6 +30,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const { getToken, signOut } = useClerkAuth();
+  const [mongoUser, setMongoUser] = useState<User | null>(null);
 
   // Register the token provider with the API service
   useEffect(() => {
@@ -30,17 +39,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   }, [getToken]);
 
-  // Map Clerk user to our app's User interface
-  const user: User | null = clerkUser
-    ? {
-        id: clerkUser.id,
-        name: clerkUser.fullName || "User",
-        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+  // Fetch Mongo User (with isPro) when Clerk user is ready
+  useEffect(() => {
+    const syncUser = async () => {
+      if (clerkUser) {
+        try {
+          // Ensure token is ready first
+          await getToken();
+          // Dynamically import to avoid circular dep if needed, or just use authApi
+          const { authApi } = await import("../services/api");
+          const res = await authApi.getMe();
+          if (res.data.success) {
+            setMongoUser({
+              id: res.data.data.id,
+              name: res.data.data.name,
+              email: res.data.data.email,
+              isPro: res.data.data.isPro || false,
+            });
+          }
+        } catch (err) {
+          console.error("Failed to sync backend user:", err);
+          // Fallback to basic clerk data
+          setMongoUser({
+            id: clerkUser.id,
+            name: clerkUser.fullName || "User",
+            email: clerkUser.primaryEmailAddress?.emailAddress || "",
+            isPro: false,
+          });
+        }
+      } else {
+        setMongoUser(null);
       }
-    : null;
+    };
+
+    if (isUserLoaded) {
+      syncUser();
+    }
+  }, [clerkUser, isUserLoaded, getToken]);
 
   const logout = () => {
     signOut();
+    setMongoUser(null);
   };
 
   // Deprecated methods stubs
@@ -55,9 +94,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        user,
-        token: null, // Token is handled automatically via interceptor now
-        isLoading: !isUserLoaded,
+        user: mongoUser,
+        isPro: mongoUser?.isPro || false,
+        token: null,
+        isLoading: !isUserLoaded || (clerkUser && !mongoUser), // Wait for mongo sync
         login,
         register,
         logout,

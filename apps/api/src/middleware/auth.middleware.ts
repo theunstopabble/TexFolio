@@ -54,12 +54,15 @@ export const authMiddleware = [
       }
 
       if (user) {
-        // Map MongoDB _id to req.userId
-        req.userId = user._id.toString();
+        // Map Clerk ID to req.userId (RESTORES RESUMES)
+        req.userId = clerkId;
+        // Map MongoDB _id to req.mongoUserId (FOR PAYMENTS/PROFILE)
+        (req as any).mongoUserId = user._id.toString();
         // Optionally attach full user
         (req as any).user = user;
       } else {
         console.warn("Could not sync user: Email missing from Clerk?");
+        req.userId = clerkId;
       }
 
       next();

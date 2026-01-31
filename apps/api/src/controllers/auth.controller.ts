@@ -110,7 +110,7 @@ export const login = async (req: Request, res: Response) => {
 // Get current user
 export const getMe = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById((req as any).userId);
+    const user = await User.findById((req as any).mongoUserId);
     if (!user) {
       return res.status(404).json({
         success: false,
