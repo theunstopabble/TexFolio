@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password: string;
   fullName: string;
   isPro: boolean;
+  clerkId?: string;
   subscriptionId?: string;
   createdAt: Date;
   updatedAt: Date;
