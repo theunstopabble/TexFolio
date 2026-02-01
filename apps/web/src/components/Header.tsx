@@ -15,7 +15,7 @@ const NavLink = ({
   return (
     <Link
       to={to}
-      className={`text-base font-extrabold transition-all duration-200 px-5 py-2.5 rounded-full no-underline tracking-wide ${
+      className={`text-sm lg:text-base font-extrabold transition-all duration-200 px-3 py-2 lg:px-5 lg:py-2.5 rounded-full no-underline tracking-wide whitespace-nowrap ${
         isActive
           ? "bg-blue-600/10 text-blue-800"
           : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
@@ -33,20 +33,23 @@ const Header = () => {
 
   // Close mobile menu when route changes
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
+    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+  }, [location, isMobileMenuOpen]);
 
   return (
     <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-6 h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group no-underline">
+          <Link
+            to="/"
+            className="flex items-center gap-3 group no-underline shrink-0"
+          >
             <div className="bg-gradient-to-tr from-blue-700 to-purple-700 text-white p-2 rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-200">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -67,7 +70,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/templates">Templates</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
@@ -81,19 +84,19 @@ const Header = () => {
           </nav>
 
           {/* User Actions & Mobile Toggle */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {user ? (
-              <div className="flex items-center gap-3 pl-2">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <Link
                   to="/create"
-                  className="hidden sm:block bg-slate-900 text-white text-base font-extrabold px-5 py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 mr-4 no-underline"
+                  className="hidden sm:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   + New
                 </Link>
                 {/* Mobile "+" Button */}
                 <Link
                   to="/create"
-                  className="sm:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all"
+                  className="sm:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all shrink-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -111,34 +114,32 @@ const Header = () => {
                   </svg>
                 </Link>
 
-                <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                <div className="h-8 w-px bg-slate-200 hidden sm:block shrink-0"></div>
 
                 {/* User Menu */}
-                <div className="flex items-center gap-3 pl-2 group relative">
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm overflow-hidden">
-                      {user.imageUrl ? (
-                        <img
-                          src={user.imageUrl}
-                          alt={user.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        user.name.charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <span className="text-base font-extrabold text-slate-800 hidden lg:block">
-                      {user.name}
-                    </span>
-                  </Link>
-                </div>
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group"
+                >
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm overflow-hidden shrink-0">
+                    {user.imageUrl ? (
+                      <img
+                        src={user.imageUrl}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      user.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 hidden lg:block group-hover:text-blue-700 transition-colors max-w-[100px] truncate">
+                    {user.name.split(" ")[0]}
+                  </span>
+                </Link>
 
                 <button
                   onClick={logout}
-                  className="hidden sm:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50"
+                  className="hidden sm:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 hover:rotate-90 transform duration-200 shrink-0"
                   title="Logout"
                 >
                   <svg
@@ -159,16 +160,16 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="text-slate-600 hover:text-slate-900 font-extrabold text-base px-5 py-2.5 rounded-full hover:bg-slate-50 transition-all no-underline"
+                  className="text-slate-600 hover:text-slate-900 font-bold text-sm lg:text-base px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-50 transition-all no-underline"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-slate-900 text-white text-base font-extrabold px-6 py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline"
+                  className="bg-slate-900 text-white text-sm lg:text-base font-bold px-5 py-2 lg:px-6 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   Sign Up
                 </Link>
@@ -178,7 +179,7 @@ const Header = () => {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
             >
               {isMobileMenuOpen ? (
                 <svg
@@ -219,7 +220,7 @@ const Header = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-200">
+        <div className="md:hidden absolute top-20 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-4 duration-200 max-h-[calc(100vh-80px)] overflow-y-auto">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/templates">Templates</NavLink>
           <NavLink to="/pricing">Pricing</NavLink>
@@ -228,9 +229,10 @@ const Header = () => {
             <>
               <NavLink to="/dashboard">Dashboard</NavLink>
               <NavLink to="/resumes">My Resumes</NavLink>
+
               <button
                 onClick={logout}
-                className="flex items-center gap-2 text-red-600 font-extrabold px-5 py-2.5 rounded-full hover:bg-red-50 transition-all text-left"
+                className="flex items-center gap-2 text-red-600 font-extrabold px-5 py-2.5 rounded-full hover:bg-red-50 transition-all text-left w-full"
               >
                 Logout
               </button>
