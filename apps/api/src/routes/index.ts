@@ -7,7 +7,10 @@ import authRoutes from "./auth.routes.js";
 
 const router = Router();
 
+import publicRoutes from "./public.routes.js";
+
 // Mount routes
+router.use("/public", publicRoutes);
 router.use("/resumes", resumeRoutes);
 router.use("/ai", aiRoutes);
 router.use("/analytics", analyticsRoutes);

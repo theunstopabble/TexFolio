@@ -112,15 +112,30 @@ const Header = () => {
                 </Link>
 
                 <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
-                <div className="flex items-center gap-3 pl-2">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm">
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-base font-extrabold text-slate-800 hidden lg:block">
-                    {user.name}
-                  </span>
+
+                {/* User Menu */}
+                <div className="flex items-center gap-3 pl-2 group relative">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm overflow-hidden">
+                      {user.imageUrl ? (
+                        <img
+                          src={user.imageUrl}
+                          alt={user.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        user.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <span className="text-base font-extrabold text-slate-800 hidden lg:block">
+                      {user.name}
+                    </span>
+                  </Link>
                 </div>
-                {/* Desktop Logout - Hidden on mobile if in menu, or keep here? Let's keep icon here */}
+
                 <button
                   onClick={logout}
                   className="hidden sm:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50"

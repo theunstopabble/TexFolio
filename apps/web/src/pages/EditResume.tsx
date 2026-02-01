@@ -582,7 +582,7 @@ const EditResume = () => {
       const data = watch();
       // Remove internal fields before sending
       const { _id, ...cleanData } = data as any;
-      const res = await aiApi.checkATSScore(cleanData);
+      const res = await aiApi.checkATSScore({ resumeData: cleanData });
       setAtsResult(res.data.data);
     } catch (error) {
       console.error("ATS Check Error:", error);

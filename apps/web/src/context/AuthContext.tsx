@@ -13,6 +13,7 @@ interface User {
   name: string;
   email: string;
   isPro: boolean;
+  imageUrl?: string;
 }
 
 interface AuthContextType {
@@ -49,12 +50,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Dynamically import to avoid circular dep if needed, or just use authApi
           const { authApi } = await import("../services/api");
           const res = await authApi.getMe();
+
           if (res.data.success) {
             setMongoUser({
               id: res.data.data.id,
               name: res.data.data.name,
               email: res.data.data.email,
               isPro: res.data.data.isPro || false,
+              imageUrl: clerkUser.imageUrl,
             });
           }
         } catch (err) {
@@ -65,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             name: clerkUser.fullName || "User",
             email: clerkUser.primaryEmailAddress?.emailAddress || "",
             isPro: false,
+            imageUrl: clerkUser.imageUrl,
           });
         }
       } else {

@@ -11,6 +11,9 @@ import Templates from "./pages/Templates";
 import Dashboard from "./pages/Dashboard";
 import CoverLetter from "./pages/CoverLetter";
 import Pricing from "./pages/Pricing";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import UserProfilePage from "./pages/UserProfile";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -18,39 +21,19 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
 
-// Home Page
-const HomePage = () => (
-  <div className="max-w-7xl mx-auto px-6 py-12">
-    <div className="text-center">
-      <h1 className="text-5xl font-bold text-slate-900 mb-6">
-        Create Professional Resumes with{" "}
-        <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          LaTeX
-        </span>
-      </h1>
-      <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-        Build stunning, ATS-friendly resumes using LaTeX templates. Export to
-        PDF with one click.
-      </p>
-      <a href="/create" className="btn btn-primary text-lg px-8 py-3">
-        🚀 Create Your Resume
-      </a>
-    </div>
-  </div>
-);
-
 function App() {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <AuthProvider>
         <BrowserRouter>
           <Toaster position="top-right" />
-          <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+          <div className="min-h-screen bg-slate-50">
             <Header />
             <main>
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/r/:shareId" element={<PublicResume />} />
+                <Route path="/profile/*" element={<UserProfilePage />} />
 
                 {/* Clerk Auth Routes */}
 
@@ -89,6 +72,7 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
               </Routes>
             </main>
+            <Footer />
           </div>
         </BrowserRouter>
       </AuthProvider>
