@@ -1,9 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import {
-  useResumeCoach,
-  type CoachAnalysisResult,
-} from "../hooks/useResumeCoach";
+import { useResumeCoach, useResumeCoach } from "../hooks/useResumeCoach";
 
 interface AICoachModalProps {
   isOpen: boolean;
