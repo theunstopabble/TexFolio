@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { resumeApi, aiApi } from "../../../services/api";
 import { analyzeResume } from "../../../services/ai";
 import toast from "react-hot-toast";
-import type { ResumeFormData, ATSAnalysisResult } from "./types";
+import type { ResumeFormData, ATSAnalysisResult } from "../types";
 
 export const useResumeEditor = () => {
   const { id } = useParams<{ id: string }>();

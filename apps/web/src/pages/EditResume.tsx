@@ -1,20 +1,16 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useResumeEditor } from "../features/resume-editor/hooks/useResumeEditor";
 import { ResumeFormSections } from "../features/resume-editor/components/ResumeFormSections";
 import { ShareModal } from "../features/resume-editor/components/ShareModal";
-import ResumePreview from "../components/ResumePreview";
-import AIAnalysisModal from "../components/AIAnalysisModal";
 import CoverLetterModal from "../components/CoverLetterModal";
 import AICoachModal from "../components/AICoachModal";
-import TemplateSelector from "../components/TemplateSelector";
 // Unused imports removed
 
 const EditResume = () => {
   const {
     // Form
     formData,
-    control,
     register,
     handleSubmit,
     setValue,
