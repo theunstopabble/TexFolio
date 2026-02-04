@@ -13,7 +13,9 @@ const envSchema = z.object({
   MONGODB_URI: z.string().min(1, "MongoDB URI is required"),
   CLERK_SECRET_KEY: z.string().min(1, "Clerk Secret Key is required"),
   CLERK_PUBLISHABLE_KEY: z.string().min(1, "Clerk Publishable Key is required"),
-  GROQ_API_KEY: z.string().optional(), // Groq Key
+  GROQ_API_KEY: z.string().optional(), // Groq Key for legacy AI
+  GOOGLE_AI_API_KEY: z.string().optional(), // Google Gemini
+  NVIDIA_API_KEY: z.string().optional(), // NVIDIA NIM (best free tier!)
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),

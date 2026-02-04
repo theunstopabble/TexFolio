@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { resumeApi, analyticsApi, authApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import toast from "react-hot-toast";
+import { useResumes } from "../hooks/useResumes";
+import { useAnalytics } from "../hooks/useQueries";
 import AnalyticsChart from "../components/AnalyticsChart";
 
 interface Resume {
@@ -21,39 +20,17 @@ interface AnalyticsData {
 }
 
 const Dashboard = () => {
-  const { user } = useAuth();
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [stats, setStats] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isPro, setIsPro] = useState(false);
+  const { user, isPro } = useAuth();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [resumesRes, statsRes, userRes] = await Promise.all([
-          resumeApi.getAll(),
-          analyticsApi.getStats(),
-          authApi.getMe(),
-        ]);
+  // TanStack Query hooks - parallel data fetching
+  const { data: resumes = [], isLoading: resumesLoading } = useResumes();
+  const { data: stats, isLoading: statsLoading } = useAnalytics() as {
+    data: AnalyticsData | undefined;
+    isLoading: boolean;
+  };
 
-        setResumes(resumesRes.data.data || []);
-        setStats(statsRes.data.data);
-        // We can update local state or just check isPro here
-        // Ideally update global user context, but let's just use a local override for now
-        if (userRes.data?.data?.isPro) {
-          setIsPro(true);
-        }
-      } catch (error) {
-        console.error("Dashboard error:", error);
-        toast.error("Failed to load dashboard data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const recentResumes = resumes.slice(0, 3);
+  const loading = resumesLoading || statsLoading;
+  const recentResumes = (resumes as Resume[]).slice(0, 3);
 
   if (loading) {
     return (

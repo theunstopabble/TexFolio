@@ -221,22 +221,40 @@ export const generatePDF = async (
 
   // Generate unique filename
   const timestamp = Date.now();
-  const texFile = path.join(TEMP_DIR, `resume_${timestamp}.tex`);
-  const pdfFile = path.join(TEMP_DIR, `resume_${timestamp}.pdf`);
+  const texFilename = `resume_${timestamp}.tex`;
+  const pdfFilename = `resume_${timestamp}.pdf`;
+  const texFile = path.join(TEMP_DIR, texFilename);
+  const pdfFile = path.join(TEMP_DIR, pdfFilename);
 
   // Write rendered LaTeX to file
   await fs.writeFile(texFile, renderedLatex);
 
   try {
-    // Compile LaTeX to PDF (ignore exit code, check file instead)
-    try {
-      await execAsync(
-        `"${PDFLATEX_PATH}" -interaction=nonstopmode -output-directory="${TEMP_DIR}" "${texFile}"`,
-        { cwd: TEMP_DIR },
-      );
-    } catch {
-      // pdflatex may return non-zero exit code even on success (warnings)
-      // We'll check if PDF file exists instead
+    const useDocker = process.env.USE_DOCKER_LATEX === "true";
+
+    if (useDocker) {
+      console.log("🐳 Generating PDF using Docker (texfolio-latex)...");
+      try {
+        // Execute inside the container
+        // Container working dir is /app/temp, which maps to TEMP_DIR
+        await execAsync(
+          `docker exec texfolio-latex pdflatex -interaction=nonstopmode ${texFilename}`,
+        );
+      } catch (error: any) {
+        console.warn("Docker pdflatex warning:", error.message);
+        // Continue to check if PDF was created
+      }
+    } else {
+      console.log("🖥️ Generating PDF using local pdflatex...");
+      // Compile LaTeX to PDF (local)
+      try {
+        await execAsync(
+          `"${PDFLATEX_PATH}" -interaction=nonstopmode -output-directory="${TEMP_DIR}" "${texFile}"`,
+          { cwd: TEMP_DIR },
+        );
+      } catch {
+        // pdflatex may return non-zero exit code even on success (warnings)
+      }
     }
 
     // Check if PDF was created

@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  latex-renderer:
+    build:
+      context: ./apps/latex-renderer
+    container_name: texfolio-latex
+    volumes:
+      # Mount the temp directory so we can read .tex and write .pdf
+      - ./apps/api/temp:/app/temp
+    working_dir: /app/temp
+    restart: unless-stopped

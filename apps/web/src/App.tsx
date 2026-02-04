@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
 import PublicResume from "./pages/PublicResume";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
@@ -23,60 +25,60 @@ if (!PUBLISHABLE_KEY) {
 
 function App() {
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Toaster position="top-right" />
-          <div className="min-h-screen bg-slate-50">
-            <Header />
-            <main>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/r/:shareId" element={<PublicResume />} />
-                <Route path="/profile/*" element={<UserProfilePage />} />
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+        <AuthProvider>
+          <BrowserRouter>
+            <Toaster position="top-right" />
+            <div className="min-h-screen bg-slate-50">
+              <Header />
+              <main>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/r/:shareId" element={<PublicResume />} />
+                  <Route path="/profile/*" element={<UserProfilePage />} />
 
-                {/* Clerk Auth Routes */}
+                  {/* Clerk Auth Routes */}
+                  <Route
+                    path="/login/*"
+                    element={
+                      <div className="flex justify-center py-20">
+                        <SignIn
+                          routing="path"
+                          path="/login"
+                          forceRedirectUrl="/dashboard"
+                        />
+                      </div>
+                    }
+                  />
+                  <Route
+                    path="/register/*"
+                    element={
+                      <div className="flex justify-center py-20">
+                        <SignUp
+                          routing="path"
+                          path="/register"
+                          forceRedirectUrl="/dashboard"
+                        />
+                      </div>
+                    }
+                  />
 
-                {/* Clerk Auth Routes */}
-                <Route
-                  path="/login/*"
-                  element={
-                    <div className="flex justify-center py-20">
-                      <SignIn
-                        routing="path"
-                        path="/login"
-                        forceRedirectUrl="/dashboard"
-                      />
-                    </div>
-                  }
-                />
-                <Route
-                  path="/register/*"
-                  element={
-                    <div className="flex justify-center py-20">
-                      <SignUp
-                        routing="path"
-                        path="/register"
-                        forceRedirectUrl="/dashboard"
-                      />
-                    </div>
-                  }
-                />
-
-                <Route path="/create" element={<CreateResume />} />
-                <Route path="/resumes" element={<ResumeList />} />
-                <Route path="/edit/:id" element={<EditResume />} />
-                <Route path="/templates" element={<Templates />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/cover-letter" element={<CoverLetter />} />
-                <Route path="/pricing" element={<Pricing />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </BrowserRouter>
-      </AuthProvider>
-    </ClerkProvider>
+                  <Route path="/create" element={<CreateResume />} />
+                  <Route path="/resumes" element={<ResumeList />} />
+                  <Route path="/edit/:id" element={<EditResume />} />
+                  <Route path="/templates" element={<Templates />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/cover-letter" element={<CoverLetter />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </BrowserRouter>
+        </AuthProvider>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }
 

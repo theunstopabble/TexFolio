@@ -151,6 +151,7 @@ import type { ATSAnalysisResult } from "../services/ai";
 import AIAnalysisModal from "../components/AIAnalysisModal";
 import CoverLetterModal from "../components/CoverLetterModal";
 import TemplateSelector from "../components/TemplateSelector";
+import AICoachModal from "../components/AICoachModal";
 import { useAuth } from "../context/AuthContext";
 import {
   DndContext,
@@ -551,6 +552,9 @@ const EditResume = () => {
   const [atsModalOpen, setAtsModalOpen] = useState(false);
   const [atsResult, setAtsResult] = useState<any>(null);
   const [atsLoading, setAtsLoading] = useState(false);
+
+  // AI Coach State
+  const [aiCoachOpen, setAiCoachOpen] = useState(false);
 
   // Share State
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -1220,8 +1224,14 @@ const EditResume = () => {
               Updates automatically
             </span>
             <button
+              onClick={() => setAiCoachOpen(true)}
+              className="ml-auto bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-all"
+            >
+              🤖 AI Coach
+            </button>
+            <button
               onClick={handleAnalyze}
-              className="ml-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-all"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-all"
             >
               ✨ AI Analyze
             </button>
@@ -1252,6 +1262,11 @@ const EditResume = () => {
           isPublic={isPublic}
           shareId={shareId}
           onToggle={handleToggleVisibility}
+        />
+        <AICoachModal
+          isOpen={aiCoachOpen}
+          onClose={() => setAiCoachOpen(false)}
+          resumeData={formData}
         />
       </div>
     </div>

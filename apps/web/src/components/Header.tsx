@@ -125,15 +125,15 @@ const Header = () => {
                     {user.imageUrl ? (
                       <img
                         src={user.imageUrl}
-                        alt={user.name}
+                        alt={user.name || "User"}
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      user.name.charAt(0).toUpperCase()
+                      (user.name || "U").charAt(0).toUpperCase()
                     )}
                   </div>
                   <span className="text-sm font-bold text-slate-800 hidden lg:block group-hover:text-blue-700 transition-colors max-w-[100px] truncate">
-                    {user.name.split(" ")[0]}
+                    {(user.name || "User").split(" ")[0]}
                   </span>
                 </Link>
 

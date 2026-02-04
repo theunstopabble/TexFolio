@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { resumeApi } from "../services/api";
-import toast from "react-hot-toast";
+import {
+  useResumes,
+  useDeleteResume,
+  useGeneratePdf,
+} from "../hooks/useResumes";
 
 interface Resume {
   _id: string;
@@ -16,44 +18,18 @@ interface Resume {
 }
 
 const ResumeList = () => {
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loading, setLoading] = useState(true);
+  // TanStack Query hooks replace useState + useEffect
+  const { data: resumes = [], isLoading, isError } = useResumes();
+  const deleteResume = useDeleteResume();
+  const generatePdf = useGeneratePdf();
 
-  useEffect(() => {
-    fetchResumes();
-  }, []);
-
-  const fetchResumes = async () => {
-    try {
-      const response = await resumeApi.getAll();
-      setResumes(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching resumes:", error);
-      toast.error("Failed to load resumes");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm("Are you sure you want to delete this resume?")) return;
-    try {
-      await resumeApi.delete(id);
-      toast.success("Resume deleted!");
-      fetchResumes();
-    } catch (error) {
-      toast.error("Failed to delete resume");
-    }
+    deleteResume.mutate(id);
   };
 
-  const handleDownload = async (id: string) => {
-    try {
-      const url = await resumeApi.generatePdf(id);
-      window.open(url, "_blank");
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-      toast.error("Failed to download PDF");
-    }
+  const handleDownload = (id: string) => {
+    generatePdf.mutate(id);
   };
 
   const formatDate = (dateStr: string) => {
@@ -64,11 +40,22 @@ const ResumeList = () => {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-12 text-center">
         <div className="text-4xl animate-spin mb-4">⏳</div>
         <p className="text-slate-600">Loading resumes...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-12 text-center">
+        <div className="text-4xl mb-4">❌</div>
+        <p className="text-red-600">
+          Failed to load resumes. Please try again.
+        </p>
       </div>
     );
   }
@@ -97,7 +84,7 @@ const ResumeList = () => {
         </div>
       ) : (
         <div className="grid gap-4">
-          {resumes.map((resume) => (
+          {resumes.map((resume: Resume) => (
             <div
               key={resume._id}
               className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
@@ -124,15 +111,17 @@ const ResumeList = () => {
                   </Link>
                   <button
                     onClick={() => handleDownload(resume._id)}
-                    className="btn btn-primary text-sm px-4 py-2 whitespace-nowrap"
+                    disabled={generatePdf.isPending}
+                    className="btn btn-primary text-sm px-4 py-2 whitespace-nowrap disabled:opacity-50"
                   >
-                    📥 PDF
+                    {generatePdf.isPending ? "⏳" : "📥"} PDF
                   </button>
                   <button
                     onClick={() => handleDelete(resume._id)}
-                    className="btn btn-secondary text-sm px-4 py-2 text-red-600 hover:bg-red-50 whitespace-nowrap"
+                    disabled={deleteResume.isPending}
+                    className="btn btn-secondary text-sm px-4 py-2 text-red-600 hover:bg-red-50 whitespace-nowrap disabled:opacity-50"
                   >
-                    🗑️ Delete
+                    {deleteResume.isPending ? "⏳" : "🗑️"} Delete
                   </button>
                 </div>
               </div>

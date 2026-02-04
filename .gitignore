@@ -50,3 +50,7 @@ apps/api/temp/
 
 # Agent local files
 .agent/
+
+# Legacy Express Code (Migrated to Hono)
+apps/api/src/routes/
+apps/api/src/middleware/
