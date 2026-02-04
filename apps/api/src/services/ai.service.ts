@@ -28,14 +28,12 @@ export class AIService {
       
       Output MUST be a valid JSON object with this exact structure:
       {
-        "atsScore": number (0-100),
-        "summaryFeedback": "string (2-3 sentences max)",
-        "improvements": [
-          {
-            "section": "string (e.g. Experience, Skills)",
-            "tip": "string (concise actionable advice)"
-          }
-        ]
+        "score": number (0-100),
+        "summary": "string (2-3 sentences max)",
+        "keywords_found": ["keyword1", "keyword2"],
+        "keywords_missing": ["keyword1", "keyword2"],
+        "formatting_issues": ["issue1", "issue2"],
+        "suggestions": ["tip1", "tip2", "tip3"]
       }
       
       Do not include markdown ticks or explanations. Just return the raw JSON.

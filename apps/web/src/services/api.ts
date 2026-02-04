@@ -57,6 +57,10 @@ export const resumeApi = {
 
   // Toggle Visibility
   toggleVisibility: (id: string) => api.patch(`/resumes/${id}/visibility`),
+
+  // Send Email
+  sendEmail: (id: string, email: string) =>
+    api.post(`/resumes/${id}/email`, { email }),
 };
 export const authApi = {
   register: (data: { name: string; email: string; password: string }) =>

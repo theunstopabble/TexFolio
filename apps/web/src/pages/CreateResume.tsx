@@ -4,6 +4,7 @@ import { resumeApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import ResumePreview from "../components/ResumePreview";
+import LinkedInImport from "../components/LinkedInImport";
 
 // --- Types ---
 interface Experience {
@@ -121,6 +122,7 @@ const CreateResume = () => {
     handleSubmit,
     trigger,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ResumeFormData>({
     defaultValues: {
@@ -203,6 +205,37 @@ const CreateResume = () => {
   const handleBack = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
     window.scrollTo(0, 0);
+  };
+
+  const handleImportSuccess = (data: any) => {
+    console.log("📥 LinkedIn Import Data:", data);
+    // reset form with imported data - map all fields correctly
+    reset({
+      ...formData,
+      title: `${data.personalInfo?.fullName || "My"}'s Resume`,
+      personalInfo: {
+        ...formData.personalInfo,
+        fullName: data.personalInfo?.fullName || formData.personalInfo.fullName,
+        email: data.personalInfo?.email || formData.personalInfo.email,
+        phone: data.personalInfo?.phone || "",
+        location: data.personalInfo?.location || "",
+        linkedin: data.personalInfo?.linkedin || "",
+        github: data.personalInfo?.github || "",
+      },
+      summary: data.summary || "",
+      experience:
+        data.experience?.length > 0 ? data.experience : formData.experience,
+      education:
+        data.education?.length > 0 ? data.education : formData.education,
+      skills: data.skills?.length > 0 ? data.skills : formData.skills,
+      projects: data.projects?.length > 0 ? data.projects : formData.projects,
+      certifications:
+        data.certifications?.length > 0
+          ? data.certifications
+          : formData.certifications,
+    });
+    // Move to profile step to review
+    setCurrentStep(1);
   };
 
   const onSubmit = async (data: ResumeFormData) => {
@@ -383,6 +416,23 @@ const CreateResume = () => {
             {currentStep === 0 && (
               <div className="card animate-fade-in shadow-lg">
                 <h2 className="card-title mb-6">📋 Resume Settings</h2>
+
+                {/* LinkedIn Import Option */}
+                <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                  <LinkedInImport onImportSuccess={handleImportSuccess} />
+                </div>
+
+                <div className="relative mb-8">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-slate-500">
+                      Or start manually
+                    </span>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 gap-6">
                   <div className="form-group">
                     <label className="form-label">Resume Title</label>
@@ -400,6 +450,7 @@ const CreateResume = () => {
                     <select {...register("templateId")} className="form-input">
                       <option value="premium">Premium (Recommended)</option>
                       <option value="classic">Classic</option>
+                      <option value="faangpath">FAANGPath Pro 🚀</option>
                     </select>
                   </div>
                 </div>

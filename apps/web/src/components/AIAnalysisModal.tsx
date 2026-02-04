@@ -142,7 +142,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                           🚀 Suggested Improvements
                         </h4>
                         <ul className="space-y-3">
-                          {result.suggestions.map((tip, idx) => (
+                          {result.suggestions?.map((tip, idx) => (
                             <li
                               key={idx}
                               className="flex gap-3 text-sm p-3 bg-blue-50 rounded-lg"
@@ -152,7 +152,11 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                               </span>
                               <span className="text-slate-700">{tip}</span>
                             </li>
-                          ))}
+                          )) || (
+                            <li className="text-sm text-slate-500">
+                              No suggestions available.
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>

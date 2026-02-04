@@ -184,6 +184,23 @@ const transformResumeData = (resume: IResume) => {
     }
   });
 
+  // Helper to clean URL for display (remove https://, http://, www.)
+  const cleanUrlForDisplay = (
+    url: string | null | undefined,
+  ): string | null => {
+    if (!url) return null;
+    return url.replace(/^https?:\/\//, "").replace(/^www\./, "");
+  };
+
+  // Helper to ensure URL has https:// prefix (for hyperref to recognize as URL)
+  const ensureUrlPrefix = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return "https://" + url;
+  };
+
   return {
     PRIMARY_COLOR: primaryColorHex,
     IS_SANS: isSans,
@@ -192,8 +209,10 @@ const transformResumeData = (resume: IResume) => {
     EMAIL_RAW: resume.personalInfo.email, // Raw email for mailto:
     PHONE: escapeLatex(resume.personalInfo.phone),
     LOCATION: escapeLatex(resume.personalInfo.location),
-    LINKEDIN: resume.personalInfo.linkedin || null, // Raw URL for href
-    GITHUB: resume.personalInfo.github || null, // Raw URL for href
+    LINKEDIN: ensureUrlPrefix(resume.personalInfo.linkedin), // URL with https:// for href
+    LINKEDIN_DISPLAY: cleanUrlForDisplay(resume.personalInfo.linkedin), // Clean URL for display
+    GITHUB: ensureUrlPrefix(resume.personalInfo.github), // URL with https:// for href
+    GITHUB_DISPLAY: cleanUrlForDisplay(resume.personalInfo.github), // Clean URL for display
 
     // Dynamic Sections
     DYNAMIC_SECTIONS: dynamicSections,
@@ -228,6 +247,17 @@ export const generatePDF = async (
 
   // Write rendered LaTeX to file
   await fs.writeFile(texFile, renderedLatex);
+
+  // Copy resume.cls to temp directory if using faangpath template
+  if (template_id === "faangpath") {
+    const clsSource = path.join(TEMPLATES_DIR, "resume.cls");
+    const clsDest = path.join(TEMP_DIR, "resume.cls");
+    try {
+      await fs.copyFile(clsSource, clsDest);
+    } catch (e) {
+      console.warn("Could not copy resume.cls:", e);
+    }
+  }
 
   try {
     const useDocker = process.env.USE_DOCKER_LATEX === "true";

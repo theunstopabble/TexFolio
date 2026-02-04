@@ -105,22 +105,7 @@ const HomePage = () => {
       </div>
 
       {/* Trust/Social Proof */}
-      <div className="py-20 bg-slate-900 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-8">
-            Trusted by professionals at
-          </h2>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-            {["Google", "Amazon", "Microsoft", "Meta", "Netflix"].map(
-              (company) => (
-                <span key={company} className="text-2xl font-bold font-serif">
-                  {company}
-                </span>
-              ),
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Trust/Social Proof removed as requested */}
     </div>
   );
 };

@@ -172,7 +172,7 @@ const resumeSchema = new Schema<IResume>(
       github: { type: String },
       portfolio: { type: String },
     },
-    summary: { type: String, maxlength: 500 },
+    summary: { type: String, maxlength: 2000 },
     experience: [experienceSchema],
     education: [educationSchema],
     projects: [projectSchema],

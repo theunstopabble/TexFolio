@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useResumes } from "../hooks/useResumes";
+import { useResumes, useSendEmail } from "../hooks/useResumes";
 import { useAnalytics } from "../hooks/useQueries";
 import AnalyticsChart from "../components/AnalyticsChart";
 
@@ -24,6 +24,7 @@ const Dashboard = () => {
 
   // TanStack Query hooks - parallel data fetching
   const { data: resumes = [], isLoading: resumesLoading } = useResumes();
+  const { mutate: sendEmail, isPending: isSendingEmail } = useSendEmail();
   const { data: stats, isLoading: statsLoading } = useAnalytics() as {
     data: AnalyticsData | undefined;
     isLoading: boolean;
@@ -227,6 +228,18 @@ const Dashboard = () => {
                 >
                   View
                 </Link>
+                <button
+                  onClick={() => {
+                    if (user?.email) {
+                      sendEmail({ id: resume._id, email: user.email });
+                    }
+                  }}
+                  disabled={isSendingEmail}
+                  className="w-10 btn btn-secondary text-sm py-2 flex items-center justify-center shrink-0"
+                  title="Email to Me"
+                >
+                  📧
+                </button>
               </div>
             </div>
           ))}

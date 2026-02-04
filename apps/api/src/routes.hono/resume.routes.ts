@@ -3,6 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { authMiddleware } from "../middleware.hono/auth.middleware.js";
 import { resumeService } from "../services/resume.service.js";
+import { sendEmail } from "../services/email.service.js";
 
 // Create resume router
 export const resumeRoutes = new Hono();
@@ -317,3 +318,50 @@ resumeRoutes.get("/:id/pdf", async (c) => {
     return c.json({ success: false, error: "Failed to generate PDF" }, 500);
   }
 });
+
+// Email Resume
+resumeRoutes.post(
+  "/:id/email",
+  zValidator("json", z.object({ email: z.string().email() })),
+  async (c) => {
+    try {
+      const user = c.get("user");
+      const id = c.req.param("id");
+      const { email } = c.req.valid("json");
+
+      // 1. Generate PDF
+      const pdfPath = await resumeService.generatePdf(id, user.userId);
+      const resume = await resumeService.findById(id, user.userId);
+
+      if (!resume) {
+        return c.json({ success: false, error: "Resume not found" }, 404);
+      }
+
+      // 2. Read PDF Buffer
+      const fs = await import("fs/promises");
+      const pdfBuffer = await fs.readFile(pdfPath);
+
+      // 3. Send Email via Brevo
+      await sendEmail({
+        to: email,
+        subject: `Your Resume: ${resume.personalInfo.fullName}`,
+        htmlContent: `
+        <h1>Here is your requested resume</h1>
+        <p>Hi ${resume.personalInfo.fullName},</p>
+        <p>Please find your generated resume attached.</p>
+        <p>Best,<br>TexFolio Team</p>
+      `,
+        pdfBuffer: pdfBuffer,
+        pdfName: `${resume.personalInfo.fullName.replace(/\s+/g, "_")}_Resume.pdf`,
+      });
+
+      return c.json({ success: true, message: "Email sent successfully" });
+    } catch (error: any) {
+      console.error("Error sending email:", error);
+      return c.json(
+        { success: false, error: error.message || "Failed to send email" },
+        500,
+      );
+    }
+  },
+);

@@ -147,3 +147,20 @@ export function useGeneratePdf() {
     },
   });
 }
+/**
+ * Send resume via email
+ */
+export function useSendEmail() {
+  return useMutation({
+    mutationFn: async ({ id, email }: { id: string; email: string }) => {
+      const response = await resumeApi.sendEmail(id, email);
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Email sent successfully! 📧");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to send email");
+    },
+  });
+}

@@ -24,6 +24,14 @@ const TEMPLATES = [
     isPremium: true,
     color: "bg-blue-50",
   },
+  {
+    id: "faangpath",
+    name: "FAANGPath Pro",
+    description:
+      "FAANG-style template. Perfect for tech roles at top companies.",
+    isPremium: true,
+    color: "bg-emerald-50",
+  },
 ];
 
 const TemplateSelector = ({
@@ -100,7 +108,11 @@ const TemplateSelector = ({
                 <div
                   className={`w-10 h-10 rounded-lg ${template.color} flex items-center justify-center text-xl`}
                 >
-                  {template.id === "classic" ? "📄" : "🎨"}
+                  {template.id === "classic"
+                    ? "📄"
+                    : template.id === "faangpath"
+                      ? "🚀"
+                      : "🎨"}
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900">{template.name}</h4>

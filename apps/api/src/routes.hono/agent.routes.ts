@@ -106,3 +106,52 @@ agentRoutes.post(
     }
   },
 );
+
+/**
+ * POST /api/agents/import/linkedin
+ * Parse LinkedIn PDF export into Resume Data
+ */
+agentRoutes.post("/import/linkedin", async (c) => {
+  try {
+    const { parseLinkedInPdf } =
+      await import("../services/linkedin.service.js");
+
+    // Parse multipart form
+    const body = await c.req.parseBody();
+    const file = body["file"];
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ success: false, error: "No file provided" }, 400);
+    }
+
+    if (file.type !== "application/pdf") {
+      return c.json(
+        { success: false, error: "Only PDF files are supported" },
+        400,
+      );
+    }
+
+    console.log(
+      `📄 Processing LinkedIn PDF: ${file.name} (${file.size} bytes)`,
+    );
+
+    // Hono File -> ArrayBuffer -> Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // AI Parsing
+    const resumeData = await parseLinkedInPdf(buffer);
+
+    return c.json({
+      success: true,
+      message: "LinkedIn parsed successfully",
+      data: resumeData,
+    });
+  } catch (error: any) {
+    console.error("LinkedIn Import Error:", error);
+    return c.json(
+      { success: false, error: error.message || "Import failed" },
+      500,
+    );
+  }
+});
