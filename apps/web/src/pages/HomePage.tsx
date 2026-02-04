@@ -16,7 +16,7 @@ const HomePage = () => {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
             <span className="text-sm font-medium text-slate-600">
-              New: AI Cover Letter Generator 🚀
+              New: Advanced AI Editor & FAANG Templates 🚀
             </span>
           </div>
 
