@@ -1,4 +1,4 @@
-# Lightweight Debian image
+# Lightweight Debian image (V2.0)
 FROM debian:bullseye-slim
 
 # Install minimal TeX Live
