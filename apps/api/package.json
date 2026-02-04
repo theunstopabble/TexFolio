@@ -5,11 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/hono.ts",
-    "dev:express": "tsx watch src/index.ts",
     "dev:hono": "tsx watch src/hono.ts",
     "build": "tsc",
     "start": "node dist/hono.js",
-    "start:express": "node dist/index.js",
     "start:hono": "node dist/hono.js",
     "lint": "eslint src --ext .ts"
   },
