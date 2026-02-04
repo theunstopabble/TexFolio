@@ -58,3 +58,12 @@ export interface ResumeFormData {
   projects: Project[];
   certifications: Certification[];
 }
+
+export interface ATSAnalysisResult {
+  score: number;
+  summary: string;
+  keywords_found: string[];
+  keywords_missing: string[];
+  formatting_issues: string[];
+  suggestions: string[];
+}

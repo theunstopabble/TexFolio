@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useResumeEditor } from "../features/resume-editor/hooks/useResumeEditor";
 import { ResumeFormSections } from "../features/resume-editor/components/ResumeFormSections";
 import { ShareModal } from "../features/resume-editor/components/ShareModal";
+import ResumePreview from "../components/ResumePreview";
+import AIAnalysisModal from "../components/AIAnalysisModal";
 import CoverLetterModal from "../components/CoverLetterModal";
 import AICoachModal from "../components/AICoachModal";
 // Unused imports removed
