@@ -50,3 +50,4 @@ apps/api/temp/
 
 # Agent local files
 .agent/
+PROJECT_STATUS.md
