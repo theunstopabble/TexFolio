@@ -6,6 +6,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
 import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 import CreateResume from "./pages/CreateResume";
 import ResumeList from "./pages/ResumeList";
 import EditResume from "./pages/EditResume";
@@ -64,12 +65,14 @@ function App() {
                     }
                   />
 
-                  <Route path="/create" element={<CreateResume />} />
-                  <Route path="/resumes" element={<ResumeList />} />
-                  <Route path="/edit/:id" element={<EditResume />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/create" element={<CreateResume />} />
+                    <Route path="/resumes" element={<ResumeList />} />
+                    <Route path="/edit/:id" element={<EditResume />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/cover-letter" element={<CoverLetter />} />
+                  </Route>
                   <Route path="/templates" element={<Templates />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/cover-letter" element={<CoverLetter />} />
                   <Route path="/pricing" element={<Pricing />} />
                 </Routes>
               </main>
