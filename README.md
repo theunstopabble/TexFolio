@@ -53,7 +53,21 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 ---
 
-## 🛠 Tech Stack
+## � Screenshots
+
+|                   **Interactive Editor**                   |                          **Dashboard**                           |
+| :--------------------------------------------------------: | :--------------------------------------------------------------: |
+| <img src="docs/editor-demo.png" alt="Editor" width="400"/> | <img src="docs/dashboard-demo.png" alt="Dashboard" width="400"/> |
+
+|                       **AI Analysis**                       |                         **PDF Preview**                          |
+| :---------------------------------------------------------: | :--------------------------------------------------------------: |
+| <img src="docs/ai-demo.png" alt="AI Analysis" width="400"/> | <img src="docs/preview-demo.png" alt="PDF Preview" width="400"/> |
+
+> _Note: Add your screenshots to a `docs/` folder in the root directory._
+
+---
+
+## �🛠 Tech Stack
 
 ### Frontend (`apps/web`)
 
