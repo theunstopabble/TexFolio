@@ -35,6 +35,12 @@ const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
 
     const token = await getToken();
 
+    if (!token) {
+      toast.error("Please log in to import your profile");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const loadingToast = toast.loading(
         "Analyzing your LinkedIn PDF... (This may take a minute)",
