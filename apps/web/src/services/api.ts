@@ -89,7 +89,8 @@ export const aiApi = {
 };
 
 export const paymentApi = {
-  createOrder: (amount: number) => api.post("/payments/order", { amount }),
+  createOrder: (amount: number) =>
+    api.post("/payments/create-order", { amount }),
   verifyPayment: (data: unknown) => api.post("/payments/verify", data),
 };
 
