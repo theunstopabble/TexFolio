@@ -39,6 +39,11 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
+    clerkId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allow null/undefined (for legacy users)
+    },
     subscriptionId: {
       type: String,
     },
