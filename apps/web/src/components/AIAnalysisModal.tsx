@@ -128,9 +128,9 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                                 <li key={i}>{issue}</li>
                               ))
                             ) : (
-                              <span className="text-slate-500">
+                              <li className="text-slate-500 list-none">
                                 No major issues found.
-                              </span>
+                              </li>
                             )}
                           </ul>
                         </div>

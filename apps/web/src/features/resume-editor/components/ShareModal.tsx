@@ -62,6 +62,16 @@ export const ShareModal = ({
                     </span>
                     <button
                       onClick={onToggle}
+                      aria-label={
+                        isPublic
+                          ? "Disable public access"
+                          : "Enable public access"
+                      }
+                      title={
+                        isPublic
+                          ? "Disable public access"
+                          : "Enable public access"
+                      }
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
                         isPublic ? "bg-purple-600" : "bg-gray-200"
                       }`}
@@ -84,10 +94,12 @@ export const ShareModal = ({
                           type="text"
                           readOnly
                           value={publicUrl}
+                          aria-label="Public Resume Link"
                           className="flex-1 rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 focus:border-purple-500 focus:outline-none"
                         />
                         <button
                           onClick={copyToClipboard}
+                          title="Copy Link"
                           className="rounded-md bg-purple-100 px-3 py-2 text-sm font-medium text-purple-700 hover:bg-purple-200"
                         >
                           Copy

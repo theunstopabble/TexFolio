@@ -32,9 +32,11 @@ const Header = () => {
   const location = useLocation();
 
   // Close mobile menu when route changes
+  // Close mobile menu when route changes
   useEffect(() => {
     if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-  }, [location, isMobileMenuOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   return (
     <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
@@ -165,7 +167,7 @@ const Header = () => {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
+              className="md:hidden p-3 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0 cursor-pointer active:scale-95"
             >
               {isMobileMenuOpen ? (
                 <svg

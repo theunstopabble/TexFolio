@@ -22,7 +22,7 @@ export const useResumeEditor = () => {
 
   // ATS State
   const [atsModalOpen, setAtsModalOpen] = useState(false);
-  const [atsResult, setAtsResult] = useState<any>(null);
+  const [atsResult, setAtsResult] = useState<ATSAnalysisResult | null>(null);
   const [atsLoading, setAtsLoading] = useState(false);
 
   // Share State
@@ -73,17 +73,27 @@ export const useResumeEditor = () => {
           ],
           personalInfo: data.personalInfo,
           summary: data.summary || "",
-          experience: data.experience || [],
+          experience:
+            data.experience?.map((exp: Record<string, unknown>) => ({
+              ...exp,
+              description: Array.isArray(exp.description)
+                ? exp.description.join("\n")
+                : (exp.description as string) || "",
+            })) || [],
           education: data.education || [],
           skills:
-            data.skills?.map((s: any) => ({
+            data.skills?.map((s: Record<string, unknown>) => ({
               ...s,
-              skills: s.skills?.join(", ") || "",
+              skills: Array.isArray(s.skills)
+                ? s.skills.join(", ")
+                : (s.skills as string) || "",
             })) || [],
           projects:
-            data.projects?.map((p: any) => ({
+            data.projects?.map((p: Record<string, unknown>) => ({
               ...p,
-              technologies: p.technologies?.join(", ") || "",
+              technologies: Array.isArray(p.technologies)
+                ? p.technologies.join(", ")
+                : (p.technologies as string) || "",
             })) || [],
           certifications: data.certifications || [],
         });
@@ -155,7 +165,7 @@ export const useResumeEditor = () => {
     try {
       const result = await analyzeResume(watch());
       setAiResult(result);
-    } catch (error) {
+    } catch {
       toast.error("Failed to analyze resume.");
       setAiResult(null);
     } finally {
@@ -175,7 +185,7 @@ export const useResumeEditor = () => {
             : "Resume is now Private",
         );
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update visibility");
     }
   };
@@ -185,10 +195,13 @@ export const useResumeEditor = () => {
       setAtsLoading(true);
       setAtsModalOpen(true);
       const data = watch();
-      const { _id, ...cleanData } = data as any;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, ...cleanData } = data as unknown as {
+        _id?: string;
+      } & ResumeFormData;
       const res = await aiApi.checkATSScore({ resumeData: cleanData });
       setAtsResult(res.data.data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to analyze resume");
       setAtsModalOpen(false);
     } finally {
@@ -201,7 +214,7 @@ export const useResumeEditor = () => {
       setLoading(true);
       const url = await resumeApi.generatePdf(id!);
       window.open(url, "_blank");
-    } catch (error) {
+    } catch {
       toast.error("Failed to download PDF");
     } finally {
       setLoading(false);

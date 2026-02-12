@@ -22,7 +22,7 @@ export function SortableSection({
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 1000 : 1,
-    position: "relative" as any,
+    position: "relative" as const,
   };
 
   return (

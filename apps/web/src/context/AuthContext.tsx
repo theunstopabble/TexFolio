@@ -21,8 +21,6 @@ interface AuthContextType {
   isPro: boolean;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   getToken: () => Promise<string | null>;
 }
@@ -87,15 +85,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setMongoUser(null);
   };
 
-  // Deprecated methods stubs
-  const login = async () => {
-    console.warn("Manual login is deprecated. Use Clerk UI.");
-  };
-
-  const register = async () => {
-    console.warn("Manual register is deprecated. Use Clerk UI.");
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -103,8 +92,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isPro: Boolean(mongoUser?.isPro),
         token: null,
         isLoading: Boolean(!isUserLoaded || (clerkUser && !mongoUser)), // Wait for mongo sync
-        login,
-        register,
         logout,
         getToken,
       }}

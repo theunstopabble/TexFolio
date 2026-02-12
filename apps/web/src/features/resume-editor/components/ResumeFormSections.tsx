@@ -90,8 +90,10 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
               <TemplateSelector
                 currentTemplate={watch("templateId")}
                 onSelect={(id) => {
-                  const event = { target: { name: "templateId", value: id } };
-                  register("templateId").onChange(event as any);
+                  const event = {
+                    target: { name: "templateId", value: id },
+                  } as unknown as React.ChangeEvent<HTMLInputElement>;
+                  register("templateId").onChange(event);
                 }}
               />
               <input type="hidden" {...register("templateId")} />
@@ -114,12 +116,17 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
                     <button
                       key={c.val}
                       type="button"
+                      aria-label={`Select ${c.name} color`}
                       onClick={() =>
                         setValue("customization.primaryColor", c.val, {
                           shouldDirty: true,
                         })
                       }
-                      className={`w-8 h-8 rounded-full border-2 ${watch("customization.primaryColor") === c.val ? "border-slate-900 scale-110" : "border-transparent"}`}
+                      className={`w-8 h-8 rounded-full border-2 ${
+                        watch("customization.primaryColor") === c.val
+                          ? "border-slate-900 scale-110"
+                          : "border-transparent"
+                      }`}
                       style={{ backgroundColor: c.val }}
                     />
                   ))}
@@ -136,7 +143,11 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
                         shouldDirty: true,
                       })
                     }
-                    className={`px-3 py-1 rounded borderText font-serif ${watch("customization.fontFamily") === "serif" ? "bg-slate-800 text-white" : "bg-white"}`}
+                    className={`px-3 py-1 rounded borderText font-serif ${
+                      watch("customization.fontFamily") === "serif"
+                        ? "bg-slate-800 text-white"
+                        : "bg-white"
+                    }`}
                   >
                     Serif
                   </button>
@@ -147,7 +158,11 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
                         shouldDirty: true,
                       })
                     }
-                    className={`px-3 py-1 rounded border font-sans ${watch("customization.fontFamily") === "sans" ? "bg-slate-800 text-white" : "bg-white"}`}
+                    className={`px-3 py-1 rounded border font-sans ${
+                      watch("customization.fontFamily") === "sans"
+                        ? "bg-slate-800 text-white"
+                        : "bg-white"
+                    }`}
                   >
                     Sans
                   </button>
@@ -293,7 +308,10 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
               </div>
               {/* Note: We handle array-string conversion in hook onSubmit, here we bind to unknown for simplicity but better to manage as text */}
               <textarea
-                {...register(`experience.${index}.description` as any)}
+                {...register(
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  `experience.${index}.description` as any,
+                )}
                 className="form-input w-full p-2 border rounded h-24"
                 placeholder="Description (bullets will be split by new line)"
               />
@@ -435,7 +453,10 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
                   placeholder="Category (e.g. Languages)"
                 />
                 <input
-                  {...register(`skills.${index}.skills` as any)}
+                  {...register(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    `skills.${index}.skills` as any,
+                  )}
                   className="form-input p-2 border rounded"
                   placeholder="Skills (comma separated)"
                 />
@@ -494,7 +515,10 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
                   placeholder="Project Name"
                 />
                 <input
-                  {...register(`projects.${index}.technologies` as any)}
+                  {...register(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    `projects.${index}.technologies` as any,
+                  )}
                   className="form-input p-2 border rounded"
                   placeholder="Technologies (comma separated)"
                 />

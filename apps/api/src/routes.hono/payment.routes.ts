@@ -67,9 +67,16 @@ paymentRoutes.post(
       );
 
       if (isValid) {
+        // Grant Pro Access
+        const { User } = await import("../models/user.model.js");
+        await User.findOneAndUpdate(
+          { _id: user.mongoUserId },
+          { isPro: true, subscriptionId: payload.razorpay_payment_id },
+        );
+
         return c.json({
           success: true,
-          message: "Payment verified successfully",
+          message: "Payment verified successfully. Pro access granted!",
         });
       } else {
         return c.json(

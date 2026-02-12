@@ -262,6 +262,7 @@ const EditResume = () => {
             </div>
           </div>
 
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <ResumePreview data={formData as unknown as any} />
 
           <AIAnalysisModal
