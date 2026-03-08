@@ -35,11 +35,22 @@ class PaymentService {
       .update(text)
       .digest("hex");
 
-    if (generated_signature === signature) {
-      return true;
-    } else {
+    // Use timingSafeEqual to prevent timing attacks
+    try {
+      if (
+        crypto.timingSafeEqual(
+          Buffer.from(generated_signature, "utf-8"),
+          Buffer.from(signature, "utf-8"),
+        )
+      ) {
+        return true;
+      }
+    } catch (e) {
+      // If buffers are of different lengths or invalid
       return false;
     }
+
+    return false;
   }
 }
 

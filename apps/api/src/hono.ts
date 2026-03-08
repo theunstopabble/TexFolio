@@ -4,6 +4,7 @@ import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { serve } from "@hono/node-server";
 import { env, connectDatabase, disconnectDatabase } from "./config/index.js";
+import { rateLimiter } from "./middleware.hono/rate-limit.middleware.js";
 
 // Import Hono routes
 import { resumeRoutes } from "./routes.hono/resume.routes.js";
@@ -27,14 +28,44 @@ app.use("*", logger());
 // Security headers
 app.use("*", secureHeaders());
 
-// CORS
+// CORS Hardening: Only allow specific origins
+const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
+
 app.use(
   "*",
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      // or if the origin is exactly in our allowed list
+      if (!origin || allowedOrigins.includes(origin)) {
+        return origin;
+      }
+      return null; // Block others
+    },
     credentials: true,
   }),
 );
+
+// Global Rate Limiter
+app.use(
+  "/api/*",
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    max: 100, // Limit each IP to 100 requests per `window`
+    message: "Too many requests, please try again after a minute.",
+  }),
+);
+
+// Strict Rate Limiter for Sensitive Routes (Auth, Payments)
+const strictLimiter = rateLimiter({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5, // Limit to 5 requests per minute
+  message: "Too many attempts, please try again after a minute.",
+});
+
+app.use("/api/auth/*", strictLimiter);
+app.use("/api/payments/verify", strictLimiter);
+app.use("/api/payments/create-order", strictLimiter);
 
 // ============================================
 // Routes

@@ -12,8 +12,8 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.23",
-    "@hono/node-server": "^1.19.9",
+    "@clerk/clerk-sdk-node": "^5.1.6",
+    "@hono/node-server": "^1.19.11",
     "@hono/zod-validator": "^0.7.6",
     "@langchain/core": "^1.1.19",
     "@langchain/google-genai": "^2.1.15",
@@ -24,7 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "express-rate-limit": "^8.2.1",
+    "express-rate-limit": "^8.3.0",
     "groq-sdk": "^0.37.0",
     "helmet": "^8.0.0",
     "hono": "^4.11.7",
