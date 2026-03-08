@@ -1,0 +1,11 @@
+# TexFolio - AI-Powered LaTeX Resume Builder
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /create
+Disallow: /edit/
+Disallow: /resumes
+Disallow: /cover-letter
+Disallow: /profile
+
+Sitemap: https://texfolio.vercel.app/sitemap.xml

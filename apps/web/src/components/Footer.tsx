@@ -11,6 +11,9 @@ const Footer = () => {
               <img
                 src="/logo.png"
                 alt="TexFolio"
+                width={40}
+                height={40}
+                loading="lazy"
                 className="h-10 w-10 object-contain group-hover:scale-110 transition-transform"
               />
               <span className="text-2xl font-bold text-white">TexFolio</span>
@@ -103,6 +106,7 @@ const Footer = () => {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Follow us on ${social.name}`}
                 className="text-slate-600 hover:text-white cursor-pointer transition-colors text-sm font-medium"
               >
                 {social.name}

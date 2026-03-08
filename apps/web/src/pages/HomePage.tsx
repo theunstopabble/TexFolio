@@ -9,7 +9,7 @@ const HomePage = () => {
       {/* Hero Section */}
       <div className="relative pt-20 pb-32 overflow-hidden">
         {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-200/30 rounded-full blur-3xl -z-10 animate-pulse" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-200/30 rounded-full blur-3xl -z-10" />
         <div className="absolute top-20 right-0 w-[800px] h-[600px] bg-blue-200/30 rounded-full blur-3xl -z-10" />
 
         <div className="max-w-7xl mx-auto px-6 text-center relative z-10">

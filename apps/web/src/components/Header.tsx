@@ -15,11 +15,10 @@ const NavLink = ({
   return (
     <Link
       to={to}
-      className={`text-sm lg:text-base font-extrabold transition-all duration-200 px-3 py-2 lg:px-5 lg:py-2.5 rounded-full no-underline tracking-wide whitespace-nowrap ${
-        isActive
+      className={`text-sm lg:text-base font-extrabold transition-all duration-200 px-3 py-2 lg:px-5 lg:py-2.5 rounded-full no-underline tracking-wide whitespace-nowrap ${isActive
           ? "bg-blue-600/10 text-blue-800"
           : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-      }`}
+        }`}
     >
       {children}
     </Link>
@@ -50,7 +49,10 @@ const Header = () => {
             <img
               src="/logo.png"
               alt="TexFolio"
-              className="h-10 w-auto object-contain rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200"
+              width={40}
+              height={40}
+              fetchPriority="high"
+              className="h-10 w-10 object-contain rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200"
             />
             <span className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-300">
               TexFolio
@@ -114,6 +116,9 @@ const Header = () => {
                       <img
                         src={user.imageUrl}
                         alt={user.name || "User"}
+                        width={36}
+                        height={36}
+                        loading="lazy"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -129,6 +134,7 @@ const Header = () => {
                   onClick={logout}
                   className="hidden sm:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 hover:rotate-90 transform duration-200 shrink-0"
                   title="Logout"
+                  aria-label="Logout"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -168,6 +174,8 @@ const Header = () => {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-3 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0 cursor-pointer active:scale-95"
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
                 <svg
