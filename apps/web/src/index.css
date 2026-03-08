@@ -14,6 +14,7 @@
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
   font-family:
+    "Inter Variable",
     "Inter",
     -apple-system,
     BlinkMacSystemFont,

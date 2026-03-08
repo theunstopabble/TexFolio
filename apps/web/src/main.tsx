@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import '@fontsource-variable/inter'  // Self-hosted Inter font — prevents CLS from font swap
 import './index.css'
 import App from './App.tsx'
 
