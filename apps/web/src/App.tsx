@@ -5,6 +5,7 @@ import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
+import { Analytics } from "@vercel/analytics/react";
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
@@ -37,6 +38,7 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <Toaster position="top-right" />
+            <Analytics />
             <div className="min-h-screen bg-slate-50">
               <Header />
               <main className="min-h-screen">
