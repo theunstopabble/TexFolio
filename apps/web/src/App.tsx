@@ -10,8 +10,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
 import Loading from "./components/Loading";
 
-// Lazy Load Pages
-const HomePage = lazy(() => import("./pages/HomePage"));
+// Eagerly import HomePage — landing page must not use Suspense to prevent CLS
+import HomePage from "./pages/HomePage";
+
+// Lazy Load other Pages
 const PublicResume = lazy(() => import("./pages/PublicResume"));
 const UserProfilePage = lazy(() => import("./pages/UserProfile"));
 const CreateResume = lazy(() => import("./pages/CreateResume"));
@@ -37,7 +39,7 @@ function App() {
             <Toaster position="top-right" />
             <div className="min-h-screen bg-slate-50">
               <Header />
-              <main>
+              <main className="min-h-screen">
                 <Suspense fallback={<Loading fullScreen />}>
                   <Routes>
                     <Route path="/" element={<HomePage />} />
