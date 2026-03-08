@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Frontend](https://img.shields.io/badge/Frontend-React_19_%7C_Vite-61DAFB?style=for-the-badge&logo=react)](apps/web)
 [![Backend](https://img.shields.io/badge/Backend-Hono_%7C_Node.js-339933?style=for-the-badge&logo=nodedotjs)](apps/api)
-[![AI](https://img.shields.io/badge/AI-Groq_%7C_Llama_3-FF6F00?style=for-the-badge&logo=openai)](apps/api/src/services/ai.service.ts)
+[![AI](https://img.shields.io/badge/AI-LangGraph_%7C_NVIDIA_NIM_%7C_Groq-FF6F00?style=for-the-badge&logo=openai)](apps/api/src/agents)
 
 **Build professional, ATS-friendly resumes in minutes with the power of LaTeX rendering and AI assistance.**
 
@@ -28,10 +28,12 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 ### 🤖 AI-Powered Intelligence
 
+- **LangGraph Resume Coach:** Multi-agent pipeline scoring Content, Impact, Format, and ATS compatibility.
 - **Smart Resume Analysis:** Get real-time feedback on your resume with a 0-100 ATS score.
-- **Bullet Point Generator:** Generate action-oriented, quantified bullet points for any job title (Powered by Groq/Llama-3).
+- **Bullet Point Generator:** Generate action-oriented, quantified bullet points for any job title (Powered by NVIDIA NIM / Groq).
 - **Text Improver:** Instantly rewrite summary or descriptions to be more professional.
 - **Cover Letter Generator:** Auto-write tailored cover letters based on your resume and a job description.
+- **LinkedIn Import:** Upload your LinkedIn PDF and let Llama 3.3 automatically extract and populate your resume data.
 
 ### 📄 LaTeX Precision
 
@@ -47,8 +49,10 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 ### 🔐 Secure & Scalable
 
-- **Authentication:** powered by **Clerk** for secure user management.
-- **Database:** MongoDB for flexible schema design.
+- **Authentication:** powered by **Clerk** with strict JWT middleware enforcement.
+- **Payments:** Integrated **Razorpay** for Pro-tier upgrades.
+- **Email Delivery:** One-click PDF emailing via **Brevo API**.
+- **Database:** MongoDB Atlas for flexible schema design.
 - **Monorepo:** Managed with efficient npm workspaces.
 
 ---
@@ -71,21 +75,22 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 ### Frontend (`apps/web`)
 
-- **Core:** React 19, Vite, TypeScript
+- **Core:** React 19, Vite (Rolldown bundler), TypeScript
 - **Styling:** Tailwind CSS v4
-- **State Management:** Zustand, React Query (@tanstack/query)
+- **State Management:** Zustand (with persist), React Query (@tanstack/query)
 - **Forms:** React Hook Form
 - **UI Components:** Headless UI, Lucide React
 - **Authentication:** Clerk React SDK
 
 ### Backend (`apps/api`)
 
-- **Server:** Hono (Node.js adapter) - Ultra-fast web standard framework
+- **Server:** Hono v4 (Node.js adapter) - Ultra-fast web standard framework
 - **Database:** MongoDB (Mongoose)
-- **AI Engine:** LangChain + Groq SDK (Llama-3.1-8b-instant)
+- **AI Engine:** LangChain + LangGraph (Resume Coach Agent)
+- **LLM Providers:** NVIDIA NIM (Primary), Google Gemini, Groq (Fallback)
 - **PDF Engine:** `pdflatex` (via Docker or Local MiKTeX)
-- **Validation:** Zod
-- **Templating:** Mustache (for LaTeX variable injection)
+- **Integrations:** Razorpay (Payments), Brevo (Emails), Clerk (Auth)
+- **Security:** Global rate limiting, dynamic CORS, cryptographic webhook validation
 
 ---
 
@@ -122,12 +127,14 @@ Follow these steps to set up TexFolio locally.
    **`apps/api/.env`**
 
    ```env
-   PORT=3000
+   NODE_ENV=development
+   PORT=5000
    MONGODB_URI=your_mongodb_connection_string
-   GROQ_API_KEY=your_groq_api_key
    CLERK_SECRET_KEY=your_clerk_secret_key
    CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-   FRONTEND_URL=http://localhost:5173
+   NVIDIA_API_KEY=your_nvidia_nim_key
+   GROQ_API_KEY=your_groq_api_key
+   CORS_ORIGIN=http://localhost:5173
    # Set to true if using Docker for LaTeX
    USE_DOCKER_LATEX=true
    ```
@@ -147,7 +154,7 @@ Follow these steps to set up TexFolio locally.
    ```
 
    - Frontend: `http://localhost:5173`
-   - Backend: `http://localhost:3000`
+   - Backend: `http://localhost:5000`
 
 ---
 
@@ -186,23 +193,35 @@ TexFolio/
 
 ## 📚 API Documentation
 
-### **Resume**
+All protected routes strictly require a Clerk `Bearer` token.
 
-| Method | Endpoint              | Description             |
-| :----- | :-------------------- | :---------------------- |
-| `POST` | `/api/resume`         | Create a new resume     |
-| `GET`  | `/api/resume/:id`     | Get resume details      |
-| `PUT`  | `/api/resume/:id`     | Update resume           |
-| `POST` | `/api/resume/:id/pdf` | Generate & Download PDF |
+### **Resumes API (`/api/resumes`)**
 
-### **AI Services**
+| Method | Endpoint | Description |
+| :----- | :------- | :---------- |
+| `GET` | `/api/resumes` | Get all user resumes |
+| `POST` | `/api/resumes` | Create a new resume |
+| `GET` | `/api/resumes/:id` | Get resume details |
+| `PUT` | `/api/resumes/:id` | Update resume |
+| `GET` | `/api/resumes/:id/pdf` | Generate & Download PDF |
+| `POST` | `/api/resumes/:id/email` | Email PDF via Brevo |
 
-| Method | Endpoint               | Description                        |
-| :----- | :--------------------- | :--------------------------------- |
-| `POST` | `/api/ai/analyze`      | Analyze resume (ATS Score)         |
-| `POST` | `/api/ai/improve`      | Improve text (Summary/Description) |
-| `POST` | `/api/ai/bullets`      | Generate bullet points             |
-| `POST` | `/api/ai/cover-letter` | Generate cover letter              |
+### **AI Services (`/api/ai` & `/api/agents`)**
+
+| Method | Endpoint | Description |
+| :----- | :------- | :---------- |
+| `POST` | `/api/agents/coach` | Full LangGraph ATS & content analysis |
+| `POST` | `/api/agents/import/linkedin`| Parse and extract data from LinkedIn PDF |
+| `POST` | `/api/ai/improve` | Improve text (Summary/Description) |
+| `POST` | `/api/ai/generate-bullets` | Generate action-oriented bullet points |
+| `POST` | `/api/ai/cover-letter` | Generate tailored cover letter |
+
+### **Payments (`/api/payments`)**
+
+| Method | Endpoint | Description |
+| :----- | :------- | :---------- |
+| `POST` | `/api/payments/create-order`| Create Razorpay order |
+| `POST` | `/api/payments/verify` | Verify payment and upgrade to Pro |
 
 ---
 
