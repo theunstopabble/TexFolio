@@ -27,5 +27,8 @@
     "saas"
   ],
   "author": "Gautam",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
 }
