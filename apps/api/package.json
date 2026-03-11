@@ -27,7 +27,7 @@
     "express-rate-limit": "^8.3.0",
     "groq-sdk": "^0.37.0",
     "helmet": "^8.0.0",
-    "hono": "^4.11.7",
+    "hono": "^4.12.7",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.9.5",
     "mustache": "^4.2.0",
