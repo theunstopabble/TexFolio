@@ -154,7 +154,7 @@ Follow these steps to set up TexFolio locally.
    **`apps/web/.env`**
 
    ```env
-   VITE_API_URL=http://localhost:3000
+   VITE_API_URL=http://localhost:5000/api
    VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    ```
 
