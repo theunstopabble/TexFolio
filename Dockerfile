@@ -1,5 +1,9 @@
 # Base image with Node.js
-FROM node:18-bullseye-slim
+# Use LTS version with security patches
+FROM node:20-bullseye-slim
+
+# Add non-root user for security
+RUN groupadd -r texfolio && useradd -r -g texfolio -d /app -s /sbin/nologin texfolio
 
 # Install TeX Live (LaTeX) and basic utilities
 # We use --no-install-recommends to keep the image smaller, but meaningful packages are needed.
@@ -41,6 +45,12 @@ RUN cp -r apps/api/src/templates apps/api/dist/templates
 # Expose the API port
 EXPOSE 10000
 # We will use the PORT env var provided by Render
+
+# Set ownership of app directory to non-root user
+RUN chown -R texfolio:texfolio /app
+
+# Switch to non-root user for security
+USER texfolio
 
 # Start command
 CMD ["npm", "run", "start:deploy"]

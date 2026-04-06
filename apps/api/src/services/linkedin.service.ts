@@ -97,6 +97,10 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
     }
 
     // 2. Initialize Groq client
+    if (!env.GROQ_API_KEY || env.GROQ_API_KEY === "your-groq-api-key") {
+      throw new Error("GROQ_API_KEY is not configured. Please set a valid API key.");
+    }
+    
     console.log("🤖 Step 2: Initializing Groq model...");
     const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 

@@ -1,6 +1,7 @@
 import { createMiddleware } from "hono/factory";
 import type { Context, Next } from "hono";
 import crypto from "crypto";
+import { env } from "../config/env.js";
 
 // User interface for Hono context
 interface HonoUser {
@@ -23,6 +24,13 @@ declare module "hono" {
  */
 export const authMiddleware = createMiddleware(
   async (c: Context, next: Next) => {
+    if (!env.CLERK_SECRET_KEY || env.CLERK_SECRET_KEY.startsWith("sk_your_")) {
+      return c.json(
+        { success: false, error: "Server misconfiguration: Clerk secret not set" },
+        500,
+      );
+    }
+
     // Get authorization header
     const authHeader = c.req.header("authorization");
 

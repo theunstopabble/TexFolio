@@ -5,6 +5,7 @@ interface RateLimitStore {
     resetTime: number;
 }
 
+// In-memory store (for production with multiple instances, use Redis)
 const store = new Map<string, RateLimitStore>();
 
 interface RateLimitOptions {
@@ -12,6 +13,8 @@ interface RateLimitOptions {
     max: number;
     message?: string;
     keyGenerator?: (c: Context) => string;
+    skipSuccessfulRequests?: boolean;
+    skipFailedRequests?: boolean;
 }
 
 export const rateLimiter = (options: RateLimitOptions) => {
@@ -21,10 +24,8 @@ export const rateLimiter = (options: RateLimitOptions) => {
         message = "Too many requests from this IP, please try again later",
         keyGenerator = (c) => {
             // Use the LAST IP in x-forwarded-for chain (the actual client IP, not a proxy)
-            // x-forwarded-for format: "client, proxy1, proxy2" — first is most likely spoofed
             const forwardedFor = c.req.header("x-forwarded-for");
             if (forwardedFor) {
-                // Take the last IP in the chain (closest to our server, most trusted)
                 const ips = forwardedFor.split(",").map(ip => ip.trim());
                 const clientIp = ips[ips.length - 1];
                 if (clientIp && clientIp !== "unknown") {
@@ -36,9 +37,8 @@ export const rateLimiter = (options: RateLimitOptions) => {
             const realIp = c.req.header("x-real-ip");
             if (realIp) return realIp;
 
-            // Last resort: use connection remote address if available
-            // In Hono with @hono/node-server, this may not be directly accessible
-            return "unknown-ip";
+            // Last resort: use connection remote address
+            return c.env?.REMOTE_ADDR || "unknown-ip";
         },
     } = options;
 
@@ -48,7 +48,7 @@ export const rateLimiter = (options: RateLimitOptions) => {
 
         let record = store.get(key);
 
-        // Clean up expired records occasionally
+        // Clean up expired records occasionally (1% chance per request)
         if (Math.random() < 0.01) {
             for (const [k, v] of store.entries()) {
                 if (now > v.resetTime) {
@@ -73,6 +73,7 @@ export const rateLimiter = (options: RateLimitOptions) => {
         c.header("X-RateLimit-Reset", new Date(record.resetTime).toISOString());
 
         if (record.hits > max) {
+            c.header("Retry-After", Math.ceil(windowMs / 1000).toString());
             return c.json(
                 {
                     success: false,
@@ -86,3 +87,8 @@ export const rateLimiter = (options: RateLimitOptions) => {
         await next();
     };
 };
+
+// Memory usage monitoring for rate limiter
+export const getRateLimiterStats = () => ({
+    activeIps: store.size,
+});

@@ -122,7 +122,12 @@ Follow these steps to set up TexFolio locally.
    ```
 
 3. **Environment Setup**
-   Create `.env` files in `apps/api` and `apps/web`.
+   Copy `.env.example` files and fill in your keys:
+   
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   cp apps/web/.env.example apps/web/.env
+   ```
 
    **`apps/api/.env`**
 

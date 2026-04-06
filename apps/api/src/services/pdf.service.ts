@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { spawn } from "child_process";
 import Mustache from "mustache";
 import { IResume } from "../models/index.js";
 import { fileURLToPath } from "url";
@@ -9,9 +8,6 @@ import { fileURLToPath } from "url";
 // Get directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Promisify exec for async/await
-const execAsync = promisify(exec);
 
 // Path to pdflatex
 // In Docker/Linux, it's typically in /usr/bin/pdflatex which is in global PATH.
@@ -262,29 +258,61 @@ export const generatePDF = async (
   try {
     const useDocker = process.env.USE_DOCKER_LATEX === "true";
 
-    if (useDocker) {
-      console.log("🐳 Generating PDF using Docker (texfolio-latex)...");
-      try {
-        // Execute inside the container
-        // Container working dir is /app/temp, which maps to TEMP_DIR
-        await execAsync(
-          `docker exec texfolio-latex pdflatex -interaction=nonstopmode ${texFilename}`,
-        );
-      } catch (error: any) {
-        console.warn("Docker pdflatex warning:", error.message);
-        // Continue to check if PDF was created
+    // SECURITY FIX: Use spawn instead of exec to prevent command injection
+    const { spawn } = await import("child_process");
+    
+    console.log(useDocker ? "🐳 Generating PDF using Docker (texfolio-latex)..." : "🖥️ Generating PDF using local pdflatex...");
+    
+    const pdflatexPromise = new Promise<void>((resolve, reject) => {
+      let childProcess: ReturnType<typeof spawn>;
+      
+      if (useDocker) {
+        // Sanitize filename - only allow alphanumeric, underscore, hyphen, dot
+        const sanitizedFilename = texFilename.replace(/[^a-zA-Z0-9._-]/g, "");
+        if (sanitizedFilename !== texFilename) {
+          reject(new Error("Invalid filename detected"));
+          return;
+        }
+        childProcess = spawn("docker", ["exec", "texfolio-latex", "pdflatex", "-interaction=nonstopmode", sanitizedFilename], {
+          cwd: TEMP_DIR,
+        });
+      } else {
+        childProcess = spawn(PDFLATEX_PATH, [
+          "-interaction=nonstopmode",
+          "-output-directory",
+          TEMP_DIR,
+          texFilename, // Use basename since output-dir is set
+        ], {
+          cwd: TEMP_DIR,
+          env: { ...process.env, TEXINPUTS: `${TEMPLATES_DIR}:` },
+        });
       }
-    } else {
-      console.log("🖥️ Generating PDF using local pdflatex...");
-      // Compile LaTeX to PDF (local)
-      try {
-        await execAsync(
-          `"${PDFLATEX_PATH}" -interaction=nonstopmode -output-directory="${TEMP_DIR}" "${texFile}"`,
-          { cwd: TEMP_DIR },
-        );
-      } catch {
-        // pdflatex may return non-zero exit code even on success (warnings)
-      }
+
+      let stdout = "";
+      let stderr = "";
+      
+      childProcess.stdout?.on("data", (data) => { stdout += data.toString(); });
+      childProcess.stderr?.on("data", (data) => { stderr += data.toString(); });
+      
+      childProcess.on("close", (code) => {
+        if (code === 0) resolve();
+        else reject(new Error(`pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`));
+      });
+      
+      childProcess.on("error", (err) => reject(err));
+      
+      // Timeout after 60 seconds to prevent hanging
+      setTimeout(() => {
+        childProcess.kill("SIGKILL");
+        reject(new Error("PDF generation timed out after 60 seconds"));
+      }, 60000);
+    });
+
+    try {
+      await pdflatexPromise;
+    } catch (err: any) {
+      console.warn("pdflatex warning:", err.message);
+      // Continue to check if PDF was created (pdflatex may return non-zero even on success)
     }
 
     // Check if PDF was created

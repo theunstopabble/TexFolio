@@ -12,8 +12,11 @@ out/
 # Environment files (SENSITIVE - never commit!)
 .env
 .env.local
+.env.backup
+.env.development.local
 .env.development
 .env.production
+.env.production.local
 *.env
 
 # IDE & Editor

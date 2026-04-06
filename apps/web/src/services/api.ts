@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // Base API URL
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -29,6 +30,46 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+      const message = data?.error || data?.message || "An unexpected error occurred";
+      
+      // Handle specific error codes
+      switch (status) {
+        case 401:
+          toast.error("Session expired. Please sign in again.");
+          break;
+        case 403:
+          toast.error("You don't have permission to perform this action.");
+          break;
+        case 404:
+          toast.error("Resource not found.");
+          break;
+        case 429:
+          toast.error("Too many requests. Please wait a moment.");
+          break;
+        case 500:
+          toast.error("Server error. Please try again later.");
+          break;
+        default:
+          toast.error(message);
+      }
+    } else if (error.request) {
+      // Network error - no response from server
+      toast.error("Network error. Please check your connection.");
+    } else {
+      // Other errors
+      toast.error(error.message || "An unexpected error occurred");
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 // Resume APIs
 export const resumeApi = {
@@ -80,9 +121,9 @@ export const analyticsApi = {
 };
 
 export const aiApi = {
-  analyze: (data: any) => api.post("/ai/analyze", data),
+  analyze: (data: Record<string, unknown>) => api.post("/ai/analyze", data),
   generateCoverLetter: (data: {
-    resume: any;
+    resume: Record<string, unknown>;
     jobDescription: string;
     jobTitle?: string;
     company?: string;
@@ -90,7 +131,7 @@ export const aiApi = {
   improveText: (text: string) => api.post("/ai/improve", { text }),
   generateBullets: (jobTitle: string) =>
     api.post("/ai/generate-bullets", { jobTitle }),
-  checkATSScore: (data: any) => api.post("/ai/ats-check", data),
+  checkATSScore: (data: Record<string, unknown>) => api.post("/ai/ats-check", data),
 };
 
 export const paymentApi = {

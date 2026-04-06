@@ -51,9 +51,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
           if (res.data.success) {
             setMongoUser({
-              id: res.data.data.id,
-              name: res.data.data.name,
-              email: res.data.data.email,
+              id: res.data.data.id || clerkUser.id,
+              name: res.data.data.fullName || res.data.data.name || clerkUser.fullName || "User",
+              email: res.data.data.email || clerkUser.primaryEmailAddress?.emailAddress || "",
               isPro: res.data.data.isPro || false,
               imageUrl: clerkUser.imageUrl,
             });

@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { serve } from "@hono/node-server";
 import { env, connectDatabase, disconnectDatabase } from "./config/index.js";
 import { rateLimiter } from "./middleware.hono/rate-limit.middleware.js";
+import { requestIdMiddleware } from "./middleware.hono/request-id.middleware.js";
+import { structuredLogger } from "./middleware.hono/logger.middleware.js";
 
 // Import Hono routes
 import { resumeRoutes } from "./routes.hono/resume.routes.js";
@@ -22,36 +23,44 @@ const app = new Hono();
 // Middleware
 // ============================================
 
-// Logger
-app.use("*", logger());
+// 1. Request ID tracking (must be first for correlation)
+app.use("*", requestIdMiddleware);
 
-// Security headers
+// 2. Structured Logging (before business logic)
+app.use("*", structuredLogger);
+
+// 3. Security headers with enterprise hardening
 app.use("*", secureHeaders());
 
-// CORS Hardening: Only allow specific origins
-const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
+// 4. CORS Hardening: Origin whitelist per environment
+const allowedOrigins = env.CORS_ORIGIN
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 app.use(
   "*",
   cors({
     origin: (origin) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      // or if the origin is exactly in our allowed list
+      // Allow requests with no origin (mobile/curl) or whitelisted origins
       if (!origin || allowedOrigins.includes(origin)) {
         return origin;
       }
-      return null; // Block others
+      return null; // Block all others
     },
     credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+    exposeHeaders: ["X-Request-ID", "X-RateLimit-Limit", "Retry-After"],
   }),
 );
 
-// Global Rate Limiter
+// 5. Global Rate Limiter (increased for general API)
 app.use(
   "/api/*",
   rateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    max: 100, // Limit each IP to 100 requests per `window`
+    max: 120, // Limit each IP to 120 requests per minute
     message: "Too many requests, please try again after a minute.",
   }),
 );
@@ -114,10 +123,21 @@ app.notFound((c) => {
   );
 });
 
-// Global Error Handler
+// Global Error Handler - Enterprise (includes Request ID tracking)
 app.onError((err, c) => {
-  // Log full error details server-side for debugging
-  console.error("Error:", err);
+  const requestId = c.get("requestId") || "unknown";
+  
+  // Log full error details server-side with correlation ID for debugging
+  console.error(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level: "error",
+      message: "Unhandled exception",
+      requestId,
+      error: err.message,
+      stack: err.stack,
+    })
+  );
 
   // In production, never expose internal error details to clients
   const isProduction = env.NODE_ENV === "production";
@@ -129,6 +149,7 @@ app.onError((err, c) => {
     {
       success: false,
       error: errorMessage,
+      requestId, // Include request ID for correlation
     },
     500,
   );
