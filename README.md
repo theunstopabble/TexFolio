@@ -45,7 +45,7 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 - **Interactive Stepper:** A guided, step-by-step form experience.
 - **Drag & Drop:** Easily reorder sections (Education, Experience, Skills, etc.).
-- **Live Preview:** (Coming Soon) Real-time feedback on your edits.
+- **Live Preview:** Real-time feedback on your edits as you type. ✨
 
 ### 🔐 Enterprise Security
 
