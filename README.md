@@ -47,13 +47,19 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 - **Drag & Drop:** Easily reorder sections (Education, Experience, Skills, etc.).
 - **Live Preview:** (Coming Soon) Real-time feedback on your edits.
 
-### 🔐 Secure & Scalable
+### 🔐 Enterprise Security
 
-- **Authentication:** powered by **Clerk** with strict JWT middleware enforcement.
-- **Payments:** Integrated **Razorpay** for Pro-tier upgrades.
+- **Authentication:** Powered by **Clerk** with strict JWT middleware + config validation.
+- **Input Sanitization:** XSS/prototype pollution prevention on all JSON inputs.
+- **Request ID Tracking:** Every request traceable from client to server.
+- **Structured Logging:** JSON-serialized logs with correlation IDs.
+- **Rate Limiting:** Global (120/min) + Strict (5/min) for auth/payments endpoints.
+- **Security Headers:** CSP, X-Frame-Options, nosniff, and referrer policy enforced.
+- **Payments:** Integrated **Razorpay** with cryptographic webhook validation.
 - **Email Delivery:** One-click PDF emailing via **Brevo API**.
 - **Database:** MongoDB Atlas for flexible schema design.
 - **Monorepo:** Managed with efficient npm workspaces.
+- **CI/CD:** GitHub Actions for automated security audits + build verification.
 
 ---
 
@@ -85,12 +91,13 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 ### Backend (`apps/api`)
 
 - **Server:** Hono v4 (Node.js adapter) - Ultra-fast web standard framework
-- **Database:** MongoDB (Mongoose)
-- **AI Engine:** LangChain + LangGraph (Resume Coach Agent)
-- **LLM Providers:** NVIDIA NIM (Primary), Google Gemini, Groq (Fallback)
-- **PDF Engine:** `pdflatex` (via Docker or Local MiKTeX)
+- **Database:** MongoDB (Mongoose) with connection pooling
+- **AI Engine:** LangChain + LangGraph (Resume Coach Agent with 4-stage pipeline)
+- **LLM Providers:** NVIDIA NIM (Primary), Google Gemini, Groq (Fallback chain)
+- **PDF Engine:** `pdflatex` (via Docker or Local MiKTeX) with command injection prevention
 - **Integrations:** Razorpay (Payments), Brevo (Emails), Clerk (Auth)
-- **Security:** Global rate limiting, dynamic CORS, cryptographic webhook validation
+- **Security:** Request ID tracking, structured logging, input sanitization, rate limiting (global + strict), CORS whitelist, CSP headers
+- **CI/CD:** GitHub Actions with automated security audits + build verification
 
 ---
 
