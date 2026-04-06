@@ -8,8 +8,10 @@
     "dev:web": "npm run dev --workspace=@texfolio/web",
     "build:api": "npm run build --workspace=@texfolio/api",
     "build:web": "npm run build --workspace=@texfolio/web",
+    "build:shared": "npm run build --workspace=@texfolio/shared",
     "build:deploy": "npm run build --workspace=@texfolio/shared && npm run build --workspace=@texfolio/api",
     "start:deploy": "npm run start --workspace=@texfolio/api",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\""
   },
   "workspaces": [
