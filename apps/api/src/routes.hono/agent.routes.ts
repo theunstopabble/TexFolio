@@ -124,6 +124,15 @@ agentRoutes.post("/import/linkedin", async (c) => {
       return c.json({ success: false, error: "No file provided" }, 400);
     }
 
+    // File size limit: 10MB max to prevent memory exhaustion
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      return c.json(
+        { success: false, error: "File size exceeds 10MB limit" },
+        413,
+      );
+    }
+
     if (file.type !== "application/pdf") {
       return c.json(
         { success: false, error: "Only PDF files are supported" },

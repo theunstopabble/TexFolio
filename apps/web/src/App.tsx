@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, Component, type ReactNode, type ErrorInfo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
@@ -31,67 +31,124 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key");
 }
 
+// ============================================
+// Error Boundary — prevents white screen crashes
+// ============================================
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error("ErrorBoundary caught:", error, errorInfo);
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
+          <div className="text-center max-w-md">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+              Something went wrong
+            </h1>
+            <p className="text-slate-600 mb-6">
+              An unexpected error occurred. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                window.location.reload();
+              }}
+              className="btn btn-primary"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-        <AuthProvider>
-          <BrowserRouter>
-            <Toaster position="top-right" />
-            <Analytics />
-            <div className="min-h-screen bg-slate-50">
-              <Header />
-              <main className="min-h-screen">
-                <Suspense fallback={<Loading fullScreen />}>
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/r/:shareId" element={<PublicResume />} />
-                    <Route path="/profile/*" element={<UserProfilePage />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+          <AuthProvider>
+            <BrowserRouter>
+              <Toaster position="top-right" />
+              <Analytics />
+              <div className="min-h-screen bg-slate-50">
+                <Header />
+                <main className="min-h-screen">
+                  <Suspense fallback={<Loading fullScreen />}>
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/r/:shareId" element={<PublicResume />} />
+                      <Route path="/profile/*" element={<UserProfilePage />} />
 
-                    {/* Clerk Auth Routes */}
-                    <Route
-                      path="/login/*"
-                      element={
-                        <div className="flex justify-center py-20">
-                          <SignIn
-                            routing="path"
-                            path="/login"
-                            forceRedirectUrl="/dashboard"
-                          />
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="/register/*"
-                      element={
-                        <div className="flex justify-center py-20">
-                          <SignUp
-                            routing="path"
-                            path="/register"
-                            forceRedirectUrl="/dashboard"
-                          />
-                        </div>
-                      }
-                    />
+                      {/* Clerk Auth Routes */}
+                      <Route
+                        path="/login/*"
+                        element={
+                          <div className="flex justify-center py-20">
+                            <SignIn
+                              routing="path"
+                              path="/login"
+                              forceRedirectUrl="/dashboard"
+                            />
+                          </div>
+                        }
+                      />
+                      <Route
+                        path="/register/*"
+                        element={
+                          <div className="flex justify-center py-20">
+                            <SignUp
+                              routing="path"
+                              path="/register"
+                              forceRedirectUrl="/dashboard"
+                            />
+                          </div>
+                        }
+                      />
 
-                    <Route element={<ProtectedRoute />}>
-                      <Route path="/create" element={<CreateResume />} />
-                      <Route path="/resumes" element={<ResumeList />} />
-                      <Route path="/edit/:id" element={<EditResume />} />
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/cover-letter" element={<CoverLetter />} />
-                    </Route>
-                    <Route path="/templates" element={<Templates />} />
-                    <Route path="/pricing" element={<Pricing />} />
-                  </Routes>
-                </Suspense>
-              </main>
-              <Footer />
-            </div>
-          </BrowserRouter>
-        </AuthProvider>
-      </ClerkProvider>
-    </QueryClientProvider>
+                      <Route element={<ProtectedRoute />}>
+                        <Route path="/create" element={<CreateResume />} />
+                        <Route path="/resumes" element={<ResumeList />} />
+                        <Route path="/edit/:id" element={<EditResume />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/cover-letter" element={<CoverLetter />} />
+                      </Route>
+                      <Route path="/templates" element={<Templates />} />
+                      <Route path="/pricing" element={<Pricing />} />
+                    </Routes>
+                  </Suspense>
+                </main>
+                <Footer />
+              </div>
+            </BrowserRouter>
+          </AuthProvider>
+        </ClerkProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

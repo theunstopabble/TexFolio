@@ -10,6 +10,9 @@
   --color-danger: #ef4444;
 }
 
+/* ===== Dark Mode Variant (Tailwind v4) ===== */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ===== Base Styles ===== */
 body {
   @apply bg-slate-50 text-slate-900 antialiased;

@@ -20,10 +20,25 @@ export const rateLimiter = (options: RateLimitOptions) => {
         max,
         message = "Too many requests from this IP, please try again later",
         keyGenerator = (c) => {
-            // Get IP address from Cloudflare/Vercel headers or fallback
-            return c.req.header("x-forwarded-for") ||
-                c.req.header("x-real-ip") ||
-                "unknown-ip";
+            // Use the LAST IP in x-forwarded-for chain (the actual client IP, not a proxy)
+            // x-forwarded-for format: "client, proxy1, proxy2" — first is most likely spoofed
+            const forwardedFor = c.req.header("x-forwarded-for");
+            if (forwardedFor) {
+                // Take the last IP in the chain (closest to our server, most trusted)
+                const ips = forwardedFor.split(",").map(ip => ip.trim());
+                const clientIp = ips[ips.length - 1];
+                if (clientIp && clientIp !== "unknown") {
+                    return clientIp;
+                }
+            }
+
+            // Fallback to x-real-ip (set by trusted reverse proxies like nginx)
+            const realIp = c.req.header("x-real-ip");
+            if (realIp) return realIp;
+
+            // Last resort: use connection remote address if available
+            // In Hono with @hono/node-server, this may not be directly accessible
+            return "unknown-ip";
         },
     } = options;
 

@@ -1,5 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import type { Context, Next } from "hono";
+import crypto from "crypto";
 
 // User interface for Hono context
 interface HonoUser {
@@ -76,7 +77,7 @@ export const authMiddleware = createMiddleware(
               fullName:
                 `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
                 "User",
-              password: "clerk-authenticated-" + Math.random().toString(36),
+              password: crypto.randomUUID(),
               isPro: false,
             });
           }

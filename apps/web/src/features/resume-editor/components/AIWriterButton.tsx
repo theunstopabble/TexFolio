@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import toast from "react-hot-toast";
 
 export const AIWriterButton = ({
   onResult,
@@ -17,7 +18,7 @@ export const AIWriterButton = ({
 
   const handleAI = async () => {
     if (!isPro) {
-      alert("AI Writer is a Pro feature! Please upgrade.");
+      toast.error("AI Writer is a Pro feature! Please upgrade to Pro.");
       return;
     }
     setLoading(true);
@@ -34,10 +35,10 @@ export const AIWriterButton = ({
       }
 
       if (resultText) onResult(resultText);
-      else alert("AI could not generate a suggestion.");
+      else toast.error("AI could not generate a suggestion. Please try again.");
     } catch (err) {
       console.error("AI Error:", err);
-      alert("AI Service Failed.");
+      toast.error("AI service failed. Please try again later.");
     } finally {
       setLoading(false);
     }

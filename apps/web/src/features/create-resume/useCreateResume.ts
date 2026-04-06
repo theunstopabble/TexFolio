@@ -72,8 +72,10 @@ export const useCreateResume = () => {
     },
   });
 
-  const { control, handleSubmit, trigger, watch, reset } = formMethods;
-  const formData = watch();
+  const { control, handleSubmit, trigger, reset, getValues } = formMethods;
+  // Use getValues() instead of watch() to avoid re-rendering on every keystroke.
+  // watch() subscribes to all form changes and triggers a re-render on each one.
+  const formData = getValues();
 
   // Field Arrays
   const experienceFieldArray = useFieldArray({
@@ -229,6 +231,8 @@ export const useCreateResume = () => {
       setLoading(true);
       const url = await resumeApi.generatePdf(resumeId);
       window.open(url, "_blank");
+      // Revoke blob URL after a delay to allow browser to load it
+      setTimeout(() => resumeApi.revokePdfUrl(url), 5000);
     } catch (error) {
       console.error("Error opening PDF:", error);
       toast.error("Failed to download PDF");

@@ -116,11 +116,19 @@ app.notFound((c) => {
 
 // Global Error Handler
 app.onError((err, c) => {
+  // Log full error details server-side for debugging
   console.error("Error:", err);
+
+  // In production, never expose internal error details to clients
+  const isProduction = env.NODE_ENV === "production";
+  const errorMessage = isProduction
+    ? "Internal Server Error"
+    : err.message || "Internal Server Error";
+
   return c.json(
     {
       success: false,
-      error: err.message || "Internal Server Error",
+      error: errorMessage,
     },
     500,
   );
@@ -129,6 +137,10 @@ app.onError((err, c) => {
 // ============================================
 // Server Startup
 // ============================================
+// Server Startup
+// ============================================
+
+let server: ReturnType<typeof serve> | null = null;
 
 const startServer = async (): Promise<void> => {
   try {
@@ -140,7 +152,7 @@ const startServer = async (): Promise<void> => {
     console.log(`🚀 Hono Server running on http://localhost:${port}`);
     console.log(`📍 Environment: ${env.NODE_ENV}`);
 
-    serve({
+    server = serve({
       fetch: app.fetch,
       port,
     });
@@ -153,6 +165,9 @@ const startServer = async (): Promise<void> => {
 // Graceful shutdown handler
 const gracefulShutdown = async (): Promise<void> => {
   console.log("\n🛑 Shutting down gracefully...");
+  if (server) {
+    server.close();
+  }
   await disconnectDatabase();
   process.exit(0);
 };

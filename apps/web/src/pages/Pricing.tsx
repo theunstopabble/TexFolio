@@ -40,12 +40,12 @@ const Pricing = () => {
         name: user.name || "User",
         email: user.email || "",
       },
-      () => {
-        // Success Callback
-        toast.success("Welcome to Pro!");
-        // Force refresh or redirect
-        window.location.href = "/dashboard";
-      },
+        () => {
+          // Success Callback
+          toast.success("Welcome to Pro!");
+          // Use router navigate instead of full page reload
+          navigate("/dashboard", { replace: true });
+        },
     );
   };
 

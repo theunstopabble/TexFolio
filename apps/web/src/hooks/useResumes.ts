@@ -141,12 +141,15 @@ export function useGeneratePdf() {
     },
     onSuccess: (url) => {
       window.open(url, "_blank");
+      // Revoke blob URL after a delay to allow browser to load it
+      setTimeout(() => resumeApi.revokePdfUrl(url), 5000);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to generate PDF");
     },
   });
 }
+
 /**
  * Send resume via email
  */

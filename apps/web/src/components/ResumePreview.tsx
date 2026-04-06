@@ -222,7 +222,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Education */}
-        {data.education?.length > 0 && data.education[0].institution && (
+        {data.education?.length > 0 && data.education.some((e: any) => e.institution) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -269,7 +269,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Skills */}
-        {data.skills?.length > 0 && data.skills[0].category && (
+        {data.skills?.length > 0 && data.skills.some((s: any) => s.category) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -289,7 +289,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Experience */}
-        {data.experience?.length > 0 && data.experience[0].company && (
+        {data.experience?.length > 0 && data.experience.some((e: any) => e.company) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -336,7 +336,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Projects */}
-        {data.projects?.length > 0 && data.projects[0].name && (
+        {data.projects?.length > 0 && data.projects.some((p: any) => p.name) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -386,7 +386,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Certifications */}
-        {data.certifications?.length > 0 && data.certifications[0].name && (
+        {data.certifications?.length > 0 && data.certifications.some((c: any) => c.name) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}

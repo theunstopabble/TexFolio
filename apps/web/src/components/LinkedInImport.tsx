@@ -51,7 +51,8 @@ const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            // DO NOT set Content-Type manually — axios/browser will set it
+            // with the correct boundary for multipart/form-data
             Authorization: `Bearer ${token}`,
           },
         },

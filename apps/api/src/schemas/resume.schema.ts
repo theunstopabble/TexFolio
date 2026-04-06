@@ -12,7 +12,7 @@ export const resumeSchema = z.object({
     github: z.string().optional(),
     portfolio: z.string().optional(),
   }),
-  summary: z.string().max(500).optional(),
+  summary: z.string().max(2000).optional(),
   experience: z
     .array(
       z.object({

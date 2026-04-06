@@ -1,31 +1,27 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-// pdf-parse v1 has simple API: pdf(buffer) => { text, info, ... }
-const pdf = require("pdf-parse");
-import { ChatOpenAI } from "@langchain/openai";
+import pdf from "pdf-parse";
 import { z } from "zod";
 import { env } from "../config/env.js";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import Groq from "groq-sdk";
 
-// Define the Resume Schema for structured output
-// (Simplified version of IResume to map LinkedIn data)
+// Define the Resume Schema for structured output validation
 const linkedInSchema = z.object({
   personalInfo: z.object({
-    fullName: z.string(),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-    linkedin: z.string().optional(),
-    location: z.string().optional(),
-    summary: z.string().optional(),
+    fullName: z.string().default(""),
+    email: z.string().email().optional().or(z.literal("")),
+    phone: z.string().optional().or(z.literal("")),
+    linkedin: z.string().optional().or(z.literal("")),
+    github: z.string().optional().or(z.literal("")),
+    location: z.string().optional().or(z.literal("")),
   }),
+  summary: z.string().optional().or(z.literal("")),
   experience: z
     .array(
       z.object({
-        company: z.string(),
-        position: z.string(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        location: z.string().optional(),
+        company: z.string().default(""),
+        position: z.string().default(""),
+        startDate: z.string().optional().or(z.literal("")),
+        endDate: z.string().optional().or(z.literal("")),
+        location: z.string().optional().or(z.literal("")),
         description: z.array(z.string()).default([]),
       }),
     )
@@ -33,11 +29,13 @@ const linkedInSchema = z.object({
   education: z
     .array(
       z.object({
-        institution: z.string(),
-        degree: z.string(),
-        field: z.string(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
+        institution: z.string().default(""),
+        degree: z.string().default(""),
+        field: z.string().default(""),
+        startDate: z.string().optional().or(z.literal("")),
+        endDate: z.string().optional().or(z.literal("")),
+        location: z.string().optional().or(z.literal("")),
+        gpa: z.string().optional().or(z.literal("")),
       }),
     )
     .default([]),
@@ -45,11 +43,31 @@ const linkedInSchema = z.object({
     .array(
       z.object({
         category: z.string().default("General"),
-        skills: z.array(z.string()),
+        skills: z.array(z.string()).default([]),
+      }),
+    )
+    .default([]),
+  projects: z
+    .array(
+      z.object({
+        name: z.string().default(""),
+        description: z.string().optional().or(z.literal("")),
+        technologies: z.array(z.string()).default([]),
+      }),
+    )
+    .default([]),
+  certifications: z
+    .array(
+      z.object({
+        name: z.string().default(""),
+        issuer: z.string().optional().or(z.literal("")),
       }),
     )
     .default([]),
 });
+
+// Maximum PDF text length to process (prevents prompt injection via massive text)
+const MAX_TEXT_LENGTH = 50000;
 
 export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
   console.log("🚀 Starting LinkedIn PDF Parse...");
@@ -58,7 +76,6 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
     console.log("📄 Step 1: Parsing PDF buffer...");
     let rawText = "";
     try {
-      // pdf-parse v1: simple function call
       const data = await pdf(pdfBuffer);
       rawText = data.text;
       console.log("✅ PDF Parsed. Text length:", rawText?.length);
@@ -71,9 +88,16 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
       throw new Error("PDF appears to be empty or unreadable");
     }
 
-    // 2. Initialize AI Model (Using Groq - fast and reliable)
+    // Truncate text to prevent prompt injection via massive input
+    if (rawText.length > MAX_TEXT_LENGTH) {
+      console.warn(
+        `⚠️ PDF text truncated from ${rawText.length} to ${MAX_TEXT_LENGTH} chars`,
+      );
+      rawText = rawText.substring(0, MAX_TEXT_LENGTH);
+    }
+
+    // 2. Initialize Groq client
     console.log("🤖 Step 2: Initializing Groq model...");
-    const Groq = require("groq-sdk");
     const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 
     // 3. Prompt for Extraction
@@ -90,14 +114,14 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
           "linkedin": "linkedin username or url",
           "github": ""
         },
-        "summary": "Full professional summary/about section - include ALL text from Summary/About section",
+        "summary": "Full professional summary/about section text",
         "experience": [{
           "company": "Company Name",
           "position": "Job Title",
           "location": "Location",
           "startDate": "Mon YYYY",
           "endDate": "Present or Mon YYYY",
-          "description": ["Achievement 1", "Achievement 2", "..."]
+          "description": ["Achievement 1", "Achievement 2"]
         }],
         "education": [{
           "institution": "University Name",
@@ -109,8 +133,8 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
           "gpa": ""
         }],
         "skills": [{
-          "category": "Category Name (e.g., Languages, Frameworks, Tools)",
-          "skills": ["Skill1", "Skill2", "..."]
+          "category": "Category Name",
+          "skills": ["Skill1", "Skill2"]
         }],
         "projects": [{
           "name": "Project Name",
@@ -124,12 +148,10 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
       }
 
       IMPORTANT RULES:
-      - Extract the FULL Summary/About section text - do not truncate it
-      - For experience descriptions, extract ALL bullet points and achievements
-      - Group skills into categories (Languages, Frameworks, Databases, Tools, etc.)
-      - Extract ALL certifications listed
-      - Extract ALL projects mentioned
-      - Dates should be in "Mon YYYY" format (e.g., "Aug 2025")
+      - Extract the FULL Summary/About section text
+      - For experience descriptions, extract ALL bullet points
+      - Group skills into categories
+      - Return ONLY the JSON object, no other text
     `;
 
     const response = await groq.chat.completions.create({
@@ -138,7 +160,7 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
         { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `Starting of PDF Text:\n${rawText}\n--End of PDF Text--`,
+          content: `LinkedIn PDF Text:\n${rawText}\n--End of PDF Text--`,
         },
       ],
       temperature: 0,
@@ -157,10 +179,13 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
 
     try {
       const parsedData = JSON.parse(jsonString);
-      console.log("✅ JSON Parsed successfully");
-      return parsedData;
+
+      // Validate against schema to ensure safe output
+      const validatedData = linkedInSchema.parse(parsedData);
+      console.log("✅ JSON Parsed and validated successfully");
+      return validatedData;
     } catch (parseError) {
-      console.error("❌ Step 4 Failed: JSON parse error", parseError);
+      console.error("❌ Step 4 Failed: JSON parse/validation error", parseError);
       console.log("Raw AI Response:", jsonString);
       throw new Error("Failed to parse AI response");
     }

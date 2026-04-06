@@ -35,9 +35,10 @@ export const useResumeEditor = () => {
   const [aiCoachOpen, setAiCoachOpen] = useState(false);
 
   // Form Setup
-  const { register, control, handleSubmit, reset, watch, setValue } =
+  const { register, control, handleSubmit, reset, watch, setValue, getValues } =
     useForm<ResumeFormData>();
-  const formData = watch();
+  // Use getValues() instead of watch() to avoid re-rendering on every keystroke
+  const formData = getValues();
 
   // Field Arrays
   const experienceFieldArray = useFieldArray({ control, name: "experience" });
@@ -214,6 +215,8 @@ export const useResumeEditor = () => {
       setLoading(true);
       const url = await resumeApi.generatePdf(id!);
       window.open(url, "_blank");
+      // Revoke blob URL after a delay to allow browser to load it
+      setTimeout(() => resumeApi.revokePdfUrl(url), 5000);
     } catch {
       toast.error("Failed to download PDF");
     } finally {

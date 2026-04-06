@@ -19,6 +19,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   RAZORPAY_KEY_ID: z.string().optional(),
   RAZORPAY_KEY_SECRET: z.string().optional(),
+  RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
   BREVO_API_KEY: z.string().optional(),
   SENDER_EMAIL: z.string().email().optional(),
 });

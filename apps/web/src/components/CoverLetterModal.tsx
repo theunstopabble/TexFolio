@@ -30,13 +30,13 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
     setLoading(true);
     try {
       const data = {
-        resume: resumeData,
+        resume: { ...resumeData },
         jobDescription,
         jobTitle,
         company,
       };
 
-      // Remove internal fields
+      // Remove internal fields from the shallow copy
       if (data.resume._id) delete data.resume._id;
 
       const res = await aiApi.generateCoverLetter(data);

@@ -23,9 +23,6 @@ interface UIState {
   // Modal state
   modal: ModalState;
 
-  // Sidebar (for future)
-  isSidebarOpen: boolean;
-
   // Actions
   setActiveTab: (tab: ActiveTab) => void;
   setSaving: (saving: boolean) => void;
@@ -36,10 +33,6 @@ interface UIState {
   // Modal actions
   openModal: (type: ModalState["type"]) => void;
   closeModal: () => void;
-
-  // Sidebar actions
-  toggleSidebar: () => void;
-  closeSidebar: () => void;
 }
 
 // ============================================
@@ -54,7 +47,6 @@ export const useUIStore = create<UIState>()(
       isLoading: false,
       isMobileMenuOpen: false,
       modal: { isOpen: false, type: null },
-      isSidebarOpen: true,
 
       // Tab actions
       setActiveTab: (tab) => set({ activeTab: tab }),
@@ -71,11 +63,6 @@ export const useUIStore = create<UIState>()(
       // Modal actions
       openModal: (type) => set({ modal: { isOpen: true, type } }),
       closeModal: () => set({ modal: { isOpen: false, type: null } }),
-
-      // Sidebar
-      toggleSidebar: () =>
-        set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
-      closeSidebar: () => set({ isSidebarOpen: false }),
     }),
     { name: "UIStore" },
   ),

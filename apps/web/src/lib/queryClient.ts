@@ -8,14 +8,15 @@ export const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       // Cache data for 30 minutes
       gcTime: 30 * 60 * 1000,
-      // Retry failed requests up to 3 times
-      retry: 3,
+      // Retry failed requests up to 1 time (reduced from 3 for faster error feedback)
+      retry: 1,
       // Don't refetch on window focus (better for form editing)
       refetchOnWindowFocus: false,
     },
     mutations: {
-      // Retry mutations once on failure
-      retry: 1,
+      // NEVER auto-retry mutations — they can create duplicate data (POST/PUT/DELETE)
+      // If a mutation fails, the user should manually retry
+      retry: 0,
     },
   },
 });

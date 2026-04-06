@@ -47,12 +47,17 @@ export const resumeApi = {
   // Delete resume
   delete: (id: string) => api.delete(`/resumes/${id}`),
 
-  // Generate PDF - returns blob URL
+  // Generate PDF - returns blob URL (caller MUST revoke after use)
   generatePdf: async (id: string) => {
     const response = await api.get(`/resumes/${id}/pdf`, {
       responseType: "blob",
     });
     return URL.createObjectURL(response.data);
+  },
+
+  // Revoke a blob URL to free memory
+  revokePdfUrl: (url: string) => {
+    URL.revokeObjectURL(url);
   },
 
   // Toggle Visibility

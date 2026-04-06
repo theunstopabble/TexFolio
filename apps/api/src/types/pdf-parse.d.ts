@@ -1,13 +1,3 @@
-import { Request } from "express";
-
-declare global {
-  namespace Express {
-    interface Request {
-      userId?: string;
-    }
-  }
-}
-
 // pdf-parse v1.x has no TypeScript declarations
 declare module "pdf-parse" {
   interface PdfData {

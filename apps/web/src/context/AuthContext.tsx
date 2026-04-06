@@ -32,12 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { getToken, signOut } = useClerkAuth();
   const [mongoUser, setMongoUser] = useState<User | null>(null);
 
-  // Register the token provider with the API service
+  // Register the token provider with the API service — only once on mount
   useEffect(() => {
-    setTokenProvider(async () => {
-      return await getToken();
-    });
-  }, [getToken]);
+    setTokenProvider(getToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch Mongo User (with isPro) when Clerk user is ready
   useEffect(() => {
