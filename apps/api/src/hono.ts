@@ -57,7 +57,7 @@ app.use(
     },
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Request-ID"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Request-ID", "X-Organization-Id"],
     exposeHeaders: ["X-Request-ID", "X-RateLimit-Limit", "Retry-After"],
   }),
 );
