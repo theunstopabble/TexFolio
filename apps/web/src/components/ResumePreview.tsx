@@ -1,5 +1,3 @@
-import React from "react";
-
 // Types (Mirrors the form data structure)
 interface ResumeData {
   title: string;
@@ -11,6 +9,7 @@ interface ResumeData {
     location: string;
     linkedin?: string;
     github?: string;
+    portfolio?: string;
   };
   summary: string;
   experience: {

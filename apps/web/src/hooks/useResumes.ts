@@ -25,7 +25,7 @@ export function useResumes() {
  */
 export function useResume(id: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.resumes.detail(id!),
+    queryKey: queryKeys.resumes.detail(id || ""),
     queryFn: async () => {
       if (!id) throw new Error("Resume ID is required");
       const response = await resumeApi.getById(id);
@@ -142,7 +142,7 @@ export function useGeneratePdf() {
     onSuccess: (url) => {
       window.open(url, "_blank");
       // Revoke blob URL after a delay to allow browser to load it
-      setTimeout(() => resumeApi.revokePdfUrl(url), 5000);
+      setTimeout(() => resumeApi.revokePdfUrl(url), 60000);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to generate PDF");

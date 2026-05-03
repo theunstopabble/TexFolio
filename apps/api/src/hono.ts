@@ -6,6 +6,7 @@ import { env, connectDatabase, disconnectDatabase } from "./config/index.js";
 import { rateLimiter } from "./middleware.hono/rate-limit.middleware.js";
 import { requestIdMiddleware } from "./middleware.hono/request-id.middleware.js";
 import { structuredLogger } from "./middleware.hono/logger.middleware.js";
+import { inputSanitizer } from "./middleware.hono/input-validator.middleware.js";
 
 // Import Hono routes
 import { resumeRoutes } from "./routes.hono/resume.routes.js";
@@ -75,6 +76,14 @@ const strictLimiter = rateLimiter({
 app.use("/api/auth/*", strictLimiter);
 app.use("/api/payments/verify", strictLimiter);
 app.use("/api/payments/create-order", strictLimiter);
+
+// 6. Input Sanitizer (skip webhook routes to preserve raw body for signature verification)
+app.use("/api/*", async (c, next) => {
+  if (c.req.path.includes("/webhook")) {
+    return await next();
+  }
+  return await inputSanitizer()(c, next);
+});
 
 // ============================================
 // Routes

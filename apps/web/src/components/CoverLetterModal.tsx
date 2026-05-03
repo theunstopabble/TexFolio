@@ -1,4 +1,4 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { aiApi } from "../services/api";
 import toast from "react-hot-toast";
@@ -66,7 +66,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -76,11 +76,11 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black/25" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
@@ -89,8 +89,8 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
+              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <DialogTitle
                   as="h3"
                   className="text-xl font-bold leading-6 text-gray-900 flex justify-between items-center mb-4"
                 >
@@ -101,7 +101,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                   >
                     ✕
                   </button>
-                </Dialog.Title>
+                </DialogTitle>
 
                 {step === "input" ? (
                   <div className="space-y-4">
@@ -220,8 +220,8 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                     </div>
                   </div>
                 )}
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>

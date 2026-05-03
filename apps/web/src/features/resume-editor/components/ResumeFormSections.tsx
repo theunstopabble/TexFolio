@@ -1,4 +1,3 @@
-import React from "react";
 import type {
   UseFormRegister,
   UseFormSetValue,
@@ -41,7 +40,7 @@ interface ResumeFormSectionsProps {
   removeCert: UseFieldArrayRemove;
 }
 
-export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
+export const ResumeFormSections = ({
   activeStep,
   register,
   watch,
@@ -61,7 +60,7 @@ export const ResumeFormSections: React.FC<ResumeFormSectionsProps> = ({
   certFields,
   appendCert,
   removeCert,
-}) => {
+}: ResumeFormSectionsProps) => {
   // 0: Basics (Title, Template, Personal Info)
   if (activeStep === 0) {
     return (

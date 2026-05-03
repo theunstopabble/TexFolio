@@ -1,6 +1,5 @@
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import clsx from "clsx";
 
 interface TemplateSelectorProps {
   currentTemplate: string;
@@ -62,13 +61,11 @@ const TemplateSelector = ({
             <div
               key={template.id}
               onClick={() => handleSelect(template.id, template.isPremium)}
-              className={clsx(
-                "relative rounded-xl border-2 p-4 cursor-pointer transition-all",
+              className={`relative rounded-xl border-2 p-4 cursor-pointer transition-all ${
                 isSelected
                   ? "border-blue-600 bg-blue-50/50"
-                  : "border-slate-100 hover:border-slate-300",
-                isLocked && "opacity-75 cursor-not-allowed",
-              )}
+                  : "border-slate-100 hover:border-slate-300"
+              } ${isLocked ? "opacity-75 cursor-not-allowed" : ""}`}
             >
               {/* Premium Badge */}
               {template.isPremium && (

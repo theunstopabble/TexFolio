@@ -1,4 +1,4 @@
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@headlessui/react";
 import { Fragment } from "react";
 import { useResumeCoach } from "../hooks/useResumeCoach";
 
@@ -39,7 +39,7 @@ export default function AICoachModal({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={handleClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -49,11 +49,11 @@ export default function AICoachModal({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        </Transition.Child>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
@@ -62,15 +62,15 @@ export default function AICoachModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4">
-                  <Dialog.Title className="text-xl font-bold text-white flex items-center gap-2">
+                  <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
                     🤖 AI Resume Coach
                     <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
                       Powered by NVIDIA
                     </span>
-                  </Dialog.Title>
+                  </DialogTitle>
                   <p className="text-purple-100 text-sm mt-1">
                     Get comprehensive AI analysis of your resume
                   </p>
@@ -238,7 +238,7 @@ export default function AICoachModal({
                       </div>
 
                       {/* Recommendations */}
-                      {data.recommendations.length > 0 && (
+                      {data.recommendations?.length > 0 && (
                         <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-xl">
                           <h4 className="font-semibold text-gray-800 mb-3">
                             🎯 Top Recommendations
@@ -275,8 +275,8 @@ export default function AICoachModal({
                     </div>
                   )}
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>

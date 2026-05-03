@@ -3,6 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Mustache from "mustache";
 import { IResume } from "../models/index.js";
+import { env } from "../config/env.js";
 import { fileURLToPath } from "url";
 
 // Get directory path for ES modules
@@ -11,11 +12,8 @@ const __dirname = path.dirname(__filename);
 
 // Path to pdflatex
 // In Docker/Linux, it's typically in /usr/bin/pdflatex which is in global PATH.
-// On Local Windows, use the specified path.
-const IS_WINDOWS = process.platform === "win32";
-const PDFLATEX_PATH = IS_WINDOWS
-  ? "C:\\Users\\gauta\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
-  : "pdflatex";
+// On Local Windows, configure via PDFLATEX_PATH env var or it defaults to pdflatex in PATH.
+const PDFLATEX_PATH = env.PDFLATEX_PATH || "pdflatex";
 
 // Templates directory
 const TEMPLATES_DIR = path.join(__dirname, "../templates");

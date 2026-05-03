@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { resumeApi } from "../../services/api";
 import toast from "react-hot-toast";
@@ -32,11 +33,17 @@ export const useCreateResume = () => {
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const templateFromUrl = searchParams.get("template");
+  const validTemplates = ["premium", "classic", "faangpath"];
+  const initialTemplate = validTemplates.includes(templateFromUrl || "")
+    ? templateFromUrl!
+    : "premium";
 
   const formMethods = useForm<ResumeFormData>({
     defaultValues: {
       title: "My Resume",
-      templateId: "premium",
+      templateId: initialTemplate,
       personalInfo: {
         fullName: user?.name || "",
         email: user?.email || "",
@@ -72,10 +79,9 @@ export const useCreateResume = () => {
     },
   });
 
-  const { control, handleSubmit, trigger, reset, getValues } = formMethods;
-  // Use getValues() instead of watch() to avoid re-rendering on every keystroke.
-  // watch() subscribes to all form changes and triggers a re-render on each one.
-  const formData = getValues();
+  const { control, handleSubmit, trigger, reset, watch } = formMethods;
+  // Use watch() for live preview updates (formData must react to changes)
+  const formData = watch();
 
   // Field Arrays
   const experienceFieldArray = useFieldArray({
@@ -232,7 +238,7 @@ export const useCreateResume = () => {
       const url = await resumeApi.generatePdf(resumeId);
       window.open(url, "_blank");
       // Revoke blob URL after a delay to allow browser to load it
-      setTimeout(() => resumeApi.revokePdfUrl(url), 5000);
+      setTimeout(() => resumeApi.revokePdfUrl(url), 60000);
     } catch (error) {
       console.error("Error opening PDF:", error);
       toast.error("Failed to download PDF");

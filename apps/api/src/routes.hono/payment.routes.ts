@@ -20,8 +20,9 @@ const verifyPaymentSchema = z.object({
   razorpay_signature: z.string(),
 });
 
-// Apply auth middleware
-paymentRoutes.use("/*", authMiddleware);
+// Apply auth middleware to protected payment routes (NOT webhook)
+paymentRoutes.use("/create-order", authMiddleware);
+paymentRoutes.use("/verify", authMiddleware);
 
 // Create order
 paymentRoutes.post(
@@ -141,7 +142,13 @@ paymentRoutes.post("/webhook", async (c) => {
       return c.json({ success: false, error: "Invalid signature" }, 401);
     }
 
-    const event = JSON.parse(body);
+    let event;
+    try {
+      event = JSON.parse(body);
+    } catch {
+      console.error("Webhook: Invalid JSON body");
+      return c.json({ success: false, error: "Invalid JSON body" }, 400);
+    }
     const { event: eventType, payload } = event;
 
     console.log(`🔔 Razorpay Webhook: ${eventType}`);

@@ -1,13 +1,9 @@
-import React from "react";
-
-interface SuccessViewProps {
-  onDownload: () => void;
-  onCreateAnother: () => void;
-}
-
-const SuccessView: React.FC<SuccessViewProps> = ({
+const SuccessView = ({
   onDownload,
   onCreateAnother,
+}: {
+  onDownload: () => void;
+  onCreateAnother: () => void;
 }) => {
   return (
     <div className="max-w-2xl mx-auto px-6 py-20 text-center animate-fade-in">

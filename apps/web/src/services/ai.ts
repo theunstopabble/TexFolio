@@ -12,6 +12,6 @@ export interface ATSAnalysisResult {
 export const analyzeResume = async (
   resumeData: any,
 ): Promise<ATSAnalysisResult> => {
-  const response = await api.post("/ai/analyze", resumeData);
+  const response = await api.post("/ai/analyze", { resumeData });
   return response.data.data;
 };

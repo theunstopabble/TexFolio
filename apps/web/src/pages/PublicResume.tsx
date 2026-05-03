@@ -13,7 +13,7 @@ const PublicResume = () => {
   useEffect(() => {
     const fetchPublicResume = async () => {
       try {
-        const response = await api.get(`/public/${shareId}`); // Uses the public route
+        const response = await api.get(`/public/r/${shareId}`); // Uses the public route
         if (response.data.success) {
           setResume(response.data.data);
         } else {

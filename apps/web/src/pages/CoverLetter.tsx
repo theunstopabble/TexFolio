@@ -17,6 +17,7 @@ const CoverLetter = () => {
 
   useEffect(() => {
     const fetchResumes = async () => {
+      setLoading(true);
       try {
         const response = await resumeApi.getAll();
         const resumeList = response.data.data || [];

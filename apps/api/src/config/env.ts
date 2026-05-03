@@ -22,6 +22,7 @@ const envSchema = z.object({
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
   BREVO_API_KEY: z.string().optional(),
   SENDER_EMAIL: z.string().email().optional(),
+  PDFLATEX_PATH: z.string().optional(), // Path to pdflatex binary (defaults to 'pdflatex' in PATH)
 });
 
 // Parse and validate environment variables

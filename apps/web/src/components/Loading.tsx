@@ -1,10 +1,8 @@
-import React from "react";
-
 interface LoadingProps {
   fullScreen?: boolean;
 }
 
-const Loading: React.FC<LoadingProps> = ({ fullScreen = false }) => {
+const Loading = ({ fullScreen = false }: LoadingProps) => {
   if (fullScreen) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">

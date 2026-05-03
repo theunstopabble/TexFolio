@@ -24,40 +24,40 @@ export function useAnalytics() {
 // AI Mutations
 // ============================================
 
-  /**
-   * Analyze resume with AI
-   */
-  export function useAnalyzeResume() {
-    return useMutation({
-      mutationFn: async (data: Record<string, unknown>) => {
-        const response = await aiApi.analyze(data);
-        return response.data.data;
-      },
-      onError: (error: Error) => {
-        toast.error(error.message || "Failed to analyze resume");
-      },
-    });
-  }
+/**
+ * Analyze resume with AI
+ */
+export function useAnalyzeResume() {
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const response = await aiApi.analyze(data);
+      return response.data.data;
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to analyze resume");
+    },
+  });
+}
 
-  /**
-   * Generate cover letter with AI
-   */
-  export function useGenerateCoverLetter() {
-    return useMutation({
-      mutationFn: async (data: {
-        resume: Record<string, unknown>;
-        jobDescription: string;
-        jobTitle?: string;
-        company?: string;
-      }) => {
-        const response = await aiApi.generateCoverLetter(data);
-        return response.data.data;
-      },
-      onError: (error: Error) => {
-        toast.error(error.message || "Failed to generate cover letter");
-      },
-    });
-  }
+/**
+ * Generate cover letter with AI
+ */
+export function useGenerateCoverLetter() {
+  return useMutation({
+    mutationFn: async (data: {
+      resume: Record<string, unknown>;
+      jobDescription: string;
+      jobTitle?: string;
+      company?: string;
+    }) => {
+      const response = await aiApi.generateCoverLetter(data);
+      return response.data.data;
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to generate cover letter");
+    },
+  });
+}
 
 /**
  * Improve text with AI
@@ -89,17 +89,17 @@ export function useGenerateBullets() {
   });
 }
 
-  /**
-   * Check ATS score with AI
-   */
-  export function useATSCheck() {
-    return useMutation({
-      mutationFn: async (data: Record<string, unknown>) => {
-        const response = await aiApi.checkATSScore(data);
-        return response.data.data;
-      },
-      onError: (error: Error) => {
-        toast.error(error.message || "Failed to check ATS score");
-      },
-    });
-  }
+/**
+ * Check ATS score with AI
+ */
+export function useATSCheck() {
+  return useMutation({
+    mutationFn: async (data: Record<string, unknown>) => {
+      const response = await aiApi.checkATSScore(data);
+      return response.data.data;
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to check ATS score");
+    },
+  });
+}

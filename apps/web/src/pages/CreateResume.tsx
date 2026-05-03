@@ -141,7 +141,11 @@ const CreateResume = () => {
             <h3 className="font-bold text-lg flex items-center gap-2">
               👀 Live Preview
               <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-normal">
-                {formData.templateId === "premium" ? "Premium" : "Classic"}
+                {formData.templateId === "premium"
+                  ? "Premium"
+                  : formData.templateId === "faangpath"
+                    ? "FAANGPath"
+                    : "Classic"}
               </span>
             </h3>
             <span className="text-xs text-slate-400">
