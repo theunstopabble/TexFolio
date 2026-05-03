@@ -263,6 +263,19 @@ export class OrganizationService {
       }
     }
 
+    // Prevent last owner from demoting themselves — org must always have at least 1 owner
+    if (target.role === "owner" && newRole !== "owner" && targetUserId === actor.userId) {
+      const otherOwners = await OrganizationMember.countDocuments({
+        organizationId: orgId,
+        role: "owner",
+        status: "active",
+        userId: { $ne: targetUserId },
+      });
+      if (otherOwners === 0) {
+        throw new Error("Cannot demote yourself: you are the only owner. Transfer ownership first.");
+      }
+    }
+
     target.role = newRole;
     return await target.save();
   }
