@@ -274,8 +274,12 @@ resumeRoutes.get("/:id/pdf", async (c) => {
     const pdfPath = await resumeService.generatePdf(id, user.userId);
     const resume = await resumeService.findById(id, user.userId);
 
+    // Sanitize filename to prevent header injection
+    const sanitizeFilename = (name: string) =>
+      name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";
+
     const filename = resume
-      ? `${resume.personalInfo.fullName}_Resume.pdf`
+      ? `${sanitizeFilename(resume.personalInfo.fullName)}_Resume.pdf`
       : "Resume.pdf";
 
     // Read file and return as response

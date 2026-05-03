@@ -6,9 +6,16 @@ class PaymentService {
   private razorpay: Razorpay;
 
   constructor() {
+    const keyId = env.RAZORPAY_KEY_ID;
+    const keySecret = env.RAZORPAY_KEY_SECRET;
+
+    if (env.NODE_ENV === "production" && (!keyId || !keySecret)) {
+      throw new Error("Razorpay keys are required in production");
+    }
+
     this.razorpay = new Razorpay({
-      key_id: env.RAZORPAY_KEY_ID || "rzp_test_dummy",
-      key_secret: env.RAZORPAY_KEY_SECRET || "dummy",
+      key_id: keyId || "rzp_test_dummy",
+      key_secret: keySecret || "dummy",
     });
   }
 

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { authMiddleware } from "../middleware.hono/auth.middleware.js";
+import { rateLimiter } from "../middleware.hono/rate-limit.middleware.js";
 import { paymentService } from "../services/payment.service.js";
 import crypto from "crypto";
 import { env } from "../config/env.js";
@@ -23,6 +24,16 @@ const verifyPaymentSchema = z.object({
 // Apply auth middleware to protected payment routes (NOT webhook)
 paymentRoutes.use("/create-order", authMiddleware);
 paymentRoutes.use("/verify", authMiddleware);
+
+// Webhook rate limiter (10 requests per minute per IP)
+paymentRoutes.use(
+  "/webhook",
+  rateLimiter({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: "Too many webhook requests",
+  }),
+);
 
 // Create order
 paymentRoutes.post(

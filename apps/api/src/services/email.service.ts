@@ -20,7 +20,15 @@ export const sendEmail = async ({
     throw new Error("Email service is not configured");
   }
 
-  const payload: any = {
+  interface BrevoPayload {
+    sender: { name: string; email: string };
+    to: { email: string }[];
+    subject: string;
+    htmlContent: string;
+    attachment?: { name: string; content: string }[];
+  }
+
+  const payload: BrevoPayload = {
     sender: {
       name: "TexFolio",
       email: env.SENDER_EMAIL || "no-reply@texfolio.vercel.app",

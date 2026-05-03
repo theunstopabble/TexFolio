@@ -8,6 +8,14 @@ publicRoutes.get("/r/:shareId", async (c) => {
   try {
     const shareId = c.req.param("shareId");
 
+    // Validate shareId format (alphanumeric, hyphens, underscores only; max 32 chars)
+    if (!shareId || !/^[a-zA-Z0-9_-]{1,32}$/.test(shareId)) {
+      return c.json(
+        { success: false, error: "Invalid share link" },
+        400,
+      );
+    }
+
     const { Resume } = await import("../models/resume.model.js");
     const resume = await Resume.findOne({ shareId, isPublic: true });
 

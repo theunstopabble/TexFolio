@@ -37,9 +37,18 @@ export class ResumeService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new Error("Invalid resume ID");
     }
+    // Prevent ownership transfer or injected fields
+    const safeData = { ...data };
+    delete (safeData as Record<string, unknown>).userId;
+    delete (safeData as Record<string, unknown>).clerkId;
+    delete (safeData as Record<string, unknown>)._id;
+    delete (safeData as Record<string, unknown>).shareId;
+    delete (safeData as Record<string, unknown>).createdAt;
+    delete (safeData as Record<string, unknown>).updatedAt;
+
     return await Resume.findOneAndUpdate(
       { _id: id, userId },
-      { ...data },
+      safeData,
       { new: true, runValidators: true },
     );
   }
