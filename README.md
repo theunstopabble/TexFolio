@@ -112,6 +112,7 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 - **Core:** React 19, Vite (Rolldown bundler), TypeScript
 - **Styling:** Tailwind CSS v4
 - **State Management:** Zustand (with persist), React Query (@tanstack/query)
+- **Organization Context:** Zustand store (`organizationStore`) + `OrganizationContext` provider for active-org resolution, role-aware UI guards, and `X-Organization-Id` header injection
 - **Forms:** React Hook Form
 - **UI Components:** Headless UI, Lucide React
 - **Authentication:** Clerk React SDK
@@ -244,8 +245,10 @@ TexFolio/
 │   ├── web/                          # Frontend Client (React)
 │   │   └── src/
 │   │       ├── features/             # Feature-based folders (Resume Editor)
-│   │       ├── components/           # Shared Components
-│   │       └── pages/                # Route Views
+│   │       ├── components/           # Shared Components (Header, OrgSwitcher)
+│   │       ├── context/              # React Context (Auth, Organization)
+│   │       ├── stores/               # Zustand Stores (UI, Organization)
+│   │       └── pages/                # Route Views (Home, Dashboard, Orgs, Editor)
 │   └── latex-renderer/
 │       └── Dockerfile                # Dedicated LaTeX compilation container
 ├── packages/
@@ -274,6 +277,21 @@ Request → authMiddleware (Clerk JWT)
   → ResumeService.orgQuery({ userId, orgId, role })
   → AuditService.log({ actorId, action, resourceType })
   → Response
+```
+
+### Frontend Organization Integration
+
+```
+App.tsx
+  → OrganizationProvider (context)
+    → organizationStore (Zustand, persist)
+      → Header: OrganizationSwitcher dropdown
+      → Dashboard: org context banner + CTA
+      → /organizations        → Organizations.tsx    (list, create)
+      → /organizations/:id    → OrganizationDetail.tsx (overview, resumes)
+      → /organizations/:id/settings → OrganizationSettings.tsx (branding, locked template)
+      → /organizations/:id/members  → OrganizationMembers.tsx (invite, roles, remove)
+      → API calls → Axios interceptor injects X-Organization-Id header dynamically
 ```
 
 ### Distributed Rate Limiting
