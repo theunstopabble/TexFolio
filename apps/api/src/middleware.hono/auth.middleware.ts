@@ -114,15 +114,12 @@ export const authMiddleware = createMiddleware(
           status: "active",
         });
 
-        if (!membership) {
-          return c.json(
-            { success: false, error: "Forbidden: You are not a member of this organization" },
-            403,
-          );
+        if (membership) {
+          ctxUser.organizationId = orgHeader;
+          ctxUser.role = membership.role as OrgRole;
         }
-
-        ctxUser.organizationId = orgHeader;
-        ctxUser.role = membership.role as OrgRole;
+        // Note: silently ignore stale/missing org headers —
+        // route-level guards will enforce org access where required.
       }
 
       c.set("user", ctxUser);

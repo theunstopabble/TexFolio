@@ -73,7 +73,7 @@ export class OrganizationService {
         (m) => m.organizationId === org._id.toString(),
       );
       return {
-        ...org.toObject(),
+        organization: org.toObject(),
         role: member?.role ?? "viewer",
       };
     });
