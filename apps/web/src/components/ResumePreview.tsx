@@ -72,6 +72,23 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
     return [];
   };
 
+  // Sanitize user-provided URLs to prevent javascript: XSS
+  const sanitizeUrl = (url: string | null | undefined): string | undefined => {
+    if (!url) return undefined;
+    const trimmed = url.trim();
+    const allowedProtocols = /^https?:\/\//i;
+    const mailtoProtocol = /^mailto:/i;
+    if (allowedProtocols.test(trimmed) || mailtoProtocol.test(trimmed)) {
+      return trimmed;
+    }
+    // Reject dangerous protocols (javascript:, data:, vbscript:, file:)
+    if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
+      return undefined;
+    }
+    // Bare URLs — assume HTTPS
+    return `https://${trimmed}`;
+  };
+
   // Helper to format dates (YYYY-MM -> Mon YYYY)
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
@@ -147,7 +164,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             {data.personalInfo.email && (
               <>
                 <a
-                  href={`mailto:${data.personalInfo.email}`}
+                  href={sanitizeUrl(`mailto:${data.personalInfo.email}`)}
                   className="hover:underline"
                 >
                   {data.personalInfo.email}
@@ -177,22 +194,22 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               </>
             )}
 
-            {data.personalInfo.linkedin && (
+            {sanitizeUrl(data.personalInfo.linkedin) && (
               <>
                 <a
-                  href={data.personalInfo.linkedin}
+                  href={sanitizeUrl(data.personalInfo.linkedin)}
                   target="_blank"
                   rel="noreferrer"
                   className="hover:underline"
                 >
                   linkedin
                 </a>
-                {data.personalInfo.github && <span>|</span>}
+                {sanitizeUrl(data.personalInfo.github) && <span>|</span>}
               </>
             )}
-            {data.personalInfo.github && (
+            {sanitizeUrl(data.personalInfo.github) && (
               <a
-                href={data.personalInfo.github}
+                href={sanitizeUrl(data.personalInfo.github)}
                 target="_blank"
                 rel="noreferrer"
                 className="hover:underline"
@@ -357,17 +374,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                       </span>
                     </h3>
                     <div className="flex gap-2 text-sm">
-                      {proj.sourceCode && (
+                      {sanitizeUrl(proj.sourceCode) && (
                         <a
-                          href={proj.sourceCode}
+                          href={sanitizeUrl(proj.sourceCode)}
                           className="text-blue-800 hover:underline"
                         >
                           [Source Code]
                         </a>
                       )}
-                      {proj.liveUrl && (
+                      {sanitizeUrl(proj.liveUrl) && (
                         <a
-                          href={proj.liveUrl}
+                          href={sanitizeUrl(proj.liveUrl)}
                           className="text-blue-800 hover:underline"
                         >
                           [Live Demo]

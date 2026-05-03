@@ -222,7 +222,12 @@ export const generatePDF = async (
   await fs.mkdir(TEMP_DIR, { recursive: true });
 
   // Use resume's templateId if available, otherwise use parameter
-  const template_id = resume.templateId || templateId;
+  const rawTemplateId = resume.templateId || templateId;
+  // Prevent path traversal: only allow alphanumeric, hyphen, underscore
+  const template_id = path.basename(rawTemplateId).replace(/[^a-zA-Z0-9_-]/g, "");
+  if (!template_id) {
+    throw new Error("Invalid template ID");
+  }
 
   // Read template
   const templatePath = path.join(TEMPLATES_DIR, `${template_id}.tex`);
@@ -284,24 +289,44 @@ export const generatePDF = async (
         });
       }
 
+      const MAX_OUTPUT = 50000; // Cap stdout/stderr to prevent memory exhaustion
       let stdout = "";
       let stderr = "";
-      
-      childProcess.stdout?.on("data", (data) => { stdout += data.toString(); });
-      childProcess.stderr?.on("data", (data) => { stderr += data.toString(); });
-      
-      childProcess.on("close", (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`));
+      let settled = false;
+
+      childProcess.stdout?.on("data", (data) => {
+        stdout += data.toString();
+        if (stdout.length > MAX_OUTPUT) stdout = stdout.slice(-MAX_OUTPUT);
       });
-      
-      childProcess.on("error", (err) => reject(err));
-      
-      // Timeout after 60 seconds to prevent hanging
-      setTimeout(() => {
-        childProcess.kill("SIGKILL");
-        reject(new Error("PDF generation timed out after 60 seconds"));
+      childProcess.stderr?.on("data", (data) => {
+        stderr += data.toString();
+        if (stderr.length > MAX_OUTPUT) stderr = stderr.slice(-MAX_OUTPUT);
+      });
+
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          childProcess.kill("SIGKILL");
+          reject(new Error("PDF generation timed out after 60 seconds"));
+        }
       }, 60000);
+
+      childProcess.on("close", (code) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          if (code === 0) resolve();
+          else reject(new Error(`pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`));
+        }
+      });
+
+      childProcess.on("error", (err) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          reject(err);
+        }
+      });
     });
 
     try {
