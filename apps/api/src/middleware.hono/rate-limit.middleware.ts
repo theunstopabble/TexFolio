@@ -1,12 +1,55 @@
 import type { Context, Next } from "hono";
+import { Redis } from "ioredis";
+import { env } from "../config/env.js";
 
-interface RateLimitStore {
-    hits: number;
-    resetTime: number;
+// Dedicated Redis client for distributed rate limiting
+const redis = new Redis(env.REDIS_URL || "redis://localhost:6379", {
+  maxRetriesPerRequest: 3,
+  enableReadyCheck: true,
+  lazyConnect: true,
+});
+
+redis.on("error", (err) => {
+  console.error("[RateLimit Redis] error:", err.message);
+});
+
+const redisReady = redis.connect().catch(() => {
+  console.warn("[RateLimit Redis] initial connection failed — will retry on demand");
+});
+
+/**
+ * Atomic fixed-window counter backed by Redis.
+ * Returns current hit count and remaining TTL for the window.
+ */
+async function incrementWindow(key: string, windowMs: number): Promise<{ hits: number; ttlMs: number }> {
+  const now = Date.now();
+  const windowId = Math.floor(now / windowMs);
+  const redisKey = `ratelimit:${key}:${windowId}`;
+
+  try {
+    await redisReady;
+    const pipeline = redis.pipeline();
+    pipeline.incr(redisKey);
+    pipeline.pexpire(redisKey, windowMs);
+    const results = await pipeline.exec();
+
+    // Pipeline returns array of [error, result] tuples
+    const hits = results?.[0]?.[1] as number | undefined;
+    if (hits === undefined || hits === null) {
+      throw new Error("Redis pipeline returned unexpected result");
+    }
+
+    // Approximate remaining TTL for headers
+    const elapsed = now % windowMs;
+    const ttlMs = windowMs - elapsed;
+
+    return { hits, ttlMs };
+  } catch (err) {
+    console.error("[RateLimit] Redis error, failing open:", err instanceof Error ? err.message : err);
+    // Fail open — allow request to prevent total outage if Redis is down
+    return { hits: 0, ttlMs: windowMs };
+  }
 }
-
-// In-memory store (for production with multiple instances, use Redis)
-const store = new Map<string, RateLimitStore>();
 
 interface RateLimitOptions {
     windowMs: number;
@@ -44,54 +87,29 @@ export const rateLimiter = (options: RateLimitOptions) => {
 
     return async (c: Context, next: Next) => {
         const key = keyGenerator(c);
-        const now = Date.now();
-
-        let record = store.get(key);
-
-        // Clean up expired records occasionally (1% chance per request)
-        if (Math.random() < 0.01) {
-            for (const [k, v] of store.entries()) {
-                if (now > v.resetTime) {
-                    store.delete(k);
-                }
-            }
-        }
-
-        if (!record || now > record.resetTime) {
-            record = {
-                hits: 1,
-                resetTime: now + windowMs,
-            };
-            store.set(key, record);
-        } else {
-            record.hits++;
-        }
+        const { hits, ttlMs } = await incrementWindow(key, windowMs);
+        const resetTime = Date.now() + ttlMs;
 
         // Add rate limit headers
         c.header("X-RateLimit-Limit", max.toString());
-        c.header("X-RateLimit-Remaining", Math.max(0, max - record.hits).toString());
-        c.header("X-RateLimit-Reset", new Date(record.resetTime).toISOString());
+        c.header("X-RateLimit-Remaining", Math.max(0, max - hits).toString());
+        c.header("X-RateLimit-Reset", new Date(resetTime).toISOString());
 
-        if (record.hits > max) {
-            c.header("Retry-After", Math.ceil(windowMs / 1000).toString());
+        if (hits > max) {
+            c.header("Retry-After", Math.ceil(ttlMs / 1000).toString());
             return c.json(
                 {
                     success: false,
                     error: "Rate limit exceeded",
                     message,
                 },
-                429
+                429,
             );
         }
 
         await next();
     };
 };
-
-// Memory usage monitoring for rate limiter
-export const getRateLimiterStats = () => ({
-    activeIps: store.size,
-});
 
 // ============================================
 // Tiered Rate Limiter (Enterprise)
@@ -106,9 +124,9 @@ interface TieredRateLimitOptions {
 }
 
 /**
- * Tiered rate limiter that uses Clerk userId as the primary key.
+ * Distributed tiered rate limiter backed by Redis.
  * Pro users get higher limits. Unauthenticated requests fall back to IP.
- * For production with multiple instances, replace in-memory Map with Redis.
+ * Survives server restarts and works across horizontal instances.
  */
 export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
     const {
@@ -136,27 +154,13 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
             key = `ip:${clientIp || c.env?.REMOTE_ADDR || "unknown"}`;
         }
 
-        const now = Date.now();
-        let record = store.get(key);
-
-        // Cleanup expired records occasionally (1% chance per request)
-        if (Math.random() < 0.01) {
-            for (const [k, v] of store.entries()) {
-                if (now > v.resetTime) store.delete(k);
-            }
-        }
-
-        if (!record || now > record.resetTime) {
-            record = { hits: 1, resetTime: now + windowMs };
-            store.set(key, record);
-        } else {
-            record.hits++;
-        }
+        const { hits, ttlMs } = await incrementWindow(key, windowMs);
+        const resetTime = Date.now() + ttlMs;
 
         // Add rate limit headers
         c.header("X-RateLimit-Limit", max.toString());
-        c.header("X-RateLimit-Remaining", Math.max(0, max - record.hits).toString());
-        c.header("X-RateLimit-Reset", new Date(record.resetTime).toISOString());
+        c.header("X-RateLimit-Remaining", Math.max(0, max - hits).toString());
+        c.header("X-RateLimit-Reset", new Date(resetTime).toISOString());
         if (isPro) {
             c.header("X-RateLimit-Tier", "pro");
         } else if (user?.userId) {
@@ -166,8 +170,8 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
         }
 
         const effectiveMax = user?.userId ? max : unauthenticatedMax;
-        if (record.hits > effectiveMax) {
-            c.header("Retry-After", Math.ceil(windowMs / 1000).toString());
+        if (hits > effectiveMax) {
+            c.header("Retry-After", Math.ceil(ttlMs / 1000).toString());
             return c.json(
                 {
                     success: false,

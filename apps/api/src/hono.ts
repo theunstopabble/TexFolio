@@ -17,6 +17,9 @@ import { authRoutes } from "./routes.hono/auth.routes.js";
 import { publicRoutes } from "./routes.hono/public.routes.js";
 import { agentRoutes } from "./routes.hono/agent.routes.js";
 import { auditLogRoutes } from "./routes.hono/audit-log.routes.js";
+import { organizationRoutes } from "./routes.hono/organization.routes.js";
+import { apiKeyRoutes } from "./routes.hono/api-key.routes.js";
+import { gdprRoutes } from "./routes.hono/gdpr.routes.js";
 import { aiService } from "./services/ai.service.js";
 import { closePdfQueue } from "./queues/pdf.queue.js";
 
@@ -123,6 +126,55 @@ app.get("/health/ai", (c) => {
   });
 });
 
+// PDF generation health
+app.get("/health/pdf", async (c) => {
+  const checks: Record<string, boolean> = {};
+
+  // 1. Check pdflatex binary or Docker
+  try {
+    const useDocker = process.env.USE_DOCKER_LATEX === "true";
+    if (useDocker) {
+      // Quick docker ps check
+      const { spawn } = await import("child_process");
+      await new Promise<void>((resolve, reject) => {
+        const proc = spawn("docker", ["inspect", "texfolio-latex"]);
+        proc.on("close", (code) => (code === 0 ? resolve() : reject()));
+        proc.on("error", reject);
+      });
+      checks.pdflatex = true;
+    } else {
+      checks.pdflatex = Boolean(env.PDFLATEX_PATH || "pdflatex");
+    }
+  } catch {
+    checks.pdflatex = false;
+  }
+
+  // 2. Check Redis (queue backend)
+  try {
+    const { Redis } = await import("ioredis");
+    const redis = new Redis(env.REDIS_URL || "redis://localhost:6379", {
+      maxRetriesPerRequest: 1,
+      enableReadyCheck: false,
+      connectTimeout: 2000,
+    });
+    await redis.ping();
+    await redis.quit();
+    checks.redis = true;
+  } catch {
+    checks.redis = false;
+  }
+
+  const allHealthy = Object.values(checks).every(Boolean);
+  return c.json(
+    {
+      success: allHealthy,
+      checks,
+      timestamp: new Date().toISOString(),
+    },
+    allHealthy ? 200 : 503,
+  );
+});
+
 // Mount API routes
 app.route("/api/public", publicRoutes);
 app.route("/api/resumes", resumeRoutes);
@@ -132,6 +184,9 @@ app.route("/api/payments", paymentRoutes);
 app.route("/api/auth", authRoutes);
 app.route("/api/agents", agentRoutes); // LangGraph AI Agent
 app.route("/api/audit-logs", auditLogRoutes); // Enterprise audit trail
+app.route("/api/organizations", organizationRoutes); // RBAC + Organizations
+app.route("/api/api-keys", apiKeyRoutes); // Service-to-service API keys
+app.route("/api/me", gdprRoutes); // GDPR export / deletion
 
 // ============================================
 // Error Handling

@@ -2,7 +2,7 @@ import { Queue, Worker, type Job } from "bullmq";
 import { Redis } from "ioredis";
 import { env } from "../config/env.js";
 import { generatePDF } from "../services/pdf.service.js";
-import { Resume } from "../models/index.js";
+import { Resume, Organization } from "../models/index.js";
 
 // Redis connection shared between queue and worker
 const redisConnection = new Redis(env.REDIS_URL || "redis://localhost:6379", {
@@ -31,6 +31,7 @@ export const pdfQueue = new Queue("pdf-generation", {
 interface PdfJobData {
   resumeId: string;
   userId: string;
+  organizationId?: string;
 }
 
 /**
@@ -40,7 +41,7 @@ interface PdfJobData {
 export const pdfWorker = new Worker<PdfJobData>(
   "pdf-generation",
   async (job: Job<PdfJobData>) => {
-    const { resumeId, userId } = job.data;
+    const { resumeId, userId, organizationId } = job.data;
     const startTime = Date.now();
 
     await job.updateProgress(10);
@@ -54,10 +55,27 @@ export const pdfWorker = new Worker<PdfJobData>(
       }
       const resume = resumeDoc.toObject();
 
+      // Fetch org branding if this is an org-owned resume
+      let orgBranding: Parameters<typeof generatePDF>[2] | undefined;
+      if (organizationId || resumeDoc.organizationId) {
+        const org = await Organization.findById(organizationId || resumeDoc.organizationId);
+        if (org) {
+          orgBranding = {
+            lockedTemplateId: org.branding?.lockedTemplateId,
+            primaryColor: org.branding?.primaryColor,
+            enforceCompanyFont: org.settings?.enforceCompanyFont,
+          };
+        }
+      }
+
       await job.updateProgress(30);
 
-      // Generate PDF (function returns output path)
-      const outputPath = await generatePDF(resume, resume.templateId || "classic");
+      // Generate PDF with org branding applied
+      const outputPath = await generatePDF(
+        resume,
+        resume.templateId || "classic",
+        orgBranding,
+      );
 
       await job.updateProgress(100);
 

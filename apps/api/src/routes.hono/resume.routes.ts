@@ -3,7 +3,9 @@ import type { Context } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { authMiddleware } from "../middleware.hono/auth.middleware.js";
+import type { HonoUser } from "../middleware.hono/auth.middleware.js";
 import { resumeService } from "../services/resume.service.js";
+import type { IResume } from "../models/resume.model.js";
 import { sendEmail } from "../services/email.service.js";
 import { auditService } from "../services/audit.service.js";
 import { pdfQueue } from "../queues/pdf.queue.js";
@@ -17,6 +19,12 @@ const getAuditMeta = (c: Context, statusCode: number) => ({
   path: c.req.path,
   statusCode,
 });
+
+// Helper to build organization context from authenticated user
+const getOrgCtx = (user: HonoUser) =>
+  user.organizationId && user.role
+    ? { orgId: user.organizationId, role: user.role }
+    : undefined;
 
 // Create resume router
 export const resumeRoutes = new Hono();
@@ -116,7 +124,7 @@ resumeRoutes.use("/*", authMiddleware);
 resumeRoutes.get("/", async (c) => {
   try {
     const user = c.get("user");
-    const resumes = await resumeService.findAll(user.userId);
+    const resumes = await resumeService.findAll(user.userId, getOrgCtx(user));
 
     return c.json({
       success: true,
@@ -135,7 +143,7 @@ resumeRoutes.get("/:id", async (c) => {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    const resume = await resumeService.findById(id, user.userId);
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
@@ -157,7 +165,7 @@ resumeRoutes.post("/", zValidator("json", createResumeSchema), async (c) => {
     const user = c.get("user");
     const body = c.req.valid("json");
 
-    const resume = await resumeService.create(body, user.userId);
+    const resume = await resumeService.create(body, user.userId, getOrgCtx(user));
 
     await auditService.log({
       actorId: user.userId,
@@ -199,8 +207,8 @@ resumeRoutes.put("/:id", zValidator("json", updateResumeSchema), async (c) => {
     const id = c.req.param("id");
     const body = c.req.valid("json");
 
-    const existing = await resumeService.findById(id, user.userId);
-    const resume = await resumeService.update(id, user.userId, body);
+    const existing = await resumeService.findById(id, user.userId, getOrgCtx(user));
+    const resume = await resumeService.update(id, user.userId, body, getOrgCtx(user));
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
@@ -236,7 +244,7 @@ resumeRoutes.delete("/:id", async (c) => {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    const resume = await resumeService.delete(id, user.userId);
+    const resume = await resumeService.delete(id, user.userId, getOrgCtx(user));
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
@@ -270,38 +278,47 @@ resumeRoutes.patch("/:id/visibility", async (c) => {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    const resume = await resumeService.findById(id, user.userId);
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
 
-    // Toggle
-    resume.isPublic = !resume.isPublic;
+    const isPublic = !resume.isPublic;
+    let shareId = resume.shareId;
 
     // Generate shareId if making public
-    if (resume.isPublic && !resume.shareId) {
+    if (isPublic && !shareId) {
       const { nanoid } = await import("nanoid");
-      resume.shareId = nanoid(10);
+      shareId = nanoid(10);
     }
 
-    await resume.save();
+    const updated = await resumeService.update(
+      id,
+      user.userId,
+      { isPublic, shareId } as Partial<IResume>,
+      getOrgCtx(user),
+    );
+
+    if (!updated) {
+      return c.json({ success: false, error: "Resume not found" }, 404);
+    }
 
     await auditService.log({
       actorId: user.userId,
       action: "SHARE",
       resourceType: "Resume",
-      resourceId: String(resume._id),
-      after: { isPublic: resume.isPublic, shareId: resume.shareId } as Record<string, unknown>,
+      resourceId: String(updated._id),
+      after: { isPublic: updated.isPublic, shareId: updated.shareId } as Record<string, unknown>,
       metadata: getAuditMeta(c, 200),
     });
 
     return c.json({
       success: true,
       data: {
-        isPublic: resume.isPublic,
-        shareId: resume.shareId,
-        url: resume.isPublic ? `/r/${resume.shareId}` : null,
+        isPublic: updated.isPublic,
+        shareId: updated.shareId,
+        url: updated.isPublic ? `/r/${updated.shareId}` : null,
       },
     });
   } catch (error) {
@@ -322,8 +339,8 @@ resumeRoutes.get("/:id/pdf", async (c) => {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    const pdfPath = await resumeService.generatePdf(id, user.userId);
-    const resume = await resumeService.findById(id, user.userId);
+    const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
 
     // Sanitize filename to prevent header injection
     const sanitizeFilename = (name: string) =>
@@ -361,8 +378,8 @@ resumeRoutes.post("/:id/pdf/queue", async (c) => {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    // Verify resume exists and belongs to user
-    const resume = await resumeService.findById(id, user.userId);
+    // Verify resume exists and belongs to user/org
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
@@ -370,6 +387,7 @@ resumeRoutes.post("/:id/pdf/queue", async (c) => {
     const job = await pdfQueue.add("generate-pdf", {
       resumeId: id,
       userId: user.userId,
+      organizationId: user.organizationId,
     });
 
     return c.json({
@@ -451,7 +469,7 @@ resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
     const fs = await import("fs/promises");
     const pdfBuffer = await fs.readFile(result.outputPath);
 
-    const resume = await resumeService.findById(id, user.userId);
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
     const sanitizeFilename = (name: string) =>
       name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";
     const filename = resume
@@ -481,8 +499,8 @@ resumeRoutes.post(
       const { email } = c.req.valid("json");
 
       // 1. Generate PDF
-      const pdfPath = await resumeService.generatePdf(id, user.userId);
-      const resume = await resumeService.findById(id, user.userId);
+      const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
+      const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
 
       if (!resume) {
         return c.json({ success: false, error: "Resume not found" }, 404);

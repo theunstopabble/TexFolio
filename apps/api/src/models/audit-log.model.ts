@@ -2,8 +2,8 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IAuditLog extends Document {
   actorId: string; // Clerk user ID
-  action: "CREATE" | "UPDATE" | "DELETE" | "READ" | "SHARE" | "EXPORT" | "LOGIN" | "PAYMENT";
-  resourceType: "Resume" | "User" | "Payment" | "Template" | "System";
+  action: "CREATE" | "UPDATE" | "DELETE" | "READ" | "SHARE" | "EXPORT" | "LOGIN" | "PAYMENT" | "INVITE_MEMBER" | "UPDATE_MEMBER_ROLE" | "REMOVE_MEMBER";
+  resourceType: "Resume" | "User" | "Payment" | "Template" | "System" | "Organization";
   resourceId?: string;
   before?: Record<string, unknown>;
   after?: Record<string, unknown>;
@@ -29,13 +29,13 @@ const auditLogSchema = new Schema<IAuditLog>(
     action: {
       type: String,
       required: true,
-      enum: ["CREATE", "UPDATE", "DELETE", "READ", "SHARE", "EXPORT", "LOGIN", "PAYMENT"],
+      enum: ["CREATE", "UPDATE", "DELETE", "READ", "SHARE", "EXPORT", "LOGIN", "PAYMENT", "INVITE_MEMBER", "UPDATE_MEMBER_ROLE", "REMOVE_MEMBER"],
       index: true,
     },
     resourceType: {
       type: String,
       required: true,
-      enum: ["Resume", "User", "Payment", "Template", "System"],
+      enum: ["Resume", "User", "Payment", "Template", "System", "Organization"],
       index: true,
     },
     resourceId: {

@@ -70,6 +70,8 @@ export interface IResume extends Document {
   atsScore?: number;
   isPublic: boolean;
   shareId?: string;
+  organizationId?: string;
+  visibility: "private" | "organization" | "public";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -182,6 +184,16 @@ const resumeSchema = new Schema<IResume>(
     atsScore: { type: Number, min: 0, max: 100 },
     isPublic: { type: Boolean, default: false },
     shareId: { type: String, unique: true, sparse: true },
+    organizationId: {
+      type: String,
+      index: true,
+      sparse: true,
+    },
+    visibility: {
+      type: String,
+      enum: ["private", "organization", "public"],
+      default: "private",
+    },
   },
   {
     timestamps: true,
@@ -190,6 +202,8 @@ const resumeSchema = new Schema<IResume>(
 
 // Index for faster user resume queries
 resumeSchema.index({ userId: 1, createdAt: -1 });
+resumeSchema.index({ organizationId: 1, createdAt: -1 });
+resumeSchema.index({ organizationId: 1, visibility: 1 });
 
 // Create and export the model
 export const Resume = mongoose.model<IResume>("Resume", resumeSchema);

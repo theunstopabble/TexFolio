@@ -3,12 +3,16 @@ import type { Context, Next } from "hono";
 import crypto from "crypto";
 import { env } from "../config/env.js";
 
+import type { OrgRole } from "../models/organization.model.js";
+
 // User interface for Hono context
-interface HonoUser {
+export interface HonoUser {
   userId: string;
   mongoUserId?: string;
   email?: string;
   isPro?: boolean;
+  organizationId?: string;
+  role?: OrgRole;
 }
 
 // Extend Hono context variables
@@ -93,13 +97,35 @@ export const authMiddleware = createMiddleware(
       }
 
       // Set user in context
-      c.set("user", {
+      const ctxUser: HonoUser = {
         userId: clerkId,
         mongoUserId: user?._id?.toString(),
         email: user?.email,
         isPro: user?.isPro || false,
-      });
+      };
 
+      // Active organization resolution
+      const orgHeader = c.req.header("x-organization-id");
+      if (orgHeader) {
+        const { OrganizationMember } = await import("../models/organization-member.model.js");
+        const membership = await OrganizationMember.findOne({
+          organizationId: orgHeader,
+          userId: clerkId,
+          status: "active",
+        });
+
+        if (!membership) {
+          return c.json(
+            { success: false, error: "Forbidden: You are not a member of this organization" },
+            403,
+          );
+        }
+
+        ctxUser.organizationId = orgHeader;
+        ctxUser.role = membership.role as OrgRole;
+      }
+
+      c.set("user", ctxUser);
       await next();
     } catch (error) {
       console.error("Auth Middleware Error:", error);

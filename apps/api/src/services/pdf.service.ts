@@ -217,14 +217,19 @@ const transformResumeData = (resume: IResume) => {
 export const generatePDF = async (
   resume: IResume,
   templateId: string = "classic",
+  orgBranding?: {
+    lockedTemplateId?: string;
+    primaryColor?: string;
+    enforceCompanyFont?: boolean;
+  },
 ): Promise<string> => {
   // Ensure temp directory exists
   await fs.mkdir(TEMP_DIR, { recursive: true });
 
-  // Use resume's templateId if available, otherwise use parameter
-  const rawTemplateId = resume.templateId || templateId;
+  // Resolve template: org-locked template takes precedence
+  const effectiveTemplateId = orgBranding?.lockedTemplateId || resume.templateId || templateId;
   // Prevent path traversal: only allow alphanumeric, hyphen, underscore
-  const template_id = path.basename(rawTemplateId).replace(/[^a-zA-Z0-9_-]/g, "");
+  const template_id = path.basename(effectiveTemplateId).replace(/[^a-zA-Z0-9_-]/g, "");
   if (!template_id) {
     throw new Error("Invalid template ID");
   }
@@ -233,8 +238,23 @@ export const generatePDF = async (
   const templatePath = path.join(TEMPLATES_DIR, `${template_id}.tex`);
   const template = await fs.readFile(templatePath, "utf-8");
 
+  // Apply org branding overrides before transforming
+  const brandedResume = { ...resume };
+  if (orgBranding?.primaryColor) {
+    brandedResume.customization = {
+      ...brandedResume.customization,
+      primaryColor: orgBranding.primaryColor,
+    };
+  }
+  if (orgBranding?.enforceCompanyFont) {
+    brandedResume.customization = {
+      ...brandedResume.customization,
+      fontFamily: "sans",
+    } as any;
+  }
+
   // Transform data and render template
-  const data = transformResumeData(resume);
+  const data = transformResumeData(brandedResume as unknown as IResume);
   const renderedLatex = Mustache.render(template, data, {}, ["<<", ">>"]);
 
   // Generate unique filename

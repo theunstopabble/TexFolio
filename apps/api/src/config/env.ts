@@ -24,6 +24,7 @@ const envSchema = z.object({
   SENDER_EMAIL: z.string().email().optional(),
   PDFLATEX_PATH: z.string().optional(), // Path to pdflatex binary (defaults to 'pdflatex' in PATH)
   REDIS_URL: z.string().default("redis://localhost:6379"),
+  API_KEY_SECRET: z.string().optional(), // HMAC secret for service-to-service API keys
 });
 
 // Parse and validate environment variables
