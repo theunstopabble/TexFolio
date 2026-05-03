@@ -163,7 +163,7 @@ Follow these steps to set up TexFolio locally.
 
 3. **Environment Setup**
    Copy `.env.example` files and fill in your keys:
-   
+
    ```bash
    cp apps/api/.env.example apps/api/.env
    cp apps/web/.env.example apps/web/.env
@@ -310,84 +310,84 @@ All protected routes strictly require a Clerk `Bearer` token, unless noted other
 
 ### **Resumes API (`/api/resumes`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `GET` | `/api/resumes` | Clerk | Get all user resumes (personal + org-authorized) |
-| `POST` | `/api/resumes` | Clerk | Create a new resume (personal or org-scoped) |
-| `GET` | `/api/resumes/:id` | Clerk | Get resume details (ownership or org visibility) |
-| `PUT` | `/api/resumes/:id` | Clerk | Update resume (owner, admin, or editor in org) |
-| `DELETE` | `/api/resumes/:id` | Clerk | Delete resume (owner or org admin) |
-| `GET` | `/api/resumes/:id/pdf` | Clerk | Enqueue PDF generation (returns job ID) |
-| `GET` | `/api/resumes/:id/pdf-status` | Clerk | Poll BullMQ job progress (10% → 30% → 100%) |
-| `GET` | `/api/resumes/:id/download` | Clerk | Download generated PDF file |
-| `POST` | `/api/resumes/:id/email` | Clerk | Email PDF via Brevo |
-| `PUT` | `/api/resumes/:id/share` | Clerk | Toggle public visibility + generate shareId |
+| Method   | Endpoint                      | Auth  | Description                                      |
+| :------- | :---------------------------- | :---- | :----------------------------------------------- |
+| `GET`    | `/api/resumes`                | Clerk | Get all user resumes (personal + org-authorized) |
+| `POST`   | `/api/resumes`                | Clerk | Create a new resume (personal or org-scoped)     |
+| `GET`    | `/api/resumes/:id`            | Clerk | Get resume details (ownership or org visibility) |
+| `PUT`    | `/api/resumes/:id`            | Clerk | Update resume (owner, admin, or editor in org)   |
+| `DELETE` | `/api/resumes/:id`            | Clerk | Delete resume (owner or org admin)               |
+| `GET`    | `/api/resumes/:id/pdf`        | Clerk | Enqueue PDF generation (returns job ID)          |
+| `GET`    | `/api/resumes/:id/pdf-status` | Clerk | Poll BullMQ job progress (10% → 30% → 100%)      |
+| `GET`    | `/api/resumes/:id/download`   | Clerk | Download generated PDF file                      |
+| `POST`   | `/api/resumes/:id/email`      | Clerk | Email PDF via Brevo                              |
+| `PUT`    | `/api/resumes/:id/share`      | Clerk | Toggle public visibility + generate shareId      |
 
 ### **AI Services (`/api/ai` & `/api/agents`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `POST` | `/api/agents/coach` | Clerk | Full LangGraph ATS & content analysis |
+| Method | Endpoint                      | Auth  | Description                              |
+| :----- | :---------------------------- | :---- | :--------------------------------------- |
+| `POST` | `/api/agents/coach`           | Clerk | Full LangGraph ATS & content analysis    |
 | `POST` | `/api/agents/import/linkedin` | Clerk | Parse and extract data from LinkedIn PDF |
-| `POST` | `/api/ai/improve` | Clerk | Improve text (Summary/Description) |
-| `POST` | `/api/ai/generate-bullets` | Clerk | Generate action-oriented bullet points |
-| `POST` | `/api/ai/cover-letter` | Clerk | Generate tailored cover letter |
+| `POST` | `/api/ai/improve`             | Clerk | Improve text (Summary/Description)       |
+| `POST` | `/api/ai/generate-bullets`    | Clerk | Generate action-oriented bullet points   |
+| `POST` | `/api/ai/cover-letter`        | Clerk | Generate tailored cover letter           |
 
 ### **Organizations API (`/api/organizations`)**
 
-| Method | Endpoint | Role | Description |
-| :----- | :------- | :--- | :---------- |
-| `POST` | `/api/organizations` | Any | Create org (becomes owner) |
-| `GET` | `/api/organizations` | Any | List your orgs with roles |
-| `GET` | `/api/organizations/:id` | Member | Get org details |
-| `PUT` | `/api/organizations/:id` | Admin+ | Update branding, settings |
-| `DELETE` | `/api/organizations/:id` | Owner | Delete org + cleanup |
-| `GET` | `/api/organizations/:id/members` | Member | List members |
-| `POST` | `/api/organizations/:id/members` | Admin+ | Invite member (admin/editor/viewer) |
-| `PUT` | `/api/organizations/:id/members/:userId` | Admin+ | Change role (supports ownership transfer) |
-| `DELETE` | `/api/organizations/:id/members/:userId` | Admin+ / Self | Remove member |
-| `GET` | `/api/organizations/:id/resumes` | Member | List all org-visible resumes |
+| Method   | Endpoint                                 | Role          | Description                               |
+| :------- | :--------------------------------------- | :------------ | :---------------------------------------- |
+| `POST`   | `/api/organizations`                     | Any           | Create org (becomes owner)                |
+| `GET`    | `/api/organizations`                     | Any           | List your orgs with roles                 |
+| `GET`    | `/api/organizations/:id`                 | Member        | Get org details                           |
+| `PUT`    | `/api/organizations/:id`                 | Admin+        | Update branding, settings                 |
+| `DELETE` | `/api/organizations/:id`                 | Owner         | Delete org + cleanup                      |
+| `GET`    | `/api/organizations/:id/members`         | Member        | List members                              |
+| `POST`   | `/api/organizations/:id/members`         | Admin+        | Invite member (admin/editor/viewer)       |
+| `PUT`    | `/api/organizations/:id/members/:userId` | Admin+        | Change role (supports ownership transfer) |
+| `DELETE` | `/api/organizations/:id/members/:userId` | Admin+ / Self | Remove member                             |
+| `GET`    | `/api/organizations/:id/resumes`         | Member        | List all org-visible resumes              |
 
 > **Organization context** is resolved via `X-Organization-Id` header or inferred from route params.
 
 ### **API Keys (`/api/api-keys`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `POST` | `/api/api-keys` | Clerk | Generate HMAC-signed service key (shown once) |
-| `GET` | `/api/api-keys` | Clerk | List active keys (metadata only) |
-| `DELETE` | `/api/api-keys/:id` | Clerk | Revoke a key |
+| Method   | Endpoint            | Auth  | Description                                   |
+| :------- | :------------------ | :---- | :-------------------------------------------- |
+| `POST`   | `/api/api-keys`     | Clerk | Generate HMAC-signed service key (shown once) |
+| `GET`    | `/api/api-keys`     | Clerk | List active keys (metadata only)              |
+| `DELETE` | `/api/api-keys/:id` | Clerk | Revoke a key                                  |
 
 > **Usage:** Include key in `X-API-Key` header or `Authorization: ApiKey <key>`.
 > Supported scopes: `read:resumes`, `write:resumes`, `read:analytics`, `admin`.
 
 ### **GDPR & Data (`/api/me`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `GET` | `/api/me/export` | Clerk | Full JSON dump (resumes, audit logs, orgs, memberships) |
+| Method | Endpoint         | Auth  | Description                                                   |
+| :----- | :--------------- | :---- | :------------------------------------------------------------ |
+| `GET`  | `/api/me/export` | Clerk | Full JSON dump (resumes, audit logs, orgs, memberships)       |
 | `POST` | `/api/me/delete` | Clerk | Soft-delete: anonymize PII, revoke memberships, 30-day buffer |
 
 ### **Audit Logs (`/api/audit-logs`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `GET` | `/api/audit-logs` | Clerk | Query immutable audit trail (actor, action, resourceType, date range) |
+| Method | Endpoint          | Auth  | Description                                                           |
+| :----- | :---------------- | :---- | :-------------------------------------------------------------------- |
+| `GET`  | `/api/audit-logs` | Clerk | Query immutable audit trail (actor, action, resourceType, date range) |
 
 ### **Payments (`/api/payments`)**
 
-| Method | Endpoint | Auth | Description |
-| :----- | :------- | :--- | :---------- |
-| `POST` | `/api/payments/create-order` | Clerk | Create Razorpay order |
-| `POST` | `/api/payments/verify` | Clerk | Verify payment signature and upgrade to Pro |
+| Method | Endpoint                     | Auth  | Description                                 |
+| :----- | :--------------------------- | :---- | :------------------------------------------ |
+| `POST` | `/api/payments/create-order` | Clerk | Create Razorpay order                       |
+| `POST` | `/api/payments/verify`       | Clerk | Verify payment signature and upgrade to Pro |
 
 ### **Health Checks (Public)**
 
-| Method | Endpoint | Description |
-| :----- | :------- | :---------- |
-| `GET` | `/health` | API liveness |
-| `GET` | `/health/ai` | AI circuit breaker status + key configuration |
-| `GET` | `/health/pdf` | PDF pipeline readiness (pdflatex + Redis) |
+| Method | Endpoint      | Description                                   |
+| :----- | :------------ | :-------------------------------------------- |
+| `GET`  | `/health`     | API liveness                                  |
+| `GET`  | `/health/ai`  | AI circuit breaker status + key configuration |
+| `GET`  | `/health/pdf` | PDF pipeline readiness (pdflatex + Redis)     |
 
 ---
 
@@ -401,16 +401,17 @@ TexFolio supports multi-tenant organizations with strict role-based access contr
 Owner (4)  →  Admin (3)  →  Editor (2)  →  Viewer (1)
 ```
 
-| Role | Create Resumes | Edit Any Org Resume | Delete Resumes | Manage Members | Update Org Settings | Delete Org |
-| :--- | :------------ | :------------------ | :------------ | :------------ | :------------------ | :--------- |
-| **Owner** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Editor** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Viewer** | ❌ | Read-only | ❌ | ❌ | ❌ | ❌ |
+| Role       | Create Resumes | Edit Any Org Resume | Delete Resumes | Manage Members | Update Org Settings | Delete Org |
+| :--------- | :------------- | :------------------ | :------------- | :------------- | :------------------ | :--------- |
+| **Owner**  | ✅             | ✅                  | ✅             | ✅             | ✅                  | ✅         |
+| **Admin**  | ✅             | ✅                  | ✅             | ✅             | ✅                  | ❌         |
+| **Editor** | ✅             | ✅                  | ❌             | ❌             | ❌                  | ❌         |
+| **Viewer** | ❌             | Read-only           | ❌             | ❌             | ❌                  | ❌         |
 
 ### Organization Branding
 
 When `visibility: "organization"` is set on a resume:
+
 - All members can view it.
 - Admins and Editors can modify it.
 - PDF generation automatically applies the org's `lockedTemplateId`, `primaryColor`, and `enforceCompanyFont` overrides.
@@ -428,6 +429,7 @@ TexFolio implements a privacy-by-design approach for EU GDPR compliance.
 ### Right to Data Portability (`/api/me/export`)
 
 Returns a complete JSON dump containing:
+
 - All personal resumes
 - Audit log history
 - Organizations owned
@@ -446,8 +448,8 @@ Returns a complete JSON dump containing:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Author:** [Gautam Kumar](https://gautam-kr.vercel.app/) 
-**LinkedIn:** ([https://linkedin.com/in/gautamkr62/](https://www.linkedin.com/in/gautamkr62/))  
+**Author:** [Gautam Kumar](https://gautam-kr.vercel.app/)
+**LinkedIn:** ([https://www.linkedin.com/in/gautamkr62/](https://www.linkedin.com/in/gautamkr62/))  
 **Website:** [Texfolio](https://texfolio.vercel.app/)
 
 ---
