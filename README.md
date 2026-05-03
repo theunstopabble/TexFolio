@@ -446,9 +446,9 @@ Returns a complete JSON dump containing:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Author:** Gautam Kumar  
-**LinkedIn:** [linkedin.com/in/gautamkr62](https://www.linkedin.com/in/gautamkr62/)  
-**Website:** [texfolio.vercel.app](https://texfolio.vercel.app/)
+**Author:** [Gautam Kumar](https://gautam-kr.vercel.app) 
+**LinkedIn:** [Linkedin](https://www.linkedin.com/in/gautamkr62/)  
+**Website:** [Texfolio](https://texfolio.vercel.app/)
 
 ---
 
