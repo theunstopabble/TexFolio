@@ -41,14 +41,14 @@ export default function OrganizationSwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
+        className="flex items-center gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
       >
-        <Building2 className="w-4 h-4" />
-        <span className="max-w-[120px] truncate">
+        <Building2 className="w-4 h-4 shrink-0" />
+        <span className="max-w-[80px] lg:max-w-[120px] truncate hidden sm:inline">
           {activeOrg?.name ?? "Personal"}
         </span>
-        <span className="text-xs text-slate-500">({activeRole ?? "—"})</span>
-        <ChevronDown className="w-3 h-3" />
+        <span className="text-xs text-slate-500 hidden lg:inline">({activeRole ?? "—"})</span>
+        <ChevronDown className="w-3 h-3 shrink-0" />
       </button>
 
       {open && (

@@ -61,7 +61,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          <nav className="hidden md:flex items-center gap-1">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/templates">Templates</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
@@ -69,26 +69,30 @@ const Header = () => {
             {user && (
               <>
                 <NavLink to="/dashboard">Dashboard</NavLink>
-                <NavLink to="/resumes">My Resumes</NavLink>
-                <NavLink to="/organizations">Organizations</NavLink>
+                <span className="hidden lg:inline">
+                  <NavLink to="/resumes">My Resumes</NavLink>
+                </span>
+                <span className="hidden xl:inline">
+                  <NavLink to="/organizations">Organizations</NavLink>
+                </span>
               </>
             )}
           </nav>
 
           {/* User Actions & Mobile Toggle */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
             {user ? (
-              <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                 <Link
                   to="/create"
-                  className="hidden sm:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
+                  className="hidden lg:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   + New
                 </Link>
                 {/* Mobile "+" Button */}
                 <Link
                   to="/create"
-                  className="sm:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all shrink-0"
+                  className="lg:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all shrink-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -106,16 +110,16 @@ const Header = () => {
                   </svg>
                 </Link>
 
-                <div className="h-8 w-px bg-slate-200 hidden sm:block shrink-0"></div>
+                <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0"></div>
 
                 <OrganizationSwitcher />
 
-                <div className="h-8 w-px bg-slate-200 hidden sm:block shrink-0"></div>
+                <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0"></div>
 
                 {/* User Menu */}
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
                 >
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm overflow-hidden shrink-0">
                     {user.imageUrl ? (
