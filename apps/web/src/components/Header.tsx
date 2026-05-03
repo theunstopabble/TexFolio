@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect, type ReactNode } from "react";
 import { useAuth } from "../context/AuthContext";
+import OrganizationSwitcher from "./OrganizationSwitcher";
 
 const NavLink = ({
   to,
@@ -69,6 +70,7 @@ const Header = () => {
               <>
                 <NavLink to="/dashboard">Dashboard</NavLink>
                 <NavLink to="/resumes">My Resumes</NavLink>
+                <NavLink to="/organizations">Organizations</NavLink>
               </>
             )}
           </nav>
@@ -103,6 +105,10 @@ const Header = () => {
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                   </svg>
                 </Link>
+
+                <div className="h-8 w-px bg-slate-200 hidden sm:block shrink-0"></div>
+
+                <OrganizationSwitcher />
 
                 <div className="h-8 w-px bg-slate-200 hidden sm:block shrink-0"></div>
 
@@ -225,6 +231,7 @@ const Header = () => {
             <>
               <NavLink to="/dashboard">Dashboard</NavLink>
               <NavLink to="/resumes">My Resumes</NavLink>
+              <NavLink to="/organizations">Organizations</NavLink>
 
               <button
                 onClick={logout}

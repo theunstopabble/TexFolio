@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Building2, Users, ArrowRight, Plus, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useResumes, useSendEmail } from "../hooks/useResumes";
 import { useAnalytics } from "../hooks/useQueries";
 import AnalyticsChart from "../components/AnalyticsChart";
+import {
+  useActiveOrg,
+  useOrganizations,
+  useActiveRole,
+} from "../stores/organizationStore";
 
 interface Resume {
   _id: string;
@@ -18,6 +24,88 @@ interface AnalyticsData {
   topSkills: { name: string; count: number }[];
   avgAtsScore: number;
 }
+
+const OrganizationSection = () => {
+  const activeOrg = useActiveOrg();
+  const activeRole = useActiveRole();
+  const orgs = useOrganizations();
+  const navigate = useNavigate();
+
+  if (!activeOrg) {
+    if (orgs.length === 0) {
+      return (
+        <div className="mb-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900">No Active Organization</h3>
+                <p className="text-sm text-slate-600">Create an organization to collaborate with your team.</p>
+              </div>
+            </div>
+            <Link
+              to="/organizations"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              Create Org
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="mb-8 bg-amber-50 rounded-xl p-6 border border-amber-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Users className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Personal Mode</h3>
+              <p className="text-sm text-slate-600">Select an organization from the header dropdown to collaborate.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate("/organizations")}
+            className="flex items-center gap-2 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 text-sm font-medium"
+          >
+            View All
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-8 bg-blue-50 rounded-xl p-6 border border-blue-200">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-slate-900">{activeOrg.name}</h3>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-white rounded-full text-xs font-medium text-blue-700">
+              <Shield className="w-3 h-3" />
+              {activeRole}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate(`/organizations/${activeOrg._id}`)}
+          className="flex items-center gap-2 px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-medium border border-blue-200"
+        >
+          Manage
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const { user, isPro } = useAuth();
@@ -109,6 +197,9 @@ const Dashboard = () => {
           <div className="text-slate-500 text-sm font-medium">Top Skills</div>
         </div>
       </div>
+
+      {/* Organization Context */}
+      <OrganizationSection />
 
       <div className="grid md:grid-cols-3 gap-8 mb-8">
         {/* Activity Chart */}

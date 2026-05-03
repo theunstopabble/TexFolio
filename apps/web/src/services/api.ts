@@ -15,17 +15,28 @@ const api = axios.create({
 
 // Token provider to be set by the app
 let getToken: (() => Promise<string | null>) | null = null;
+let getActiveOrgId: (() => string | null) | null = null;
 
 export const setTokenProvider = (provider: () => Promise<string | null>) => {
   getToken = provider;
 };
 
-// Add auth token to requests
+export const setOrgIdProvider = (provider: () => string | null) => {
+  getActiveOrgId = provider;
+};
+
+// Add auth token + active org header to requests
 api.interceptors.request.use(async (config) => {
   if (getToken) {
     const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  if (getActiveOrgId) {
+    const orgId = getActiveOrgId();
+    if (orgId) {
+      config.headers["X-Organization-Id"] = orgId;
     }
   }
   return config;
@@ -138,6 +149,22 @@ export const paymentApi = {
   createOrder: (amount: number) =>
     api.post("/payments/create-order", { amount }),
   verifyPayment: (data: unknown) => api.post("/payments/verify", data),
+};
+
+export const organizationApi = {
+  list: () => api.get("/organizations"),
+  getById: (id: string) => api.get(`/organizations/${id}`),
+  create: (data: { name: string; slug: string }) => api.post("/organizations", data),
+  update: (id: string, data: unknown) => api.put(`/organizations/${id}`, data),
+  delete: (id: string) => api.delete(`/organizations/${id}`),
+  listMembers: (id: string) => api.get(`/organizations/${id}/members`),
+  inviteMember: (id: string, data: { userId: string; role: string }) =>
+    api.post(`/organizations/${id}/members`, data),
+  updateMemberRole: (id: string, userId: string, role: string) =>
+    api.put(`/organizations/${id}/members/${userId}`, { role }),
+  removeMember: (id: string, userId: string) =>
+    api.delete(`/organizations/${id}/members/${userId}`),
+  getOrgResumes: (id: string) => api.get(`/organizations/${id}/resumes`),
 };
 
 export default api;

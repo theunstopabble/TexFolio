@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./context/AuthContext";
+import { OrganizationProvider } from "./context/OrganizationContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
 import { Analytics } from "@vercel/analytics/react";
@@ -24,6 +25,10 @@ const Templates = lazy(() => import("./pages/Templates"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CoverLetter = lazy(() => import("./pages/CoverLetter"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const OrganizationsPage = lazy(() => import("./pages/Organizations"));
+const OrganizationDetailPage = lazy(() => import("./pages/OrganizationDetail"));
+const OrganizationSettingsPage = lazy(() => import("./pages/OrganizationSettings"));
+const OrganizationMembersPage = lazy(() => import("./pages/OrganizationMembers"));
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -92,59 +97,65 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <AuthProvider>
-            <BrowserRouter>
-              <Toaster position="top-right" />
-              <Analytics />
-              <div className="min-h-screen bg-slate-50 flex flex-col">
-                <Header />
-                <main className="flex-1">
-                  <Suspense fallback={<Loading fullScreen />}>
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/r/:shareId" element={<PublicResume />} />
-                      <Route path="/profile/*" element={<UserProfilePage />} />
+            <OrganizationProvider>
+              <BrowserRouter>
+                <Toaster position="top-right" />
+                <Analytics />
+                <div className="min-h-screen bg-slate-50 flex flex-col">
+                  <Header />
+                  <main className="flex-1">
+                    <Suspense fallback={<Loading fullScreen />}>
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/r/:shareId" element={<PublicResume />} />
+                        <Route path="/profile/*" element={<UserProfilePage />} />
 
-                      {/* Clerk Auth Routes */}
-                      <Route
-                        path="/login/*"
-                        element={
-                          <div className="flex justify-center py-20">
-                            <SignIn
-                              routing="path"
-                              path="/login"
-                              forceRedirectUrl="/dashboard"
-                            />
-                          </div>
-                        }
-                      />
-                      <Route
-                        path="/register/*"
-                        element={
-                          <div className="flex justify-center py-20">
-                            <SignUp
-                              routing="path"
-                              path="/register"
-                              forceRedirectUrl="/dashboard"
-                            />
-                          </div>
-                        }
-                      />
+                        {/* Clerk Auth Routes */}
+                        <Route
+                          path="/login/*"
+                          element={
+                            <div className="flex justify-center py-20">
+                              <SignIn
+                                routing="path"
+                                path="/login"
+                                forceRedirectUrl="/dashboard"
+                              />
+                            </div>
+                          }
+                        />
+                        <Route
+                          path="/register/*"
+                          element={
+                            <div className="flex justify-center py-20">
+                              <SignUp
+                                routing="path"
+                                path="/register"
+                                forceRedirectUrl="/dashboard"
+                              />
+                            </div>
+                          }
+                        />
 
-                      <Route element={<ProtectedRoute />}>
-                        <Route path="/create" element={<CreateResume />} />
-                        <Route path="/resumes" element={<ResumeList />} />
-                        <Route path="/edit/:id" element={<EditResume />} />
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/cover-letter" element={<CoverLetter />} />
-                      </Route>
-                      <Route path="/templates" element={<Templates />} />
-                      <Route path="/pricing" element={<Pricing />} />
-                    </Routes>
-                  </Suspense>
-                </main>
-                <Footer />
-              </div>
-            </BrowserRouter>
+                        <Route element={<ProtectedRoute />}>
+                          <Route path="/create" element={<CreateResume />} />
+                          <Route path="/resumes" element={<ResumeList />} />
+                          <Route path="/edit/:id" element={<EditResume />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/cover-letter" element={<CoverLetter />} />
+                          <Route path="/organizations" element={<OrganizationsPage />} />
+                          <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
+                          <Route path="/organizations/:id/settings" element={<OrganizationSettingsPage />} />
+                          <Route path="/organizations/:id/members" element={<OrganizationMembersPage />} />
+                        </Route>
+                        <Route path="/templates" element={<Templates />} />
+                        <Route path="/pricing" element={<Pricing />} />
+                      </Routes>
+                    </Suspense>
+                  </main>
+                  <Footer />
+                </div>
+              </BrowserRouter>
+            </OrganizationProvider>
           </AuthProvider>
         </ClerkProvider>
       </QueryClientProvider>
