@@ -55,8 +55,9 @@ export function useCreateResume() {
       queryClient.invalidateQueries({ queryKey: queryKeys.resumes.all });
       toast.success("Resume created successfully! 🎉");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to create resume");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to create resume";
+      toast.error(message);
     },
   });
 }
@@ -80,8 +81,9 @@ export function useUpdateResume() {
       });
       toast.success("Resume updated successfully! 🎉");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to update resume");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to update resume";
+      toast.error(message);
     },
   });
 }
@@ -101,8 +103,9 @@ export function useDeleteResume() {
       queryClient.invalidateQueries({ queryKey: queryKeys.resumes.all });
       toast.success("Resume deleted");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete resume");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to delete resume";
+      toast.error(message);
     },
   });
 }
@@ -124,8 +127,9 @@ export function useToggleVisibility() {
         data.isPublic ? "Resume is now public" : "Resume is now private",
       );
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to update visibility");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to update visibility";
+      toast.error(message);
     },
   });
 }
@@ -144,8 +148,9 @@ export function useGeneratePdf() {
       // Revoke blob URL after a delay to allow browser to load it
       setTimeout(() => resumeApi.revokePdfUrl(url), 60000);
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to generate PDF");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF";
+      toast.error(message);
     },
   });
 }
@@ -162,8 +167,9 @@ export function useSendEmail() {
     onSuccess: () => {
       toast.success("Email sent successfully! 📧");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to send email");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to send email";
+      toast.error(message);
     },
   });
 }

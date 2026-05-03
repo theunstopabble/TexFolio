@@ -1,5 +1,5 @@
 // Types (Mirrors the form data structure)
-interface ResumeData {
+export interface ResumeData {
   title: string;
   templateId: string;
   personalInfo: {
@@ -221,7 +221,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Education */}
-        {data.education?.length > 0 && data.education.some((e: any) => e.institution) && (
+        {data.education?.length > 0 && data.education.some((e) => e.institution) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -268,7 +268,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Skills */}
-        {data.skills?.length > 0 && data.skills.some((s: any) => s.category) && (
+        {data.skills?.length > 0 && data.skills.some((s) => s.category) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -288,7 +288,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Experience */}
-        {data.experience?.length > 0 && data.experience.some((e: any) => e.company) && (
+        {data.experience?.length > 0 && data.experience.some((e) => e.company) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -335,7 +335,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Projects */}
-        {data.projects?.length > 0 && data.projects.some((p: any) => p.name) && (
+        {data.projects?.length > 0 && data.projects.some((p) => p.name) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}
@@ -385,7 +385,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
         )}
 
         {/* Certifications */}
-        {data.certifications?.length > 0 && data.certifications.some((c: any) => c.name) && (
+        {data.certifications?.length > 0 && data.certifications.some((c) => c.name) && (
           <div className="mb-3">
             <h2
               className={sectionHeaderStyle}

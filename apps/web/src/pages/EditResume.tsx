@@ -262,8 +262,7 @@ const EditResume = () => {
             </div>
           </div>
 
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <ResumePreview data={formData as unknown as any} />
+          <ResumePreview data={formData} />
 
           <AIAnalysisModal
             isOpen={isAIModalOpen}
@@ -284,7 +283,7 @@ const EditResume = () => {
       <CoverLetterModal
         isOpen={clModalOpen}
         onClose={() => setClModalOpen(false)}
-        resumeData={formData}
+        resumeData={formData as Record<string, unknown>}
       />
       <ShareModal
         isOpen={shareModalOpen}
@@ -296,7 +295,7 @@ const EditResume = () => {
       <AICoachModal
         isOpen={aiCoachOpen}
         onClose={() => setAiCoachOpen(false)}
-        resumeData={formData}
+        resumeData={formData as Record<string, unknown>}
       />
     </div>
   );

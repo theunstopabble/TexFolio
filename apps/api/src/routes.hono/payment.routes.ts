@@ -43,9 +43,10 @@ paymentRoutes.post(
         success: true,
         data: order,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Create Order Error:", error);
-      return c.json({ success: false, error: error.message }, 500);
+      const message = error instanceof Error ? error.message : "Failed to create order";
+      return c.json({ success: false, error: message }, 500);
     }
   },
 );
@@ -97,9 +98,10 @@ paymentRoutes.post(
           400,
         );
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Verify Payment Error:", error);
-      return c.json({ success: false, error: error.message }, 500);
+      const message = error instanceof Error ? error.message : "Failed to verify payment";
+      return c.json({ success: false, error: message }, 500);
     }
   },
 );
@@ -188,8 +190,9 @@ paymentRoutes.post("/webhook", async (c) => {
     }
 
     return c.json({ success: true, message: "Webhook processed" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Webhook Error:", error);
-    return c.json({ success: false, error: error.message }, 500);
+    const message = error instanceof Error ? error.message : "Webhook processing failed";
+    return c.json({ success: false, error: message }, 500);
   }
 });

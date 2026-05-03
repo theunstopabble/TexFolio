@@ -4,8 +4,8 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 interface IExperience {
   company: string;
   position: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   description: string[];
   location?: string;
 }
@@ -14,8 +14,8 @@ interface IEducation {
   institution: string;
   degree: string;
   field: string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   gpa?: string;
   location?: string;
 }

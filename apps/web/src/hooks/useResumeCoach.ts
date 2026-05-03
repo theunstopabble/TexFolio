@@ -47,7 +47,7 @@ export interface QuickScoreResult {
  * Run full Resume Coach Agent analysis
  */
 async function runCoachAnalysis(
-  resumeData: Record<string, any>,
+  resumeData: Record<string, unknown>,
   jobDescription: string | undefined,
   getToken: () => Promise<string | null>,
 ): Promise<CoachAnalysisResult> {
@@ -73,7 +73,7 @@ async function runCoachAnalysis(
  * Get quick ATS score
  */
 async function getQuickScore(
-  resumeData: Record<string, any>,
+  resumeData: Record<string, unknown>,
   jobDescription: string | undefined,
   getToken: () => Promise<string | null>,
 ): Promise<QuickScoreResult> {
@@ -111,7 +111,7 @@ export function useResumeCoach() {
       resumeData,
       jobDescription,
     }: {
-      resumeData: Record<string, any>;
+      resumeData: Record<string, unknown>;
       jobDescription?: string;
     }) => {
       return runCoachAnalysis(resumeData, jobDescription, getToken);
@@ -137,7 +137,7 @@ export function useQuickScore() {
       resumeData,
       jobDescription,
     }: {
-      resumeData: Record<string, any>;
+      resumeData: Record<string, unknown>;
       jobDescription?: string;
     }) => {
       return getQuickScore(resumeData, jobDescription, getToken);

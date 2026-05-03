@@ -76,8 +76,8 @@ const transformResumeData = (resume: IResume) => {
       COMPANY: escapeLatex(exp.company),
       POSITION: escapeLatex(exp.position),
       LOCATION: escapeLatex(exp.location || ""),
-      START_DATE: escapeLatex(exp.startDate),
-      END_DATE: escapeLatex(exp.endDate),
+      START_DATE: escapeLatex(exp.startDate || ""),
+      END_DATE: escapeLatex(exp.endDate || ""),
       DESCRIPTION: exp.description?.map((d) => escapeLatex(d)) || [],
     })),
   });
@@ -90,8 +90,8 @@ const transformResumeData = (resume: IResume) => {
       DEGREE: escapeLatex(edu.degree),
       FIELD: escapeLatex(edu.field),
       LOCATION: escapeLatex(edu.location || ""),
-      START_DATE: escapeLatex(edu.startDate),
-      END_DATE: escapeLatex(edu.endDate),
+      START_DATE: escapeLatex(edu.startDate || ""),
+      END_DATE: escapeLatex(edu.endDate || ""),
       GPA: edu.gpa ? escapeLatex(edu.gpa) : null,
     })),
   });
@@ -152,7 +152,7 @@ const transformResumeData = (resume: IResume) => {
       ? resume.sectionOrder
       : defaultOrder;
 
-  const dynamicSections: any[] = [];
+  const dynamicSections: Record<string, unknown>[] = [];
 
   order.forEach((section) => {
     switch (section) {
@@ -257,8 +257,6 @@ export const generatePDF = async (
     const useDocker = process.env.USE_DOCKER_LATEX === "true";
 
     // SECURITY FIX: Use spawn instead of exec to prevent command injection
-    const { spawn } = await import("child_process");
-    
     console.log(useDocker ? "🐳 Generating PDF using Docker (texfolio-latex)..." : "🖥️ Generating PDF using local pdflatex...");
     
     const pdflatexPromise = new Promise<void>((resolve, reject) => {
@@ -308,8 +306,8 @@ export const generatePDF = async (
 
     try {
       await pdflatexPromise;
-    } catch (err: any) {
-      console.warn("pdflatex warning:", err.message);
+    } catch (err) {
+      console.warn("pdflatex warning:", err instanceof Error ? err.message : String(err));
       // Continue to check if PDF was created (pdflatex may return non-zero even on success)
     }
 

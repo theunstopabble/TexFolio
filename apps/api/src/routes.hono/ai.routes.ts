@@ -59,19 +59,18 @@ aiRoutes.post("/analyze", zValidator("json", analyzeSchema), async (c) => {
       resumeData.personalInfo?.fullName,
     );
 
-    // Cast to any since AI service accepts flexible resume format
-    const result = await aiService.analyzeResume(resumeData as any);
+    const result = await aiService.analyzeResume(resumeData);
 
     return c.json({
       success: true,
       data: result,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("AI Controller Error:", error);
     return c.json(
       {
         success: false,
-        error: error.message || "Internal AI Error",
+        error: error instanceof Error ? error.message : "Internal AI Error",
       },
       500,
     );
@@ -88,9 +87,8 @@ aiRoutes.post(
 
       console.log("✍️ AI Cover Letter requested");
 
-      // Cast to any since AI service accepts flexible resume format
       const coverLetter = await aiService.generateCoverLetter(
-        resume as any,
+        resume as Record<string, unknown>,
         jobDescription,
       );
 
@@ -98,12 +96,12 @@ aiRoutes.post(
         success: true,
         data: { coverLetter },
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("AI Controller Error:", error);
       return c.json(
         {
           success: false,
-          error: error.message || "Internal AI Error",
+          error: error instanceof Error ? error.message : "Internal AI Error",
         },
         500,
       );

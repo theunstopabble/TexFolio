@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 interface CoverLetterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resumeData: any;
+  resumeData: Record<string, unknown>;
 }
 
 const CoverLetterModal: React.FC<CoverLetterModalProps> = ({

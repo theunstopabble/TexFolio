@@ -1,5 +1,6 @@
 import type { UseFormReturn, UseFieldArrayReturn } from "react-hook-form";
 import type { ResumeFormData } from "../resume-editor/types";
+import type { ImportedResumeData } from "./useCreateResume";
 import LinkedInImport from "../../components/LinkedInImport";
 
 interface ResumeFormStepsProps {
@@ -12,8 +13,7 @@ interface ResumeFormStepsProps {
     projects: UseFieldArrayReturn<ResumeFormData, "projects", "id">;
     certifications: UseFieldArrayReturn<ResumeFormData, "certifications", "id">;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onImportSuccess: (data: any) => void;
+  onImportSuccess: (data: ImportedResumeData) => void;
 }
 
 const ResumeFormSteps: React.FC<ResumeFormStepsProps> = ({
@@ -332,8 +332,7 @@ const ResumeFormSteps: React.FC<ResumeFormStepsProps> = ({
                 </div>
                 <textarea
                   {...register(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    `experience.${index}.description` as any,
+                    `experience.${index}.description` as `experience.${number}.description`,
                   )}
                   className="form-input min-h-[100px] mt-3"
                   placeholder="Description (Bullet points recommended, one per line)"
@@ -390,8 +389,7 @@ const ResumeFormSteps: React.FC<ResumeFormStepsProps> = ({
                   />
                   <input
                     {...register(
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      `skills.${index}.skills` as any,
+                      `skills.${index}.skills` as `skills.${number}.skills`,
                     )}
                     className="form-input"
                     placeholder="Skills (comma separated)"
@@ -453,8 +451,7 @@ const ResumeFormSteps: React.FC<ResumeFormStepsProps> = ({
                   />
                   <input
                     {...register(
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      `projects.${index}.technologies` as any,
+                      `projects.${index}.technologies` as `projects.${number}.technologies`,
                     )}
                     className="form-input"
                     placeholder="Technologies (comma separated)"

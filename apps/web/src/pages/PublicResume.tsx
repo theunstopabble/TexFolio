@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
-import ResumePreview from "../components/ResumePreview";
+import ResumePreview, { type ResumeData } from "../components/ResumePreview";
 import { Link } from "react-router-dom";
 
 const PublicResume = () => {
   const { shareId } = useParams<{ shareId: string }>();
-  const [resume, setResume] = useState<any>(null);
+  const [resume, setResume] = useState<ResumeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

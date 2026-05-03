@@ -61,10 +61,10 @@ const createResumeSchema = z.object({
     .array(
       z.object({
         name: z.string(),
-        description: z.string().optional(),
+        description: z.string().default(""),
         technologies: z.array(z.string()).default([]),
-        sourceCode: z.string().optional(),
-        liveUrl: z.string().optional(),
+        sourceCode: z.string().default(""),
+        liveUrl: z.string().default(""),
       }),
     )
     .default([]),
@@ -129,9 +129,9 @@ resumeRoutes.get("/:id", async (c) => {
     }
 
     return c.json({ success: true, data: resume });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in getById:", error);
-    if (error.message === "Invalid resume ID") {
+    if (error instanceof Error && error.message === "Invalid resume ID") {
       return c.json({ success: false, error: "Invalid resume ID" }, 400);
     }
     return c.json({ success: false, error: "Failed to fetch resume" }, 500);
@@ -144,7 +144,7 @@ resumeRoutes.post("/", zValidator("json", createResumeSchema), async (c) => {
     const user = c.get("user");
     const body = c.req.valid("json");
 
-    const resume = await resumeService.create(body as any, user.userId);
+    const resume = await resumeService.create(body, user.userId);
 
     return c.json(
       {
@@ -154,9 +154,9 @@ resumeRoutes.post("/", zValidator("json", createResumeSchema), async (c) => {
       },
       201,
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in create:", error);
-    if (error.name === "ValidationError") {
+    if (error instanceof Error && error.name === "ValidationError") {
       return c.json(
         {
           success: false,
@@ -177,7 +177,7 @@ resumeRoutes.put("/:id", zValidator("json", updateResumeSchema), async (c) => {
     const id = c.req.param("id");
     const body = c.req.valid("json");
 
-    const resume = await resumeService.update(id, user.userId, body as any);
+    const resume = await resumeService.update(id, user.userId, body);
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
@@ -188,9 +188,9 @@ resumeRoutes.put("/:id", zValidator("json", updateResumeSchema), async (c) => {
       message: "Resume updated successfully",
       data: resume,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in update:", error);
-    if (error.message === "Invalid resume ID") {
+    if (error instanceof Error && error.message === "Invalid resume ID") {
       return c.json({ success: false, error: "Invalid resume ID" }, 400);
     }
     return c.json({ success: false, error: "Failed to update resume" }, 500);
@@ -213,9 +213,9 @@ resumeRoutes.delete("/:id", async (c) => {
       success: true,
       message: "Resume deleted successfully",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in delete:", error);
-    if (error.message === "Invalid resume ID") {
+    if (error instanceof Error && error.message === "Invalid resume ID") {
       return c.json({ success: false, error: "Invalid resume ID" }, 400);
     }
     return c.json({ success: false, error: "Failed to delete resume" }, 500);
@@ -256,7 +256,10 @@ resumeRoutes.patch("/:id/visibility", async (c) => {
   } catch (error) {
     console.error("Error toggling visibility:", error);
     return c.json(
-      { success: false, error: "Failed to update visibility" },
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to toggle visibility",
+      },
       500,
     );
   }
@@ -285,12 +288,12 @@ resumeRoutes.get("/:id/pdf", async (c) => {
         "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error in generatePdf:", error);
-    if (error.message === "Invalid resume ID") {
+    if (error instanceof Error && error.message === "Invalid resume ID") {
       return c.json({ success: false, error: "Invalid resume ID" }, 400);
     }
-    if (error.message === "Resume not found") {
+    if (error instanceof Error && error.message === "Resume not found") {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
     return c.json({ success: false, error: "Failed to generate PDF" }, 500);
@@ -320,24 +323,25 @@ resumeRoutes.post(
       const pdfBuffer = await fs.readFile(pdfPath);
 
       // 3. Send Email via Brevo
+      const fullName = resume.personalInfo?.fullName || "User";
       await sendEmail({
         to: email,
-        subject: `Your Resume: ${resume.personalInfo.fullName}`,
+        subject: `Your Resume: ${fullName}`,
         htmlContent: `
         <h1>Here is your requested resume</h1>
-        <p>Hi ${resume.personalInfo.fullName},</p>
+        <p>Hi ${fullName},</p>
         <p>Please find your generated resume attached.</p>
         <p>Best,<br>TexFolio Team</p>
       `,
         pdfBuffer: pdfBuffer,
-        pdfName: `${resume.personalInfo.fullName.replace(/\s+/g, "_")}_Resume.pdf`,
+        pdfName: `${fullName.replace(/\s+/g, "_")}_Resume.pdf`,
       });
 
       return c.json({ success: true, message: "Email sent successfully" });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error sending email:", error);
       return c.json(
-        { success: false, error: error.message || "Failed to send email" },
+        { success: false, error: error instanceof Error ? error.message : "Failed to send email" },
         500,
       );
     }

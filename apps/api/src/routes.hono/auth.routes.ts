@@ -39,8 +39,10 @@ authRoutes.get("/me", async (c) => {
     return c.json({
       success: true,
       data: {
+        id: user.mongoUserId,
         clerkId: user.userId,
         email: user.email,
+        fullName: user.email?.split("@")[0] || "User", // Best-effort fallback
         isPro: user.isPro,
       },
     });

@@ -33,8 +33,9 @@ export function useAnalyzeResume() {
       const response = await aiApi.analyze(data);
       return response.data.data;
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to analyze resume");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to analyze resume";
+      toast.error(message);
     },
   });
 }
@@ -53,8 +54,9 @@ export function useGenerateCoverLetter() {
       const response = await aiApi.generateCoverLetter(data);
       return response.data.data;
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to generate cover letter");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to generate cover letter";
+      toast.error(message);
     },
   });
 }
@@ -68,8 +70,9 @@ export function useImproveText() {
       const response = await aiApi.improveText(text);
       return response.data.data;
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to improve text");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to improve text";
+      toast.error(message);
     },
   });
 }
@@ -83,8 +86,9 @@ export function useGenerateBullets() {
       const response = await aiApi.generateBullets(jobTitle);
       return response.data.data;
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to generate bullets");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to generate bullets";
+      toast.error(message);
     },
   });
 }
@@ -98,8 +102,9 @@ export function useATSCheck() {
       const response = await aiApi.checkATSScore(data);
       return response.data.data;
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to check ATS score");
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : "Failed to check ATS score";
+      toast.error(message);
     },
   });
 }

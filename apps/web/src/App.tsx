@@ -95,9 +95,9 @@ function App() {
             <BrowserRouter>
               <Toaster position="top-right" />
               <Analytics />
-              <div className="min-h-screen bg-slate-50">
+              <div className="min-h-screen bg-slate-50 flex flex-col">
                 <Header />
-                <main className="min-h-screen">
+                <main className="flex-1">
                   <Suspense fallback={<Loading fullScreen />}>
                     <Routes>
                       <Route path="/" element={<HomePage />} />

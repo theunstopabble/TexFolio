@@ -71,7 +71,7 @@ const createLLM = () => {
  */
 const ResumeCoachState = Annotation.Root({
   // Input resume data
-  resumeData: Annotation<Record<string, any>>({
+  resumeData: Annotation<Record<string, unknown>>({
     reducer: (_, y) => y,
     default: () => ({}),
   }),
@@ -456,7 +456,7 @@ export function createResumeCoachAgent() {
 // ============================================
 
 export interface ResumeCoachInput {
-  resumeData: Record<string, any>;
+  resumeData: Record<string, unknown>;
   jobDescription?: string;
 }
 

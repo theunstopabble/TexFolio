@@ -308,8 +308,7 @@ export const ResumeFormSections = ({
               {/* Note: We handle array-string conversion in hook onSubmit, here we bind to unknown for simplicity but better to manage as text */}
               <textarea
                 {...register(
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  `experience.${index}.description` as any,
+                  `experience.${index}.description` as `experience.${number}.description`,
                 )}
                 className="form-input w-full p-2 border rounded h-24"
                 placeholder="Description (bullets will be split by new line)"
@@ -453,8 +452,7 @@ export const ResumeFormSections = ({
                 />
                 <input
                   {...register(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    `skills.${index}.skills` as any,
+                    `skills.${index}.skills` as `skills.${number}.skills`
                   )}
                   className="form-input p-2 border rounded"
                   placeholder="Skills (comma separated)"
@@ -515,8 +513,7 @@ export const ResumeFormSections = ({
                 />
                 <input
                   {...register(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    `projects.${index}.technologies` as any,
+                    `projects.${index}.technologies` as `projects.${number}.technologies`
                   )}
                   className="form-input p-2 border rounded"
                   placeholder="Technologies (comma separated)"

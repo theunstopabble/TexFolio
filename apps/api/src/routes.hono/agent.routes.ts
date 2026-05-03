@@ -54,12 +54,12 @@ agentRoutes.post(
           recommendations: result.recommendations,
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Resume Coach Agent Error:", error);
       return c.json(
         {
           success: false,
-          error: error.message || "Agent execution failed",
+          error: error instanceof Error ? error.message : "Agent execution failed",
         },
         500,
       );
@@ -94,12 +94,12 @@ agentRoutes.post(
           topRecommendations: result.recommendations.slice(0, 3),
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Quick Score Error:", error);
       return c.json(
         {
           success: false,
-          error: error.message || "Quick score failed",
+          error: error instanceof Error ? error.message : "Quick score failed",
         },
         500,
       );
@@ -156,10 +156,10 @@ agentRoutes.post("/import/linkedin", async (c) => {
       message: "LinkedIn parsed successfully",
       data: resumeData,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("LinkedIn Import Error:", error);
     return c.json(
-      { success: false, error: error.message || "Import failed" },
+      { success: false, error: error instanceof Error ? error.message : "Import failed" },
       500,
     );
   }

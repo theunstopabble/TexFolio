@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 interface LinkedInImportProps {
-  onImportSuccess: (data: any) => void;
+  onImportSuccess: (data: Record<string, unknown>) => void;
 }
 
 const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
@@ -64,10 +64,13 @@ const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
         toast.success("Profile imported successfully! 🎉");
         onImportSuccess(response.data.data);
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.dismiss();
       console.error("Import error:", error);
-      toast.error(error.response?.data?.error || "Failed to import profile");
+      const errMsg = error && typeof error === "object" && "response" in error
+        ? (error as { response?: { data?: { error?: string } } }).response?.data?.error
+        : undefined;
+      toast.error(errMsg || "Failed to import profile");
     } finally {
       setIsLoading(false);
     }

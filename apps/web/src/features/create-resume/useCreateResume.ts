@@ -1,10 +1,30 @@
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, type FieldPath } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { resumeApi } from "../../services/api";
 import toast from "react-hot-toast";
 import type { ResumeFormData } from "../resume-editor/types";
+import type { Experience, Education, Skill, Project, Certification } from "../resume-editor/types";
+
+// Shape of data returned from LinkedIn import
+export interface ImportedResumeData {
+  [key: string]: unknown;
+  personalInfo?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+  };
+  summary?: string;
+  experience?: Experience[];
+  education?: Education[];
+  skills?: Skill[];
+  projects?: Project[];
+  certifications?: Certification[];
+}
 
 // --- Configuration ---
 export const STEPS = [
@@ -25,7 +45,7 @@ export const STEPS = [
   { id: "skills", title: "Skills", fields: ["skills"] },
   { id: "projects", title: "Projects", fields: ["projects"] },
   { id: "certifications", title: "Certifications", fields: ["certifications"] },
-];
+] as const;
 
 export const useCreateResume = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -127,8 +147,7 @@ export const useCreateResume = () => {
   // Actions
   const handleNext = async () => {
     const fields = STEPS[currentStep].fields;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const isStepValid = await trigger(fields as any);
+    const isStepValid = await trigger(fields as unknown as readonly FieldPath<ResumeFormData>[]);
     if (isStepValid) {
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
       window.scrollTo(0, 0);
@@ -140,8 +159,7 @@ export const useCreateResume = () => {
     window.scrollTo(0, 0);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleImportSuccess = (data: any) => {
+  const handleImportSuccess = (data: ImportedResumeData) => {
     reset({
       ...formData,
       title: `${data.personalInfo?.fullName || "My"}'s Resume`,
@@ -156,13 +174,13 @@ export const useCreateResume = () => {
       },
       summary: data.summary || "",
       experience:
-        data.experience?.length > 0 ? data.experience : formData.experience,
+        (data.experience?.length ?? 0) > 0 ? data.experience : formData.experience,
       education:
-        data.education?.length > 0 ? data.education : formData.education,
-      skills: data.skills?.length > 0 ? data.skills : formData.skills,
-      projects: data.projects?.length > 0 ? data.projects : formData.projects,
+        (data.education?.length ?? 0) > 0 ? data.education : formData.education,
+      skills: (data.skills?.length ?? 0) > 0 ? data.skills : formData.skills,
+      projects: (data.projects?.length ?? 0) > 0 ? data.projects : formData.projects,
       certifications:
-        data.certifications?.length > 0
+        (data.certifications?.length ?? 0) > 0
           ? data.certifications
           : formData.certifications,
     });

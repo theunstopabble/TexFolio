@@ -152,8 +152,7 @@ const CreateResume = () => {
               Updates automatically
             </span>
           </div>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <ResumePreview data={formData as unknown as any} />
+          <ResumePreview data={formData} />
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { useResumeCoach } from "../hooks/useResumeCoach";
 interface AICoachModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resumeData: Record<string, any>;
+  resumeData: Record<string, unknown>;
 }
 
 export default function AICoachModal({

@@ -1,5 +1,4 @@
 import Groq from "groq-sdk";
-import { IResume } from "../models/resume.model.js";
 import { env } from "../config/env.js";
 
 export class AIService {
@@ -14,7 +13,7 @@ export class AIService {
     });
   }
 
-  async analyzeResume(resume: IResume) {
+  async analyzeResume(resume: Record<string, unknown>) {
     if (!env.GROQ_API_KEY) {
       throw new Error("AI Service unavailable: Groq API Key required.");
     }
@@ -63,7 +62,7 @@ export class AIService {
 
       console.log("✅ Groq Analysis Success");
       return JSON.parse(text);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Groq Analysis Failed:", error);
       throw new Error(
         "Failed to analyze resume with Groq. Please check API Key.",
@@ -71,7 +70,10 @@ export class AIService {
     }
   }
 
-  async generateCoverLetter(resume: IResume, jobDescription: string) {
+  async generateCoverLetter(
+    resumeData: Record<string, unknown>,
+    jobDescription: string,
+  ): Promise<string> {
     if (!env.GROQ_API_KEY) {
       throw new Error("AI Service unavailable: Groq API Key required.");
     }
@@ -81,7 +83,7 @@ export class AIService {
       Write a compelling, professional cover letter based on the following Resume and Job Description.
       
       RESUME DATA:
-      ${JSON.stringify(resume, null, 2)}
+      ${JSON.stringify(resumeData, null, 2)}
       
       JOB DESCRIPTION:
       ${jobDescription}
@@ -110,7 +112,7 @@ export class AIService {
       });
 
       return chatCompletion.choices[0]?.message?.content || "";
-    } catch (error: any) {
+    } catch (error) {
       console.error("Groq Cover Letter Generation Failed:", error);
       throw new Error("Failed to generate cover letter.");
     }
@@ -147,7 +149,7 @@ export class AIService {
       });
 
       return chatCompletion.choices[0]?.message?.content || text;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Groq Text Improvement Failed:", error);
       throw new Error("Failed to improve text.");
     }
@@ -189,7 +191,7 @@ export class AIService {
         .trim();
 
       return JSON.parse(text);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Groq Bullet Generation Failed:", error);
       // Fallback
       return ["Failed to generate suggestions. Please try again."];
@@ -197,9 +199,9 @@ export class AIService {
   }
 
   async calculateATSScore(
-    resumeData: any,
+    resumeData: Record<string, unknown>,
     jobDescription?: string,
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     const resumeText = JSON.stringify(resumeData);
 
     const prompt = `Analyze this resume data for ATS (Applicant Tracking System) compatibility.
