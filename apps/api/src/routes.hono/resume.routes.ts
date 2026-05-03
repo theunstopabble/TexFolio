@@ -1,9 +1,22 @@
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { authMiddleware } from "../middleware.hono/auth.middleware.js";
 import { resumeService } from "../services/resume.service.js";
 import { sendEmail } from "../services/email.service.js";
+import { auditService } from "../services/audit.service.js";
+import { pdfQueue } from "../queues/pdf.queue.js";
+
+// Helper to extract audit metadata from Hono context
+const getAuditMeta = (c: Context, statusCode: number) => ({
+  requestId: (c.get("requestId") as string) || "unknown",
+  ip: c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown",
+  userAgent: c.req.header("user-agent") || "unknown",
+  method: c.req.method,
+  path: c.req.path,
+  statusCode,
+});
 
 // Create resume router
 export const resumeRoutes = new Hono();
@@ -146,6 +159,15 @@ resumeRoutes.post("/", zValidator("json", createResumeSchema), async (c) => {
 
     const resume = await resumeService.create(body, user.userId);
 
+    await auditService.log({
+      actorId: user.userId,
+      action: "CREATE",
+      resourceType: "Resume",
+      resourceId: String(resume._id),
+      after: resume.toObject() as unknown as Record<string, unknown>,
+      metadata: getAuditMeta(c, 201),
+    });
+
     return c.json(
       {
         success: true,
@@ -177,11 +199,22 @@ resumeRoutes.put("/:id", zValidator("json", updateResumeSchema), async (c) => {
     const id = c.req.param("id");
     const body = c.req.valid("json");
 
+    const existing = await resumeService.findById(id, user.userId);
     const resume = await resumeService.update(id, user.userId, body);
 
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
+
+    await auditService.log({
+      actorId: user.userId,
+      action: "UPDATE",
+      resourceType: "Resume",
+      resourceId: String(resume._id),
+      before: existing ? (existing.toObject() as unknown as Record<string, unknown>) : undefined,
+      after: resume.toObject() as unknown as Record<string, unknown>,
+      metadata: getAuditMeta(c, 200),
+    });
 
     return c.json({
       success: true,
@@ -208,6 +241,15 @@ resumeRoutes.delete("/:id", async (c) => {
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
+
+    await auditService.log({
+      actorId: user.userId,
+      action: "DELETE",
+      resourceType: "Resume",
+      resourceId: String(resume._id),
+      before: resume.toObject() as unknown as Record<string, unknown>,
+      metadata: getAuditMeta(c, 200),
+    });
 
     return c.json({
       success: true,
@@ -244,6 +286,15 @@ resumeRoutes.patch("/:id/visibility", async (c) => {
     }
 
     await resume.save();
+
+    await auditService.log({
+      actorId: user.userId,
+      action: "SHARE",
+      resourceType: "Resume",
+      resourceId: String(resume._id),
+      after: { isPublic: resume.isPublic, shareId: resume.shareId } as Record<string, unknown>,
+      metadata: getAuditMeta(c, 200),
+    });
 
     return c.json({
       success: true,
@@ -301,6 +352,121 @@ resumeRoutes.get("/:id/pdf", async (c) => {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
     return c.json({ success: false, error: "Failed to generate PDF" }, 500);
+  }
+});
+
+// Async PDF Generation via BullMQ Queue
+resumeRoutes.post("/:id/pdf/queue", async (c) => {
+  try {
+    const user = c.get("user");
+    const id = c.req.param("id");
+
+    // Verify resume exists and belongs to user
+    const resume = await resumeService.findById(id, user.userId);
+    if (!resume) {
+      return c.json({ success: false, error: "Resume not found" }, 404);
+    }
+
+    const job = await pdfQueue.add("generate-pdf", {
+      resumeId: id,
+      userId: user.userId,
+    });
+
+    return c.json({
+      success: true,
+      message: "PDF generation queued",
+      jobId: job.id,
+    });
+  } catch (error) {
+    console.error("Error queuing PDF:", error);
+    return c.json({ success: false, error: "Failed to queue PDF generation" }, 500);
+  }
+});
+
+// Check async PDF job status
+resumeRoutes.get("/:id/pdf/queue/:jobId", async (c) => {
+  try {
+    const user = c.get("user");
+    const id = c.req.param("id");
+    const jobId = c.req.param("jobId");
+
+    const job = await pdfQueue.getJob(jobId);
+    if (!job) {
+      return c.json({ success: false, error: "Job not found" }, 404);
+    }
+
+    // Verify job data matches resume and user
+    if (job.data.resumeId !== id || job.data.userId !== user.userId) {
+      return c.json({ success: false, error: "Unauthorized" }, 403);
+    }
+
+    const state = await job.getState();
+    const progress = job.progress || 0;
+
+    return c.json({
+      success: true,
+      jobId: job.id,
+      status: state,          // e.g. "waiting", "active", "completed", "failed"
+      progress,
+      result: job.returnvalue ?? null,
+      failedReason: job.failedReason ?? null,
+    });
+  } catch (error) {
+    console.error("Error fetching job status:", error);
+    return c.json({ success: false, error: "Failed to fetch job status" }, 500);
+  }
+});
+
+// Download completed queued PDF
+resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
+  try {
+    const user = c.get("user");
+    const id = c.req.param("id");
+    const jobId = c.req.param("jobId");
+
+    const job = await pdfQueue.getJob(jobId);
+    if (!job) {
+      return c.json({ success: false, error: "Job not found" }, 404);
+    }
+
+    // Verify ownership
+    if (job.data.resumeId !== id || job.data.userId !== user.userId) {
+      return c.json({ success: false, error: "Unauthorized" }, 403);
+    }
+
+    const state = await job.getState();
+    if (state !== "completed") {
+      return c.json(
+        { success: false, error: `Job is ${state}. Wait for completion before downloading.` },
+        409,
+      );
+    }
+
+    const result = job.returnvalue as { outputPath: string } | undefined;
+    if (!result?.outputPath) {
+      return c.json({ success: false, error: "Job completed but no file was produced" }, 500);
+    }
+
+    // Read and return PDF
+    const fs = await import("fs/promises");
+    const pdfBuffer = await fs.readFile(result.outputPath);
+
+    const resume = await resumeService.findById(id, user.userId);
+    const sanitizeFilename = (name: string) =>
+      name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";
+    const filename = resume
+      ? `${sanitizeFilename(resume.personalInfo.fullName)}_Resume.pdf`
+      : "Resume.pdf";
+
+    return new Response(pdfBuffer, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
+  } catch (error) {
+    console.error("Error downloading queued PDF:", error);
+    return c.json({ success: false, error: "Failed to download PDF" }, 500);
   }
 });
 

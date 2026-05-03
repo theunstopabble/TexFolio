@@ -1,6 +1,13 @@
-version: "3.8"
-
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: texfolio-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
   latex-renderer:
     build:
       context: ./apps/latex-renderer
@@ -10,3 +17,6 @@ services:
       - ./apps/api/temp:/app/temp
     working_dir: /app/temp
     restart: unless-stopped
+
+volumes:
+  redis-data:

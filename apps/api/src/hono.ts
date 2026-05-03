@@ -3,7 +3,7 @@ import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import { serve } from "@hono/node-server";
 import { env, connectDatabase, disconnectDatabase } from "./config/index.js";
-import { rateLimiter } from "./middleware.hono/rate-limit.middleware.js";
+import { rateLimiter, tieredRateLimiter } from "./middleware.hono/rate-limit.middleware.js";
 import { requestIdMiddleware } from "./middleware.hono/request-id.middleware.js";
 import { structuredLogger } from "./middleware.hono/logger.middleware.js";
 import { inputSanitizer } from "./middleware.hono/input-validator.middleware.js";
@@ -16,6 +16,9 @@ import { paymentRoutes } from "./routes.hono/payment.routes.js";
 import { authRoutes } from "./routes.hono/auth.routes.js";
 import { publicRoutes } from "./routes.hono/public.routes.js";
 import { agentRoutes } from "./routes.hono/agent.routes.js";
+import { auditLogRoutes } from "./routes.hono/audit-log.routes.js";
+import { aiService } from "./services/ai.service.js";
+import { closePdfQueue } from "./queues/pdf.queue.js";
 
 // Create Hono app
 const app = new Hono();
@@ -56,13 +59,15 @@ app.use(
   }),
 );
 
-// 5. Global Rate Limiter (increased for general API)
+// 5. Global Tiered Rate Limiter (user-based, falls back to IP for anonymous)
 app.use(
   "/api/*",
-  rateLimiter({
+  tieredRateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    max: 120, // Limit each IP to 120 requests per minute
-    message: "Too many requests, please try again after a minute.",
+    freeMax: 60,   // Free users: 60 req/min
+    proMax: 300,   // Pro users: 300 req/min
+    unauthenticatedMax: 20, // Anonymous: 20 req/min
+    message: "Too many requests. Upgrade to Pro for higher limits.",
   }),
 );
 
@@ -108,6 +113,16 @@ app.get("/health", (c) => {
   });
 });
 
+// AI Service health (circuit breaker status)
+app.get("/health/ai", (c) => {
+  return c.json({
+    success: true,
+    groqKeyConfigured: Boolean(env.GROQ_API_KEY && env.GROQ_API_KEY !== "your-groq-api-key"),
+    circuitBreaker: aiService.circuitBreakerMetrics,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Mount API routes
 app.route("/api/public", publicRoutes);
 app.route("/api/resumes", resumeRoutes);
@@ -116,6 +131,7 @@ app.route("/api/analytics", analyticsRoutes);
 app.route("/api/payments", paymentRoutes);
 app.route("/api/auth", authRoutes);
 app.route("/api/agents", agentRoutes); // LangGraph AI Agent
+app.route("/api/audit-logs", auditLogRoutes); // Enterprise audit trail
 
 // ============================================
 // Error Handling
@@ -198,6 +214,7 @@ const gracefulShutdown = async (): Promise<void> => {
   if (server) {
     server.close();
   }
+  await closePdfQueue();
   await disconnectDatabase();
   process.exit(0);
 };

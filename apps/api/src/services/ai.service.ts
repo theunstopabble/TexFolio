@@ -1,8 +1,10 @@
 import Groq from "groq-sdk";
 import { env } from "../config/env.js";
+import { CircuitBreaker, type CircuitBreakerMetrics } from "../utils/circuit-breaker.js";
 
 export class AIService {
   private groq: Groq;
+  private breaker: CircuitBreaker;
 
   constructor() {
     if (!env.GROQ_API_KEY) {
@@ -11,6 +13,15 @@ export class AIService {
     this.groq = new Groq({
       apiKey: env.GROQ_API_KEY || "dummy-key",
     });
+    this.breaker = new CircuitBreaker("groq-ai", {
+      failureThreshold: 5,
+      successThreshold: 2,
+      timeoutMs: 30000,
+    });
+  }
+
+  get circuitBreakerMetrics(): CircuitBreakerMetrics {
+    return this.breaker.metrics;
   }
 
   async analyzeResume(resume: Record<string, unknown>) {
@@ -39,18 +50,20 @@ export class AIService {
     `;
 
     try {
-      const chatCompletion = await this.groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful assistant that outputs only valid JSON.",
-          },
-          { role: "user", content: prompt },
-        ],
-        model: "llama-3.1-8b-instant", // Updated to supported model
-        temperature: 0.5,
-      });
+      const chatCompletion = await this.breaker.execute(() =>
+        this.groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that outputs only valid JSON.",
+            },
+            { role: "user", content: prompt },
+          ],
+          model: "llama-3.1-8b-instant", // Updated to supported model
+          temperature: 0.5,
+        })
+      );
 
       let text = chatCompletion.choices[0]?.message?.content || "{}";
 
@@ -99,17 +112,19 @@ export class AIService {
     `;
 
     try {
-      const chatCompletion = await this.groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: "You are a professional career coach.",
-          },
-          { role: "user", content: prompt },
-        ],
-        model: "llama-3.1-8b-instant",
-        temperature: 0.7,
-      });
+      const chatCompletion = await this.breaker.execute(() =>
+        this.groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: "You are a professional career coach.",
+            },
+            { role: "user", content: prompt },
+          ],
+          model: "llama-3.1-8b-instant",
+          temperature: 0.7,
+        })
+      );
 
       return chatCompletion.choices[0]?.message?.content || "";
     } catch (error) {
@@ -139,14 +154,16 @@ export class AIService {
     `;
 
     try {
-      const chatCompletion = await this.groq.chat.completions.create({
-        messages: [
-          { role: "system", content: "You are a professional resume editor." },
-          { role: "user", content: prompt },
-        ],
-        model: "llama-3.1-8b-instant",
-        temperature: 0.3,
-      });
+      const chatCompletion = await this.breaker.execute(() =>
+        this.groq.chat.completions.create({
+          messages: [
+            { role: "system", content: "You are a professional resume editor." },
+            { role: "user", content: prompt },
+          ],
+          model: "llama-3.1-8b-instant",
+          temperature: 0.3,
+        })
+      );
 
       return chatCompletion.choices[0]?.message?.content || text;
     } catch (error) {
@@ -171,18 +188,20 @@ export class AIService {
     `;
 
     try {
-      const chatCompletion = await this.groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful assistant that outputs only valid JSON array.",
-          },
-          { role: "user", content: prompt },
-        ],
-        model: "llama-3.1-8b-instant",
-        temperature: 0.6,
-      });
+      const chatCompletion = await this.breaker.execute(() =>
+        this.groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that outputs only valid JSON array.",
+            },
+            { role: "user", content: prompt },
+          ],
+          model: "llama-3.1-8b-instant",
+          temperature: 0.6,
+        })
+      );
 
       let text = chatCompletion.choices[0]?.message?.content || "[]";
       text = text
@@ -219,18 +238,20 @@ export class AIService {
     }`;
 
     try {
-      const response = await this.groq.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert ATS scanner and resume analyzer. Return purely JSON output.",
-          },
-          { role: "user", content: prompt },
-        ],
-        model: "llama-3.1-8b-instant",
-        temperature: 0.3,
-      });
+      const response = await this.breaker.execute(() =>
+        this.groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert ATS scanner and resume analyzer. Return purely JSON output.",
+            },
+            { role: "user", content: prompt },
+          ],
+          model: "llama-3.1-8b-instant",
+          temperature: 0.3,
+        })
+      );
 
       const content = response.choices[0]?.message?.content || "{}";
       return JSON.parse(content);
