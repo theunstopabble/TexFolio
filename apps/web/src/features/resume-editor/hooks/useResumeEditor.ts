@@ -164,7 +164,7 @@ export const useResumeEditor = () => {
     setIsAIModalOpen(true);
     setIsAnalyzing(true);
     try {
-      const result = await analyzeResume(watch());
+      const result = await analyzeResume(watch() as unknown as Record<string, unknown>);
       setAiResult(result);
     } catch {
       toast.error("Failed to analyze resume.");

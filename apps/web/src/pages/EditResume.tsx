@@ -283,7 +283,7 @@ const EditResume = () => {
       <CoverLetterModal
         isOpen={clModalOpen}
         onClose={() => setClModalOpen(false)}
-        resumeData={formData as Record<string, unknown>}
+        resumeData={formData as unknown as Record<string, unknown>}
       />
       <ShareModal
         isOpen={shareModalOpen}
@@ -295,7 +295,7 @@ const EditResume = () => {
       <AICoachModal
         isOpen={aiCoachOpen}
         onClose={() => setAiCoachOpen(false)}
-        resumeData={formData as Record<string, unknown>}
+        resumeData={formData as unknown as Record<string, unknown>}
       />
     </div>
   );
