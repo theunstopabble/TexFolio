@@ -449,7 +449,9 @@ Returns a complete JSON dump containing:
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 **Author:** [Gautam Kumar](https://gautam-kr.vercel.app/)
-**LinkedIn:** ([https://www.linkedin.com/in/gautamkr62/](https://www.linkedin.com/in/gautamkr62/))  
+ <a href="https://linkedin.com/in/gautamkr62" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a> 
 **Website:** [Texfolio](https://texfolio.vercel.app/)
 
 ---
