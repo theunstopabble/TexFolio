@@ -34,12 +34,15 @@ export default function OrganizationSwitcher() {
   const handleSelect = (orgId: string) => {
     console.log("handleSelect called with orgId:", orgId);
     console.log("Current activeOrg before:", activeOrg);
+    console.log("Organizations in list:", orgs.map(o => ({ id: o.organization._id, name: o.organization.name })));
+    console.log("Does selected org exist in list?", orgs.some(o => o.organization._id === orgId));
     setActiveOrg(orgId);
     console.log("setActiveOrg called");
     setOpen(false);
     toast.success("Organization switched");
     setTimeout(() => {
-      console.log("Current activeOrg after:", useOrganizationStore.getState().activeOrgId);
+      console.log("Current activeOrgId after:", useOrganizationStore.getState().activeOrgId);
+      console.log("Current activeOrg after:", useOrganizationStore.getState().activeOrg);
     }, 100);
   };
 
