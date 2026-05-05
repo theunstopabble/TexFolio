@@ -85,24 +85,24 @@ export default function OrganizationDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <button
         onClick={() => navigate("/organizations")}
-        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6"
+        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 sm:mb-6 text-sm sm:text-base"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Building2 className="w-8 h-8 text-blue-600" />
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+              <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{org.name}</h1>
-              <p className="text-slate-500">@{org.slug}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{org.name}</h1>
+              <p className="text-sm sm:text-base text-slate-500">@{org.slug}</p>
               <span
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mt-2 ${
                   activeRole === "owner"
@@ -119,10 +119,10 @@ export default function OrganizationDetailPage() {
               </span>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={() => navigate(`/organizations/${id}/members`)}
-              className="flex items-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 text-sm sm:text-base"
             >
               <Users className="w-4 h-4" />
               Members
@@ -130,7 +130,7 @@ export default function OrganizationDetailPage() {
             {canAdmin(activeRole) && (
               <button
                 onClick={() => navigate(`/organizations/${id}/settings`)}
-                className="flex items-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 text-sm sm:text-base"
               >
                 <Settings className="w-4 h-4" />
                 Settings
@@ -140,13 +140,13 @@ export default function OrganizationDetailPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-slate-400" />
           Organization Resumes
         </h2>
         {resumes.length === 0 ? (
-          <p className="text-slate-500 text-center py-8">
+          <p className="text-slate-500 text-center py-8 text-sm sm:text-base">
             No organization resumes yet. Create one from the dashboard.
           </p>
         ) : (
@@ -155,16 +155,16 @@ export default function OrganizationDetailPage() {
               <div
                 key={resume._id}
                 onClick={() => navigate(`/edit/${resume._id}`)}
-                className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
               >
-                <div>
-                  <h3 className="font-medium text-slate-900">{resume.title}</h3>
-                  <p className="text-sm text-slate-500">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium text-slate-900 text-sm sm:text-base truncate">{resume.title}</h3>
+                  <p className="text-xs sm:text-sm text-slate-500">
                     Updated {new Date(resume.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  className={`px-2 py-1 rounded-full text-xs font-medium shrink-0 ${
                     resume.visibility === "public"
                       ? "bg-green-100 text-green-700"
                       : resume.visibility === "organization"

@@ -62,15 +62,15 @@ export default function OrganizationsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-          <Building2 className="w-8 h-8 text-blue-600" />
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-2 sm:gap-3">
+          <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
           Organizations
         </h1>
         <button
           onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" />
           Create Organization
@@ -80,9 +80,9 @@ export default function OrganizationsPage() {
       {isCreating && (
         <form
           onSubmit={handleCreate}
-          className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+          className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-6"
         >
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">
             New Organization
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -130,14 +130,14 @@ export default function OrganizationsPage() {
           <div className="flex gap-3">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Create
             </button>
             <button
               type="button"
               onClick={() => setIsCreating(false)}
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
@@ -146,17 +146,17 @@ export default function OrganizationsPage() {
       )}
 
       {orgs.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
+        <div className="text-center py-12 sm:py-16 bg-white rounded-xl border border-slate-200 px-4">
           <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
             No organizations yet
           </h3>
-          <p className="text-slate-600 mb-4">
+          <p className="text-sm sm:text-base text-slate-600 mb-4">
             Create an organization to collaborate on resumes with your team.
           </p>
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             Create Organization
           </button>
@@ -166,18 +166,18 @@ export default function OrganizationsPage() {
           {orgs.map(({ organization, role }) => (
             <div
               key={organization._id}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+              <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
                   <Building2 className="w-6 h-6 text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-900 truncate">
                     {organization.name}
                   </h3>
                   <p className="text-sm text-slate-500">@{organization.slug}</p>
-                  <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-2 sm:gap-3 mt-1">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                         role === "owner"
@@ -201,16 +201,16 @@ export default function OrganizationsPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleSelect(organization._id)}
-                  className="px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                  className="flex-1 sm:flex-none px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
                 >
                   Switch
                 </button>
                 <button
                   onClick={() => navigate(`/organizations/${organization._id}`)}
-                  className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>

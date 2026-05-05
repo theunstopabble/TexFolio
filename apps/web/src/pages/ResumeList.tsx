@@ -42,18 +42,18 @@ const ResumeList = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 text-center">
         <div className="text-4xl animate-spin mb-4">⏳</div>
-        <p className="text-slate-600">Loading resumes...</p>
+        <p className="text-slate-600 text-sm sm:text-base">Loading resumes...</p>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 text-center">
         <div className="text-4xl mb-4">❌</div>
-        <p className="text-red-600">
+        <p className="text-red-600 text-sm sm:text-base">
           Failed to load resumes. Please try again.
         </p>
       </div>
@@ -61,65 +61,65 @@ const ResumeList = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-slate-900">My Resumes</h1>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-8 gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">My Resumes</h1>
         <Link to="/create" className="btn btn-primary w-full sm:w-auto">
           ➕ Create New Resume
         </Link>
       </div>
 
       {resumes.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl shadow-sm border">
-          <div className="text-6xl mb-4">📄</div>
-          <h2 className="text-2xl font-semibold text-slate-700 mb-2">
+        <div className="text-center py-12 sm:py-16 bg-white rounded-xl shadow-sm border px-4">
+          <div className="text-5xl sm:text-6xl mb-4">📄</div>
+          <h2 className="text-xl sm:text-2xl font-semibold text-slate-700 mb-2">
             No Resumes Yet
           </h2>
-          <p className="text-slate-500 mb-6">
+          <p className="text-sm sm:text-base text-slate-500 mb-4 sm:mb-6">
             Create your first professional resume!
           </p>
-          <Link to="/create" className="btn btn-primary">
+          <Link to="/create" className="btn btn-primary w-full sm:w-auto">
             🚀 Create Resume
           </Link>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {resumes.map((resume: Resume) => (
             <div
               key={resume._id}
-              className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
+              className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
             >
-              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-1">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-3 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-1 truncate">
                     {resume.title}
                   </h3>
-                  <p className="text-slate-600">
+                  <p className="text-sm sm:text-base text-slate-600">
                     {resume.personalInfo?.fullName || "No name"}
                   </p>
-                  <div className="flex flex-wrap gap-4 mt-2 text-sm text-slate-500">
-                    <span>📧 {resume.personalInfo?.email || "No email"}</span>
+                  <div className="flex flex-wrap gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-slate-500">
+                    <span className="truncate">📧 {resume.personalInfo?.email || "No email"}</span>
                     <span>📅 Created: {formatDate(resume.createdAt)}</span>
                   </div>
                 </div>
-                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 justify-end">
                   <Link
                     to={`/edit/${resume._id}`}
-                    className="btn btn-secondary text-sm px-4 py-2 whitespace-nowrap"
+                    className="btn btn-secondary text-xs sm:text-sm px-3 sm:px-4 py-2 whitespace-nowrap flex-1 sm:flex-none justify-center"
                   >
                     ✏️ Edit
                   </Link>
                   <button
                     onClick={() => handleDownload(resume._id)}
                     disabled={generatePdf.isPending}
-                    className="btn btn-primary text-sm px-4 py-2 whitespace-nowrap disabled:opacity-50"
+                    className="btn btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2 whitespace-nowrap disabled:opacity-50 flex-1 sm:flex-none justify-center"
                   >
                     {generatePdf.isPending ? "⏳" : "📥"} PDF
                   </button>
                   <button
                     onClick={() => handleDelete(resume._id)}
                     disabled={deleteResume.isPending}
-                    className="btn btn-secondary text-sm px-4 py-2 text-red-600 hover:bg-red-50 whitespace-nowrap disabled:opacity-50"
+                    className="btn btn-secondary text-xs sm:text-sm px-3 sm:px-4 py-2 text-red-600 hover:bg-red-50 whitespace-nowrap disabled:opacity-50 flex-1 sm:flex-none justify-center"
                   >
                     {deleteResume.isPending ? "⏳" : "🗑️"} Delete
                   </button>

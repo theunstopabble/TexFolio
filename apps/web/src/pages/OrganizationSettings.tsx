@@ -114,21 +114,21 @@ export default function OrganizationSettingsPage() {
   const isOwner = activeRole === "owner";
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <button
         onClick={() => navigate(`/organizations/${id}`)}
-        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6"
+        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 sm:mb-6 text-sm sm:text-base"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
 
-      <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3 mb-6">
-        <Settings className="w-7 h-7 text-blue-600" />
+      <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 sm:gap-3 mb-6">
+        <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
         Organization Settings
       </h1>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 space-y-4 sm:space-y-6">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
             Organization Name
@@ -138,7 +138,7 @@ export default function OrganizationSettingsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={!isOwner}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 text-sm sm:text-base"
           />
         </div>
 
@@ -153,14 +153,14 @@ export default function OrganizationSettingsPage() {
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
                 disabled={!isOwner}
-                className="w-12 h-10 rounded border border-slate-300 cursor-pointer disabled:opacity-50"
+                className="w-12 h-10 rounded border border-slate-300 cursor-pointer disabled:opacity-50 shrink-0"
               />
               <input
                 type="text"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
                 disabled={!isOwner}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm disabled:bg-slate-100"
+                className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm disabled:bg-slate-100"
               />
             </div>
           </div>
@@ -174,42 +174,42 @@ export default function OrganizationSettingsPage() {
               onChange={(e) => setLockedTemplateId(e.target.value)}
               disabled={!isOwner}
               placeholder="e.g. faangpath"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 text-sm sm:text-base"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
+        <div className="flex items-start gap-3">
+          <label className="flex items-start gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={enforceCompanyFont}
               onChange={(e) => setEnforceCompanyFont(e.target.checked)}
               disabled={!isOwner}
-              className="w-4 h-4 text-blue-600 rounded border-slate-300"
+              className="w-4 h-4 text-blue-600 rounded border-slate-300 mt-0.5 shrink-0"
             />
             <span className="text-sm text-slate-700">Enforce company font (sans-serif)</span>
           </label>
         </div>
 
-        <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
+        <div className="flex items-start gap-3">
+          <label className="flex items-start gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={disableAI}
               onChange={(e) => setDisableAI(e.target.checked)}
               disabled={!isOwner}
-              className="w-4 h-4 text-blue-600 rounded border-slate-300"
+              className="w-4 h-4 text-blue-600 rounded border-slate-300 mt-0.5 shrink-0"
             />
             <span className="text-sm text-slate-700">Disable AI features for this org</span>
           </label>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-slate-200">
           <button
             onClick={handleSave}
             disabled={saving || !isOwner}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 w-full sm:w-auto"
           >
             <Save className="w-4 h-4" />
             {saving ? "Saving..." : "Save Changes"}
@@ -218,7 +218,7 @@ export default function OrganizationSettingsPage() {
           {isOwner && (
             <button
               onClick={handleDelete}
-              className="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 w-full sm:w-auto"
             >
               <Trash2 className="w-4 h-4" />
               Delete Organization

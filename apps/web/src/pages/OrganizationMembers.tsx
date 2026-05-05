@@ -102,24 +102,24 @@ export default function OrganizationMembersPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <button
         onClick={() => navigate(`/organizations/${id}`)}
-        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6"
+        className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 sm:mb-6 text-sm sm:text-base"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Organization
       </button>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-          <Users className="w-7 h-7 text-blue-600" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 sm:gap-3">
+          <Users className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
           Members
         </h1>
         {canAdmin(activeRole) && (
           <button
             onClick={() => setInviting(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto justify-center"
           >
             <UserPlus className="w-4 h-4" />
             Invite Member
@@ -130,9 +130,9 @@ export default function OrganizationMembersPage() {
       {inviting && canAdmin(activeRole) && (
         <form
           onSubmit={handleInvite}
-          className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6"
+          className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-6"
         >
-          <h3 className="text-lg font-semibold mb-4">Invite Member</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Invite Member</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -165,14 +165,14 @@ export default function OrganizationMembersPage() {
           <div className="flex gap-3">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Send Invite
             </button>
             <button
               type="button"
               onClick={() => setInviting(false)}
-              className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+              className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
             >
               Cancel
             </button>
@@ -185,14 +185,14 @@ export default function OrganizationMembersPage() {
           {members.map((member) => (
             <div
               key={member._id}
-              className="flex items-center justify-between p-4 hover:bg-slate-50"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 hover:bg-slate-50"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5 text-slate-500" />
                 </div>
-                <div>
-                  <p className="font-medium text-slate-900 text-sm">{member.userId}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900 text-sm truncate">{member.userId}</p>
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
                       member.role === "owner"
@@ -210,7 +210,7 @@ export default function OrganizationMembersPage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 {isOwner(activeRole) && member.role !== "owner" && (
                   <select
                     value={member.role}
@@ -227,7 +227,7 @@ export default function OrganizationMembersPage() {
                   member.userId !== useOrganizationStore.getState().organizations.find((o) => o.organization._id === id)?.organization.ownerId && (
                   <button
                     onClick={() => handleRemove(member.userId)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

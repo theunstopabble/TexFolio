@@ -7,20 +7,20 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-slate-50 overflow-hidden">
       {/* Hero Section */}
-      <div className="relative pt-20 pb-32 overflow-hidden">
+      <div className="relative pt-16 sm:pt-20 pb-24 sm:pb-32 overflow-hidden">
         {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-200/30 rounded-full blur-3xl -z-10" />
-        <div className="absolute top-20 right-0 w-[800px] h-[600px] bg-blue-200/30 rounded-full blur-3xl -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] sm:w-[1000px] h-[400px] sm:h-[600px] bg-purple-200/30 rounded-full blur-3xl -z-10" />
+        <div className="absolute top-20 right-0 w-[500px] sm:w-[800px] h-[400px] sm:h-[600px] bg-blue-200/30 rounded-full blur-3xl -z-10" />
 
-        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm mb-6 sm:mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span className="text-sm font-medium text-slate-600">
+            <span className="text-xs sm:text-sm font-medium text-slate-600">
               New: Advanced AI Editor & FAANG Templates 🚀
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 sm:mb-8 leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
             Build your{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               Dream Resume
@@ -29,7 +29,7 @@ const HomePage = () => {
             with LaTeX & AI.
           </h1>
 
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 px-2">
             Create professional, ATS-friendly resumes in minutes. No coding
             required. Powered by advanced AI and rendered in beautiful LaTeX.
           </p>
@@ -52,19 +52,19 @@ const HomePage = () => {
       </div>
 
       {/* Feature Grid */}
-      <div className="py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
+      <div className="py-16 sm:py-24 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">
               Everything you need to get hired
             </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto px-4">
               Our platform combines the power of AI with the precision of LaTeX
               to give you the competitive edge.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
             {[
               {
                 icon: "🤖",
@@ -87,17 +87,17 @@ const HomePage = () => {
             ].map((feature, i) => (
               <div
                 key={i}
-                className="p-8 rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
+                className="p-5 sm:p-8 rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
               >
                 <div
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl mb-6 ${feature.color} group-hover:scale-110 transition-transform`}
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-2xl sm:text-3xl mb-4 sm:mb-6 ${feature.color} group-hover:scale-110 transition-transform`}
                 >
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
