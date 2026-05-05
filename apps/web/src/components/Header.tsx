@@ -45,17 +45,17 @@ const Header = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-1 group no-underline shrink-0"
+            className="flex items-center gap-0.5 group no-underline shrink-0"
           >
             <img
               src="/logo.png"
               alt="TexFolio"
-              width={40}
-              height={40}
+              width={36}
+              height={36}
               fetchPriority="high"
-              className="h-10 w-10 object-contain rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200"
+              className="h-9 w-9 object-contain rounded-lg shadow-sm group-hover:scale-110 transition-transform duration-200"
             />
-            <span className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-300">
+            <span className="text-lg md:text-xl lg:text-2xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-700 transition-all duration-300">
               TexFolio
             </span>
           </Link>
