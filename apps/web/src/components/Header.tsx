@@ -45,7 +45,7 @@ const Header = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 group no-underline shrink-0"
+            className="flex items-center gap-1.5 group no-underline shrink-0"
           >
             <img
               src="/logo.png"
