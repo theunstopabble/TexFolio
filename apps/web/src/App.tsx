@@ -108,7 +108,7 @@ function App() {
                       <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/r/:shareId" element={<PublicResume />} />
-                        <Route path="/profile/*" element={<UserProfilePage />} />
+                        <Route path="/profile" element={<UserProfilePage />} />
 
                         {/* Clerk Auth Routes */}
                         <Route
