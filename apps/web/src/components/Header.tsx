@@ -39,7 +39,7 @@ const Header = () => {
   }, [location]);
 
   return (
-    <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
+    <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20">
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -61,7 +61,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5 lg:gap-1">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/templates">Templates</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
@@ -69,10 +69,10 @@ const Header = () => {
             {user && (
               <>
                 <NavLink to="/dashboard">Dashboard</NavLink>
-                <span className="hidden lg:inline">
+                <span className="hidden xl:inline">
                   <NavLink to="/resumes">My Resumes</NavLink>
                 </span>
-                <span className="hidden xl:inline">
+                <span className="hidden 2xl:inline">
                   <NavLink to="/organizations">Organizations</NavLink>
                 </span>
               </>
@@ -80,19 +80,19 @@ const Header = () => {
           </nav>
 
           {/* User Actions & Mobile Toggle */}
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 xl:gap-4">
             {user ? (
-              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+              <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 xl:gap-4">
                 <Link
                   to="/create"
-                  className="hidden lg:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
+                  className="hidden xl:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   + New
                 </Link>
                 {/* Mobile "+" Button */}
                 <Link
                   to="/create"
-                  className="lg:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all shrink-0"
+                  className="xl:hidden bg-slate-900 text-white p-2 rounded-full hover:bg-slate-800 transition-all shrink-0"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -110,11 +110,11 @@ const Header = () => {
                   </svg>
                 </Link>
 
-                <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0"></div>
+                <div className="h-8 w-px bg-slate-200 hidden xl:block shrink-0"></div>
 
                 <OrganizationSwitcher />
 
-                <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0"></div>
+                <div className="h-8 w-px bg-slate-200 hidden xl:block shrink-0"></div>
 
                 {/* User Menu */}
                 <Link
@@ -135,14 +135,14 @@ const Header = () => {
                       (user.name || "U").charAt(0).toUpperCase()
                     )}
                   </div>
-                  <span className="text-sm font-bold text-slate-800 hidden lg:block group-hover:text-blue-700 transition-colors max-w-[100px] truncate">
+                  <span className="text-sm font-bold text-slate-800 hidden xl:block group-hover:text-blue-700 transition-colors max-w-[100px] truncate">
                     {(user.name || "User").split(" ")[0]}
                   </span>
                 </Link>
 
                 <button
                   onClick={logout}
-                  className="hidden sm:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 hover:rotate-90 transform duration-200 shrink-0"
+                  className="hidden lg:block text-slate-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50 hover:rotate-90 transform duration-200 shrink-0"
                   title="Logout"
                   aria-label="Logout"
                 >
