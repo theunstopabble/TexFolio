@@ -46,9 +46,6 @@ interface OrganizationState {
   setActiveOrg: (orgId: string | null) => void;
   setLoading: (loading: boolean) => void;
   clearOrgs: () => void;
-
-  activeOrg: Organization | null;
-  activeRole: OrgRole | null;
 }
 
 export const useOrganizationStore = create<OrganizationState>()(
@@ -71,29 +68,25 @@ export const useOrganizationStore = create<OrganizationState>()(
       setActiveOrg: (orgId) => set({ activeOrgId: orgId }),
       setLoading: (loading) => set({ isLoading: loading }),
       clearOrgs: () => set({ organizations: [], activeOrgId: null }),
-
-      get activeOrg() {
-        const state = get();
-        if (!state.activeOrgId) return null;
-        return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.organization ?? null;
-      },
-
-      get activeRole() {
-        const state = get();
-        if (!state.activeOrgId) return null;
-        return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.role ?? null;
-      },
     }),
     { name: "OrganizationStore" },
   ),
 );
 
-// Selector hooks
+// Computed selector hooks
 export const useOrganizations = () => useOrganizationStore((state) => state.organizations);
-export const useActiveOrg = () => useOrganizationStore((state) => state.activeOrg);
-export const useActiveRole = () => useOrganizationStore((state) => state.activeRole);
 export const useActiveOrgId = () => useOrganizationStore((state) => state.activeOrgId);
 export const useOrgLoading = () => useOrganizationStore((state) => state.isLoading);
+
+export const useActiveOrg = () => useOrganizationStore((state) => {
+  if (!state.activeOrgId) return null;
+  return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.organization ?? null;
+});
+
+export const useActiveRole = () => useOrganizationStore((state) => {
+  if (!state.activeOrgId) return null;
+  return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.role ?? null;
+});
 
 // Role helpers
 export const canEdit = (role: OrgRole | null) =>
