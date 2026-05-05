@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 export type OrgRole = "owner" | "admin" | "editor" | "viewer";
 
@@ -53,43 +53,37 @@ interface OrganizationState {
 
 export const useOrganizationStore = create<OrganizationState>()(
   devtools(
-    persist(
-      (set, get) => ({
-        organizations: [],
-        activeOrgId: null,
-        isLoading: false,
+    (set, get) => ({
+      organizations: [],
+      activeOrgId: null,
+      isLoading: false,
 
-        setOrganizations: (orgs) => {
-          const currentActive = get().activeOrgId;
-          // If current active org is not in new list, clear it
-          const stillValid = orgs.some((o) => o.organization._id === currentActive);
-          set({
-            organizations: orgs,
-            activeOrgId: stillValid ? currentActive : orgs[0]?.organization._id ?? null,
-          });
-        },
-
-        setActiveOrg: (orgId) => set({ activeOrgId: orgId }),
-        setLoading: (loading) => set({ isLoading: loading }),
-        clearOrgs: () => set({ organizations: [], activeOrgId: null }),
-
-        get activeOrg() {
-          const state = get();
-          if (!state.activeOrgId) return null;
-          return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.organization ?? null;
-        },
-
-        get activeRole() {
-          const state = get();
-          if (!state.activeOrgId) return null;
-          return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.role ?? null;
-        },
-      }),
-      {
-        name: "OrganizationStore",
-        partialize: (state) => ({ activeOrgId: state.activeOrgId }),
+      setOrganizations: (orgs) => {
+        const currentActive = get().activeOrgId;
+        // If current active org is not in new list, clear it
+        const stillValid = orgs.some((o) => o.organization._id === currentActive);
+        set({
+          organizations: orgs,
+          activeOrgId: stillValid ? currentActive : orgs[0]?.organization._id ?? null,
+        });
       },
-    ),
+
+      setActiveOrg: (orgId) => set({ activeOrgId: orgId }),
+      setLoading: (loading) => set({ isLoading: loading }),
+      clearOrgs: () => set({ organizations: [], activeOrgId: null }),
+
+      get activeOrg() {
+        const state = get();
+        if (!state.activeOrgId) return null;
+        return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.organization ?? null;
+      },
+
+      get activeRole() {
+        const state = get();
+        if (!state.activeOrgId) return null;
+        return state.organizations.find((o) => o.organization._id === state.activeOrgId)?.role ?? null;
+      },
+    }),
     { name: "OrganizationStore" },
   ),
 );
