@@ -92,22 +92,29 @@ const Footer = () => {
           <p className="text-sm">
             &copy; {new Date().getFullYear()} TexFolio. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <span className="text-sm">Built by</span>
+            <a
+              href="https://gautam-kr.vercel.app"
+              target="_blank"
+              rel="noopener"
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors text-sm"
+              title="Gautam Kumar — Full-Stack Developer & AI Engineer"
+            >
+              Gautam Kumar
+            </a>
+            <span className="text-slate-700">|</span>
             {[
-              { name: "Twitter", url: "https://x.com/_unstopabble" },
               { name: "GitHub", url: "https://github.com/theunstopabble" },
-              {
-                name: "LinkedIn",
-                url: "https://www.linkedin.com/in/gautamkr62/",
-              },
+              { name: "LinkedIn", url: "https://www.linkedin.com/in/gautamkr62/" },
             ].map((social) => (
               <a
                 key={social.name}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Follow us on ${social.name}`}
-                className="text-slate-600 hover:text-white cursor-pointer transition-colors text-sm font-medium"
+                aria-label={social.name}
+                className="text-slate-600 hover:text-white transition-colors text-sm font-medium"
               >
                 {social.name}
               </a>
