@@ -459,3 +459,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 <div align="center">
   <sub>Built with ❤️ using React, Node.js, and LaTeX.</sub>
 </div>
+
+---
+
+## 🌐 More Projects by Gautam Kumar
+
+| Project | Description | Link |
+|---------|-------------|------|
+| **Portfolio** | Personal portfolio & developer profile | [gautam-kr.vercel.app](https://gautam-kr.vercel.app) |
+| **InterviewMinds** | Enterprise AI mock interview platform | [interviewminds.vercel.app](https://interviewminds.vercel.app) |
+| **SwadKart** | Multi-vendor food delivery platform with AI chatbot | [swadkart.vercel.app](https://swadkart.vercel.app) |
+| **Satark-AI** | Deepfake detection & speaker verification platform | [satark-deepfake.vercel.app](https://satark-deepfake.vercel.app) |
