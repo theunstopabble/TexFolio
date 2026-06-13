@@ -68,6 +68,16 @@ const transformResumeData = (resume: IResume) => {
   const fontFamily = resume.customization?.fontFamily || "serif";
   const isSans = fontFamily === "sans";
 
+  // Guard against missing personalInfo to avoid crash during PDF generation
+  const personalInfo = resume.personalInfo ?? {
+    fullName: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
+    github: "",
+  };
+
   // Section Data Builders
   const buildExperience = () => ({
     IS_EXPERIENCE: true,
@@ -198,15 +208,15 @@ const transformResumeData = (resume: IResume) => {
   return {
     PRIMARY_COLOR: primaryColorHex,
     IS_SANS: isSans,
-    FULL_NAME: escapeLatex(resume.personalInfo.fullName),
-    EMAIL: escapeLatex(resume.personalInfo.email),
-    EMAIL_RAW: resume.personalInfo.email, // Raw email for mailto:
-    PHONE: escapeLatex(resume.personalInfo.phone),
-    LOCATION: escapeLatex(resume.personalInfo.location),
-    LINKEDIN: ensureUrlPrefix(resume.personalInfo.linkedin), // URL with https:// for href
-    LINKEDIN_DISPLAY: cleanUrlForDisplay(resume.personalInfo.linkedin), // Clean URL for display
-    GITHUB: ensureUrlPrefix(resume.personalInfo.github), // URL with https:// for href
-    GITHUB_DISPLAY: cleanUrlForDisplay(resume.personalInfo.github), // Clean URL for display
+    FULL_NAME: escapeLatex(personalInfo.fullName),
+    EMAIL: escapeLatex(personalInfo.email),
+    EMAIL_RAW: personalInfo.email, // Raw email for mailto:
+    PHONE: escapeLatex(personalInfo.phone),
+    LOCATION: escapeLatex(personalInfo.location),
+    LINKEDIN: ensureUrlPrefix(personalInfo.linkedin), // URL with https:// for href
+    LINKEDIN_DISPLAY: cleanUrlForDisplay(personalInfo.linkedin), // Clean URL for display
+    GITHUB: ensureUrlPrefix(personalInfo.github), // URL with https:// for href
+    GITHUB_DISPLAY: cleanUrlForDisplay(personalInfo.github), // Clean URL for display
 
     // Dynamic Sections
     DYNAMIC_SECTIONS: dynamicSections,
@@ -227,9 +237,12 @@ export const generatePDF = async (
   await fs.mkdir(TEMP_DIR, { recursive: true });
 
   // Resolve template: org-locked template takes precedence
-  const effectiveTemplateId = orgBranding?.lockedTemplateId || resume.templateId || templateId;
+  const effectiveTemplateId =
+    orgBranding?.lockedTemplateId || resume.templateId || templateId;
   // Prevent path traversal: only allow alphanumeric, hyphen, underscore
-  const template_id = path.basename(effectiveTemplateId).replace(/[^a-zA-Z0-9_-]/g, "");
+  const template_id = path
+    .basename(effectiveTemplateId)
+    .replace(/[^a-zA-Z0-9_-]/g, "");
   if (!template_id) {
     throw new Error("Invalid template ID");
   }
@@ -282,11 +295,15 @@ export const generatePDF = async (
     const useDocker = process.env.USE_DOCKER_LATEX === "true";
 
     // SECURITY FIX: Use spawn instead of exec to prevent command injection
-    console.log(useDocker ? "🐳 Generating PDF using Docker (texfolio-latex)..." : "🖥️ Generating PDF using local pdflatex...");
-    
+    console.log(
+      useDocker
+        ? "🐳 Generating PDF using Docker (texfolio-latex)..."
+        : "🖥️ Generating PDF using local pdflatex...",
+    );
+
     const pdflatexPromise = new Promise<void>((resolve, reject) => {
       let childProcess: ReturnType<typeof spawn>;
-      
+
       if (useDocker) {
         // Sanitize filename - only allow alphanumeric, underscore, hyphen, dot
         const sanitizedFilename = texFilename.replace(/[^a-zA-Z0-9._-]/g, "");
@@ -294,19 +311,33 @@ export const generatePDF = async (
           reject(new Error("Invalid filename detected"));
           return;
         }
-        childProcess = spawn("docker", ["exec", "texfolio-latex", "pdflatex", "-interaction=nonstopmode", sanitizedFilename], {
-          cwd: TEMP_DIR,
-        });
+        childProcess = spawn(
+          "docker",
+          [
+            "exec",
+            "texfolio-latex",
+            "pdflatex",
+            "-interaction=nonstopmode",
+            sanitizedFilename,
+          ],
+          {
+            cwd: TEMP_DIR,
+          },
+        );
       } else {
-        childProcess = spawn(PDFLATEX_PATH, [
-          "-interaction=nonstopmode",
-          "-output-directory",
-          TEMP_DIR,
-          texFilename, // Use basename since output-dir is set
-        ], {
-          cwd: TEMP_DIR,
-          env: { ...process.env, TEXINPUTS: `${TEMPLATES_DIR}:` },
-        });
+        childProcess = spawn(
+          PDFLATEX_PATH,
+          [
+            "-interaction=nonstopmode",
+            "-output-directory",
+            TEMP_DIR,
+            texFilename, // Use basename since output-dir is set
+          ],
+          {
+            cwd: TEMP_DIR,
+            env: { ...process.env, TEXINPUTS: `${TEMPLATES_DIR}:` },
+          },
+        );
       }
 
       const MAX_OUTPUT = 50000; // Cap stdout/stderr to prevent memory exhaustion
@@ -336,7 +367,12 @@ export const generatePDF = async (
           settled = true;
           clearTimeout(timer);
           if (code === 0) resolve();
-          else reject(new Error(`pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`));
+          else
+            reject(
+              new Error(
+                `pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`,
+              ),
+            );
         }
       });
 
@@ -352,7 +388,10 @@ export const generatePDF = async (
     try {
       await pdflatexPromise;
     } catch (err) {
-      console.warn("pdflatex warning:", err instanceof Error ? err.message : String(err));
+      console.warn(
+        "pdflatex warning:",
+        err instanceof Error ? err.message : String(err),
+      );
       // Continue to check if PDF was created (pdflatex may return non-zero even on success)
     }
 
