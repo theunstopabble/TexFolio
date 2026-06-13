@@ -24,17 +24,17 @@
 
 % Header
 \begin{center}
-    {\Huge\bfseries <<&FULL_NAME>>} \\[6pt]
+    {\Huge\bfseries <<&FULL_NAME>>}
+    \vspace{4pt}
+
     \small
-    <<&PHONE>> $|$
-    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>} $|$
-    <<&LOCATION>>
-    <<#LINKEDIN>>
-    $|$ \href{<<&LINKEDIN>>}{LinkedIn}
-    <</LINKEDIN>>
-    <<#GITHUB>>
-    $|$ \href{<<&GITHUB>>}{GitHub}
-    <</GITHUB>>
+    \begin{tabular}{c}
+    <<&EMAIL_RAW>>
+    <<#PHONE>>\quad$\cdot$\quad <<&PHONE>><</PHONE>>
+    <<#LOCATION>>\quad$\cdot$\quad <<&LOCATION>><</LOCATION>>
+    <<#LINKEDIN_DISPLAY>>\quad$\cdot$\quad \href{<<&LINKEDIN>>}{<<&LINKEDIN_DISPLAY>>}<</LINKEDIN_DISPLAY>>
+    <<#GITHUB_DISPLAY>>\quad$\cdot$\quad \href{<<&GITHUB>>}{<<&GITHUB_DISPLAY>>}<</GITHUB_DISPLAY>>
+    \end{tabular}
 \end{center}
 
 % Summary

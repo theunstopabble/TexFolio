@@ -40,17 +40,17 @@
 
 %----------HEADER----------
 \begin{center}
-    {\Huge \textbf{<<&FULL_NAME>>}} \\ \vspace{2pt}
+    {\Huge \textbf{<<&FULL_NAME>>}}
+    \vspace{4pt}
+
     \small
-    <<&LOCATION>> \\ \vspace{2pt}
-    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>} $|$ 
-    \href{tel:<<&PHONE>>}{<<&PHONE>>}
-    <<#LINKEDIN>>
-    $|$ \href{<<&LINKEDIN>>}{LinkedIn}
-    <</LINKEDIN>>
-    <<#GITHUB>>
-    $|$ \href{<<&GITHUB>>}{GitHub}
-    <</GITHUB>>
+    \begin{tabular}{c}
+    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>}
+    <<#PHONE>>\quad$|$\quad \href{tel:<<&PHONE>>}{<<&PHONE>>}<</PHONE>>
+    <<#LOCATION>>\quad$|$\quad <<&LOCATION>><</LOCATION>>
+    <<#LINKEDIN>>\quad$|$\quad \href{<<&LINKEDIN>>}{LinkedIn}<</LINKEDIN>>
+    <<#GITHUB>>\quad$|$\quad \href{<<&GITHUB>>}{GitHub}<</GITHUB>>
+    \end{tabular}
 \end{center}
 
 \vspace{-6pt}
