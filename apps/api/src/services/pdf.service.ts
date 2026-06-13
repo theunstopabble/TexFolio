@@ -268,7 +268,9 @@ export const generatePDF = async (
 
   // Transform data and render template
   const data = transformResumeData(brandedResume as unknown as IResume);
+  console.log(`Template: ${template_id}, Sections: ${JSON.stringify(data.DYNAMIC_SECTIONS?.length || 0)} sections, Name: ${data.FULL_NAME}`);
   const renderedLatex = Mustache.render(template, data, {}, ["<<", ">>"]);
+  console.log(`Rendered LaTeX length: ${renderedLatex.length} chars`);
 
   // Generate unique filename
   const timestamp = Date.now();
