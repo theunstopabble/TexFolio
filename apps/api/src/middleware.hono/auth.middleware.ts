@@ -2,8 +2,14 @@ import { createMiddleware } from "hono/factory";
 import type { Context, Next } from "hono";
 import crypto from "crypto";
 import { env } from "../config/env.js";
+import { createClerkClient, verifyToken } from "@clerk/backend";
 
 import type { OrgRole } from "../models/organization.model.js";
+
+// Shared Clerk client (uses @clerk/backend)
+const clerkClient = createClerkClient({
+  secretKey: env.CLERK_SECRET_KEY,
+});
 
 // User interface for Hono context
 export interface HonoUser {
@@ -30,7 +36,10 @@ export const authMiddleware = createMiddleware(
   async (c: Context, next: Next) => {
     if (!env.CLERK_SECRET_KEY || env.CLERK_SECRET_KEY.startsWith("sk_your_")) {
       return c.json(
-        { success: false, error: "Server misconfiguration: Clerk secret not set" },
+        {
+          success: false,
+          error: "Server misconfiguration: Clerk secret not set",
+        },
         500,
       );
     }
@@ -48,11 +57,10 @@ export const authMiddleware = createMiddleware(
     const token = authHeader.split(" ")[1];
 
     try {
-      // Use Clerk SDK to verify token
-      const { clerkClient } = await import("@clerk/clerk-sdk-node");
-
-      // Get session claims from token
-      const sessionToken = await clerkClient.verifyToken(token);
+      // Verify token using @clerk/backend
+      const sessionToken = await verifyToken(token, {
+        secretKey: env.CLERK_SECRET_KEY,
+      });
 
       if (!sessionToken || !sessionToken.sub) {
         return c.json(
@@ -107,7 +115,8 @@ export const authMiddleware = createMiddleware(
       // Active organization resolution
       const orgHeader = c.req.header("x-organization-id");
       if (orgHeader) {
-        const { OrganizationMember } = await import("../models/organization-member.model.js");
+        const { OrganizationMember } =
+          await import("../models/organization-member.model.js");
         const membership = await OrganizationMember.findOne({
           organizationId: orgHeader,
           userId: clerkId,
@@ -145,8 +154,9 @@ export const optionalAuthMiddleware = createMiddleware(
       const token = authHeader.split(" ")[1];
 
       try {
-        const { clerkClient } = await import("@clerk/clerk-sdk-node");
-        const sessionToken = await clerkClient.verifyToken(token);
+        const sessionToken = await verifyToken(token, {
+          secretKey: env.CLERK_SECRET_KEY,
+        });
 
         if (sessionToken && sessionToken.sub) {
           c.set("user", { userId: sessionToken.sub });
