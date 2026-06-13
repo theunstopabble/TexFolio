@@ -403,6 +403,7 @@ export const generatePDF = async (
 
     // Check if PDF was created and has content
     const pdfStats = await fs.stat(pdfFile);
+    console.log(`PDF generated: ${pdfStats.size} bytes at ${pdfFile}`);
     if (pdfStats.size < 500) {
       // PDF is suspiciously small — likely corrupted or blank
       // Run pdflatex a second time to resolve cross-references (common fix)
