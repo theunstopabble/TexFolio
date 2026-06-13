@@ -367,12 +367,17 @@ export const generatePDF = async (
           settled = true;
           clearTimeout(timer);
           if (code === 0) resolve();
-          else
+          else {
+            // Log full output for debugging blank PDFs
+            console.error(`pdflatex exit code ${code}:`);
+            console.error("STDOUT (last 2000):", stdout.slice(-2000));
+            console.error("STDERR (last 1000):", stderr.slice(-1000));
             reject(
               new Error(
                 `pdflatex exited with code ${code}. Stderr: ${stderr.slice(-500)}`,
               ),
             );
+          }
         }
       });
 
@@ -387,6 +392,7 @@ export const generatePDF = async (
 
     try {
       await pdflatexPromise;
+      console.log("pdflatex completed successfully");
     } catch (err) {
       console.warn(
         "pdflatex warning:",
@@ -395,7 +401,44 @@ export const generatePDF = async (
       // Continue to check if PDF was created (pdflatex may return non-zero even on success)
     }
 
-    // Check if PDF was created
+    // Check if PDF was created and has content
+    const pdfStats = await fs.stat(pdfFile);
+    if (pdfStats.size < 500) {
+      // PDF is suspiciously small — likely corrupted or blank
+      // Run pdflatex a second time to resolve cross-references (common fix)
+      console.warn(`PDF too small (${pdfStats.size} bytes), running pdflatex second pass...`);
+      try {
+        const secondPassPromise = new Promise<void>((resolve, reject) => {
+          const childProcess2 = spawn(
+            PDFLATEX_PATH,
+            [
+              "-interaction=nonstopmode",
+              "-output-directory",
+              TEMP_DIR,
+              texFilename,
+            ],
+            {
+              cwd: TEMP_DIR,
+              env: { ...process.env, TEXINPUTS: `${TEMPLATES_DIR}:` },
+            },
+          );
+          let settled2 = false;
+          const timer2 = setTimeout(() => {
+            if (!settled2) { settled2 = true; childProcess2.kill("SIGKILL"); reject(new Error("Second pass timed out")); }
+          }, 60000);
+          childProcess2.on("close", (code) => {
+            if (!settled2) { settled2 = true; clearTimeout(timer2); resolve(); }
+          });
+          childProcess2.on("error", (err) => {
+            if (!settled2) { settled2 = true; clearTimeout(timer2); reject(err); }
+          });
+        });
+        await secondPassPromise;
+      } catch (e) {
+        console.warn("Second pass failed:", e);
+      }
+    }
+
     await fs.access(pdfFile);
 
     // Clean up auxiliary files
