@@ -4,6 +4,12 @@ import { authApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useRazorpay } from "../hooks/useRazorpay";
 import toast from "react-hot-toast";
+import SeoMeta from "../components/SeoMeta";
+import {
+  breadcrumbSchema,
+  productSchema,
+  organizationSchema,
+} from "../lib/structuredData";
 
 const Pricing = () => {
   const { user } = useAuth();
@@ -31,7 +37,6 @@ const Pricing = () => {
       return;
     }
 
-    // Amount in INR (e.g. ₹499)
     const amount = 499;
 
     handlePayment(
@@ -41,71 +46,92 @@ const Pricing = () => {
         email: user.email || "",
       },
       () => {
-        // Success Callback
         toast.success("Welcome to Pro!");
-        // Use router navigate instead of full page reload
         navigate("/dashboard", { replace: true });
       },
     );
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
-      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-        Simple Pricing, Powerful Resumes 🚀
-      </h1>
-      <p className="text-sm sm:text-base text-slate-600 mb-8 sm:mb-12 max-w-2xl mx-auto px-2">
-        Start for free, upgrade for professionals. Create resumes that stand out
-        and get you hired faster.
-      </p>
+    <>
+      <SeoMeta
+        title="Pricing"
+        description="TexFolio pricing - Start for free, upgrade to Pro for ₹499/lifetime. Unlimited resumes, AI coach analysis, cover letter generator, premium FAANG templates, and more."
+        keywords="resume builder pricing, free resume builder, pro resume builder, AI resume pricing, LaTeX resume cost"
+        canonicalUrl="https://texfolio.vercel.app/pricing"
+        jsonLd={[
+          breadcrumbSchema([
+            { name: "Home", url: "https://texfolio.vercel.app/" },
+            { name: "Pricing", url: "https://texfolio.vercel.app/pricing" },
+          ]),
+          productSchema(
+            "TexFolio Pro - Lifetime Resume Builder",
+            "Unlimited resumes, AI coach analysis, cover letter generator, premium FAANG templates, and advanced AI features. Lifetime access with one payment.",
+            "499",
+          ),
+          organizationSchema,
+        ]}
+      />
 
-      <div className="grid md:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto">
-        {/* Free Plan */}
-        <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Free</h3>
-          <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 sm:mb-6">₹0</div>
-          <ul className="space-y-3 sm:space-y-4 text-left mb-6 sm:mb-8 text-sm sm:text-base text-slate-600">
-            <li className="flex items-center gap-2">✅ Create 1 Resume</li>
-            <li className="flex items-center gap-2">
-              ✅ Basic LaTeX Templates
-            </li>
-            <li className="flex items-center gap-2">✅ PDF Export</li>
-          </ul>
-          <button className="w-full py-3 rounded-xl border-2 border-slate-200 font-bold text-slate-600 cursor-not-allowed text-sm sm:text-base">
-            Current Plan
-          </button>
-        </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20 text-center">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          Simple Pricing, Powerful Resumes
+        </h1>
+        <p className="text-sm sm:text-base text-slate-600 mb-8 sm:mb-12 max-w-2xl mx-auto px-2">
+          Start for free, upgrade for professionals. Create resumes that stand
+          out and get you hired faster.
+        </p>
 
-        {/* Pro Plan */}
-        <div className="bg-slate-900 p-5 sm:p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
-            MOST POPULAR
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-8 max-w-4xl mx-auto">
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+              Free
+            </h3>
+            <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 sm:mb-6">
+              ₹0
+            </div>
+            <ul className="space-y-3 sm:space-y-4 text-left mb-6 sm:mb-8 text-sm sm:text-base text-slate-600">
+              <li className="flex items-center gap-2">✅ Create 1 Resume</li>
+              <li className="flex items-center gap-2">
+                ✅ Basic LaTeX Templates
+              </li>
+              <li className="flex items-center gap-2">✅ PDF Export</li>
+            </ul>
+            <button className="w-full py-3 rounded-xl border-2 border-slate-200 font-bold text-slate-600 cursor-not-allowed text-sm sm:text-base">
+              Current Plan
+            </button>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold mb-2">Pro</h3>
-          <div className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6">
-            ₹499
-            <span className="text-base sm:text-lg font-normal text-slate-400">
-              /lifetime
-            </span>
+
+          <div className="bg-slate-900 p-5 sm:p-8 rounded-2xl shadow-xl text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
+              MOST POPULAR
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold mb-2">Pro</h3>
+            <div className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6">
+              ₹499
+              <span className="text-base sm:text-lg font-normal text-slate-400">
+                /lifetime
+              </span>
+            </div>
+            <ul className="space-y-3 sm:space-y-4 text-left mb-6 sm:mb-8 text-sm sm:text-base text-slate-300">
+              <li className="flex items-center gap-2">✨ Unlimited Resumes</li>
+              <li className="flex items-center gap-2">
+                AI Cover Letter Generator
+              </li>
+              <li className="flex items-center gap-2">Advanced AI Analysis</li>
+              <li className="flex items-center gap-2">Premium Templates</li>
+            </ul>
+            <button
+              onClick={handleUpgrade}
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 font-bold text-white hover:shadow-lg transition-all text-sm sm:text-base"
+            >
+              {loading ? "Processing..." : "Upgrade Now"}
+            </button>
           </div>
-          <ul className="space-y-3 sm:space-y-4 text-left mb-6 sm:mb-8 text-sm sm:text-base text-slate-300">
-            <li className="flex items-center gap-2">✨ Unlimited Resumes</li>
-            <li className="flex items-center gap-2">
-              📝 AI Cover Letter Generator
-            </li>
-            <li className="flex items-center gap-2">🧠 Advanced AI Analysis</li>
-            <li className="flex items-center gap-2">🎨 Premium Templates</li>
-          </ul>
-          <button
-            onClick={handleUpgrade}
-            disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 font-bold text-white hover:shadow-lg transition-all text-sm sm:text-base"
-          >
-            {loading ? "Processing..." : "Upgrade Now 🚀"}
-          </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

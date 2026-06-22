@@ -7,6 +7,7 @@ import { OrganizationProvider } from "./context/OrganizationContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider, SignIn, SignUp } from "@clerk/clerk-react";
 import { Analytics } from "@vercel/analytics/react";
+import { HelmetProvider } from "react-helmet-async";
 import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Footer from "./components/Footer";
@@ -25,6 +26,9 @@ const Templates = lazy(() => import("./pages/Templates"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CoverLetter = lazy(() => import("./pages/CoverLetter"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const PrivacyPage = lazy(() => import("./pages/Privacy"));
+const TermsPage = lazy(() => import("./pages/Terms"));
+const AboutPage = lazy(() => import("./pages/About"));
 const OrganizationsPage = lazy(() => import("./pages/Organizations"));
 const OrganizationDetailPage = lazy(() => import("./pages/OrganizationDetail"));
 const OrganizationSettingsPage = lazy(() => import("./pages/OrganizationSettings"));
@@ -94,6 +98,7 @@ class ErrorBoundary extends Component<
 function App() {
   return (
     <ErrorBoundary>
+      <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <AuthProvider>
@@ -149,6 +154,9 @@ function App() {
                         </Route>
                         <Route path="/templates" element={<Templates />} />
                         <Route path="/pricing" element={<Pricing />} />
+                        <Route path="/privacy" element={<PrivacyPage />} />
+                        <Route path="/terms" element={<TermsPage />} />
+                        <Route path="/about" element={<AboutPage />} />
                       </Routes>
                     </Suspense>
                   </main>
@@ -159,6 +167,7 @@ function App() {
           </AuthProvider>
         </ClerkProvider>
       </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

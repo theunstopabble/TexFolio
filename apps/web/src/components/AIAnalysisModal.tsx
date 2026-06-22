@@ -147,7 +147,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                               key={idx}
                               className="flex gap-3 text-sm p-3 bg-blue-50 rounded-lg"
                             >
-                              <span className="flex-shrink-0 w-6 h-6 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold">
+                              <span className="shrink-0 w-6 h-6 bg-blue-200 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold">
                                 {idx + 1}
                               </span>
                               <span className="text-slate-700">{tip}</span>

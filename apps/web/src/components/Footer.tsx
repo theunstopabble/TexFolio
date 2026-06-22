@@ -45,9 +45,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <span className="text-slate-600 cursor-not-allowed">
-                  Enterprise
-                </span>
+                <Link
+                  to="/about"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  About
+                </Link>
               </li>
             </ul>
           </div>
@@ -56,17 +59,28 @@ const Footer = () => {
             <h3 className="text-white font-bold mb-4">Resources</h3>
             <ul className="space-y-3">
               <li>
-                <span className="text-slate-600 cursor-not-allowed">Blog</span>
+                <Link
+                  to="/about"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  About TexFolio
+                </Link>
               </li>
               <li>
-                <span className="text-slate-600 cursor-not-allowed">
-                  ATS Checker
-                </span>
+                <Link
+                  to="/templates"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Resume Templates
+                </Link>
               </li>
               <li>
-                <span className="text-slate-600 cursor-not-allowed">
-                  Help Center
-                </span>
+                <Link
+                  to="/pricing"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Pricing
+                </Link>
               </li>
             </ul>
           </div>
@@ -75,14 +89,20 @@ const Footer = () => {
             <h3 className="text-white font-bold mb-4">Legal</h3>
             <ul className="space-y-3">
               <li>
-                <span className="text-slate-600 cursor-not-allowed">
+                <Link
+                  to="/privacy"
+                  className="hover:text-blue-400 transition-colors"
+                >
                   Privacy Policy
-                </span>
+                </Link>
               </li>
               <li>
-                <span className="text-slate-600 cursor-not-allowed">
+                <Link
+                  to="/terms"
+                  className="hover:text-blue-400 transition-colors"
+                >
                   Terms of Service
-                </span>
+                </Link>
               </li>
             </ul>
           </div>

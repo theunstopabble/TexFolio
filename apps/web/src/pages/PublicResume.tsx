@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import api from "../services/api";
 import ResumePreview, { type ResumeData } from "../components/ResumePreview";
 import { Link } from "react-router-dom";
+import SeoMeta from "../components/SeoMeta";
+import { personSchema } from "../lib/structuredData";
 
 const PublicResume = () => {
   const { shareId } = useParams<{ shareId: string }>();
@@ -60,44 +62,68 @@ const PublicResume = () => {
     );
   }
 
+  const personName = resume?.personalInfo?.fullName || "Professional";
+
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
-      {/* Public Header */}
-      <div className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">📄</span>
-            <span className="font-bold text-slate-900 hidden sm:inline">
+    <>
+      <SeoMeta
+        title={`${personName} - Resume`}
+        description={`View ${personName}'s professional resume. Built with TexFolio - AI-powered LaTeX resume builder. ${resume?.summary?.slice(0, 150) || ""}`}
+        canonicalUrl={`https://texfolio.vercel.app/r/${shareId}`}
+        keywords={`${personName} resume, ${resume?.skills?.map((s) => Array.isArray(s.skills) ? s.skills.join(", ") : s.skills).join(", ") || "professional resume"}, ATS-friendly resume`}
+        ogType="profile"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: personName,
+            description: resume?.summary?.slice(0, 200) || "",
+            knowsAbout: resume?.skills?.flatMap((s) =>
+              Array.isArray(s.skills) ? s.skills : [s.skills]
+            ) || [],
+          },
+          personSchema(),
+        ]}
+      />
+
+      <div className="min-h-screen bg-slate-100 flex flex-col">
+        {/* Public Header */}
+        <div className="bg-white border-b border-slate-200 py-3 px-4 shadow-sm sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">📄</span>
+              <span className="font-bold text-slate-900 hidden sm:inline">
+                TexFolio
+              </span>
+            </div>
+            <Link
+              to="/"
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Create your own Resume →
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white rounded-xl shadow-2xl overflow-hidden min-h-[1000px]">
+              <ResumePreview data={resume} />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 text-slate-400 py-6 text-center text-sm">
+          <p>
+            Powered by{" "}
+            <Link to="/" className="text-white hover:underline font-medium">
               TexFolio
-            </span>
-          </div>
-          <Link
-            to="/"
-            className="text-sm font-medium text-blue-600 hover:text-blue-700"
-          >
-            Create your own Resume →
-          </Link>
+            </Link>{" "}
+            - The AI Resume Builder
+          </p>
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto p-4 md:p-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-xl shadow-2xl overflow-hidden min-h-[1000px]">
-            <ResumePreview data={resume} />
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-slate-900 text-slate-400 py-6 text-center text-sm">
-        <p>
-          Powered by{" "}
-          <Link to="/" className="text-white hover:underline font-medium">
-            TexFolio
-          </Link>{" "}
-          - The AI Resume Builder
-        </p>
-      </div>
-    </div>
+    </>
   );
 };
 
