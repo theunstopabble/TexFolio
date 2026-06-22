@@ -304,6 +304,23 @@ App.tsx
 
 ---
 
+## 📖 Documentation
+
+Comprehensive documentation for the TexFolio platform is available in the `docs/` directory:
+
+| Document | Description |
+|:---------|:------------|
+| [`API.md`](docs/API.md) | Complete REST API reference (30+ endpoints, auth & error patterns) |
+| [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, middleware pipeline, security & caching layers |
+| [`DB_SCHEMA.md`](docs/DB_SCHEMA.md) | 14 MongoDB collections: models, fields, relations & ER diagram |
+| [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Production deployment: Vercel + Render + MongoDB Atlas + Cloudinary |
+| [`EDGE_CASES.md`](docs/EDGE_CASES.md) | Security & performance edge cases, graceful degradation, failure modes |
+| [`TECH_STACK.md`](docs/TECH_STACK.md) | Layer-by-layer dependency inventory: frontend, backend, DevOps |
+| [`WORKFLOW.md`](docs/WORKFLOW.md) | User journey, admin ops & delivery driver Mermaid workflows |
+| [`AI_DISCOVERABILITY_FRAMEWORKS.md`](docs/AI_DISCOVERABILITY_FRAMEWORKS.md) | AI discoverability: AEO, GEO, LLMO, AI-SEO, E-E-A-T & traditional SEO |
+
+---
+
 ## 📚 API Documentation
 
 All protected routes strictly require a Clerk `Bearer` token, unless noted otherwise.
