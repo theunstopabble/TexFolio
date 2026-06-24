@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Users, ArrowLeft, Shield, UserPlus, Trash2, Crown } from "lucide-react";
@@ -27,7 +27,7 @@ export default function OrganizationMembersPage() {
   const [inviteUserId, setInviteUserId] = useState("");
   const [inviteRole, setInviteRole] = useState("editor");
 
-  const fetchMembers = async () => {
+  const fetchMembers = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
@@ -38,11 +38,11 @@ export default function OrganizationMembersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchMembers();
-  }, [id]);
+  }, [fetchMembers]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();

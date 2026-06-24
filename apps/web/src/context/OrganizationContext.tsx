@@ -1,14 +1,13 @@
 import {
   createContext,
-  useContext,
   useEffect,
   type ReactNode,
 } from "react";
 import { useOrganizationStore, type UserOrg } from "../stores/organizationStore";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { setOrgIdProvider } from "../services/api";
 
-interface OrganizationContextType {
+export interface OrganizationContextType {
   refreshOrganizations: () => Promise<void>;
 }
 
@@ -64,10 +63,4 @@ export const OrganizationProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useOrganization = () => {
-  const context = useContext(OrganizationContext);
-  if (!context) {
-    throw new Error("useOrganization must be used within OrganizationProvider");
-  }
-  return context;
-};
+export { OrganizationContext };

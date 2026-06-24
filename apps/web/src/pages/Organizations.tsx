@@ -8,7 +8,7 @@ import {
   useOrgLoading,
 } from "../stores/organizationStore";
 import { organizationApi } from "../services/api";
-import { useOrganization } from "../context/OrganizationContext";
+import { useOrganization } from "../hooks/useOrganization";
 
 export default function OrganizationsPage() {
   const navigate = useNavigate();

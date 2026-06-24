@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray, type FieldPath } from "react-hook-form";
 import { useSearchParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import { resumeApi } from "../../services/api";
 import toast from "react-hot-toast";
 import type { ResumeFormData } from "../resume-editor/types";

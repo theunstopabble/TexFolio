@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useRazorpay } from "../hooks/useRazorpay";
 import toast from "react-hot-toast";
 import SeoMeta from "../components/SeoMeta";

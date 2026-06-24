@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect, type ReactNode } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import OrganizationSwitcher from "./OrganizationSwitcher";
 
 const NavLink = ({
@@ -16,7 +16,7 @@ const NavLink = ({
   return (
     <Link
       to={to}
-      className={`shrink-0 text-sm xl:text-base font-extrabold transition-all duration-200 px-2.5 py-1.5 xl:px-4 xl:py-2 rounded-full no-underline tracking-wide whitespace-nowrap ${isActive
+      className={`shrink-0 text-sm lg:text-[0.8125rem] xl:text-sm font-extrabold transition-all duration-200 px-2 py-1 lg:px-2.5 lg:py-1.5 xl:px-3.5 xl:py-2 rounded-full no-underline tracking-wide whitespace-nowrap ${isActive
           ? "bg-blue-600/10 text-blue-800"
           : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
         }`}
@@ -59,22 +59,20 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 min-w-0 overflow-x-auto shrink">
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/templates">Templates</NavLink>
-            <NavLink to="/pricing">Pricing</NavLink>
+          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+            <div className="flex items-center gap-0.5 flex-wrap justify-center">
+              <NavLink to="/">Home</NavLink>
+              <NavLink to="/templates">Templates</NavLink>
+              <NavLink to="/pricing">Pricing</NavLink>
 
-            {user && (
-              <>
-                <NavLink to="/dashboard">Dashboard</NavLink>
-                <span className="hidden xl:inline">
+              {user && (
+                <>
+                  <NavLink to="/dashboard">Dashboard</NavLink>
                   <NavLink to="/resumes">My Resumes</NavLink>
-                </span>
-                <span className="hidden xl:inline">
                   <NavLink to="/organizations">Organizations</NavLink>
-                </span>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </nav>
 
           {/* User Actions & Mobile Toggle */}
@@ -84,7 +82,7 @@ const Header = () => {
                 {/* +New Button - hidden on smallest screens, icon on md, full on lg+ */}
                 <Link
                   to="/create"
-                  className="hidden sm:inline-flex bg-slate-900 text-white text-sm xl:text-base font-bold px-3 py-1.5 xl:px-4 xl:py-2 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap shrink-0 items-center gap-1"
+                  className="hidden sm:inline-flex bg-slate-900 text-white text-sm lg:text-[0.8125rem] xl:text-sm font-bold px-2.5 py-1.5 lg:px-3 lg:py-1.5 xl:px-4 xl:py-2 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap shrink-0 items-center gap-1"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -161,13 +159,13 @@ const Header = () => {
               <div className="flex items-center gap-2 shrink-0">
                 <Link
                   to="/login"
-                  className="shrink-0 text-slate-600 hover:text-slate-900 font-bold text-sm xl:text-base px-3 py-1.5 xl:px-4 xl:py-2 rounded-full hover:bg-slate-50 transition-all no-underline"
+                  className="shrink-0 text-slate-600 hover:text-slate-900 font-bold text-sm lg:text-[0.8125rem] xl:text-sm px-2.5 py-1.5 lg:px-3 lg:py-1.5 xl:px-4 xl:py-2 rounded-full hover:bg-slate-50 transition-all no-underline"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="shrink-0 bg-slate-900 text-white text-sm xl:text-base font-bold px-4 py-1.5 xl:px-5 xl:py-2 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
+                  className="shrink-0 bg-slate-900 text-white text-sm lg:text-[0.8125rem] xl:text-sm font-bold px-3 py-1.5 lg:px-3.5 lg:py-1.5 xl:px-5 xl:py-2 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   Sign Up
                 </Link>

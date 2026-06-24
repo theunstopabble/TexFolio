@@ -196,9 +196,10 @@ export const useResumeEditor = () => {
       setAtsLoading(true);
       setAtsModalOpen(true);
       const data = watch();
-      const { _id: _unused, ...cleanData } = data as unknown as {
+      const { _id, ...cleanData } = data as unknown as {
         _id?: string;
       } & ResumeFormData;
+      void _id;
       const res = await aiApi.checkATSScore({ resumeData: cleanData });
       setAtsResult(res.data.data);
     } catch {

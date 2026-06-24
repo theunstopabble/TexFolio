@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Building2, Users, ArrowRight, Plus, Shield } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useResumes, useSendEmail } from "../hooks/useResumes";
 import { useAnalytics } from "../hooks/useQueries";
 import AnalyticsChart from "../components/AnalyticsChart";
