@@ -56,37 +56,7 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-white font-bold mb-4">Resources</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/about"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  About TexFolio
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/templates"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Resume Templates
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/pricing"
-                  className="hover:text-blue-400 transition-colors"
-                >
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-bold mb-4">Legal</h3>
+            <h3 className="text-white font-bold mb-4">Support</h3>
             <ul className="space-y-3">
               <li>
                 <Link
@@ -106,40 +76,60 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+
+          <div>
+            <h3 className="text-white font-bold mb-4">Connect</h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://github.com/theunstopabble"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  GitHub
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/in/gautamkr62/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://gautam-kr.vercel.app"
+                  target="_blank"
+                  rel="noopener"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Portfolio
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm">
             &copy; {new Date().getFullYear()} TexFolio. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">Built by</span>
+          <p className="text-sm">
+            Built by{" "}
             <a
               href="https://gautam-kr.vercel.app"
               target="_blank"
               rel="noopener"
-              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors text-sm"
+              className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
               title="Gautam Kumar — Full-Stack Developer & AI Engineer"
             >
               Gautam Kumar
             </a>
-            <span className="text-slate-700">|</span>
-            {[
-              { name: "GitHub", url: "https://github.com/theunstopabble" },
-              { name: "LinkedIn", url: "https://www.linkedin.com/in/gautamkr62/" },
-            ].map((social) => (
-              <a
-                key={social.name}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.name}
-                className="text-slate-600 hover:text-white transition-colors text-sm font-medium"
-              >
-                {social.name}
-              </a>
-            ))}
-          </div>
+          </p>
         </div>
       </div>
     </footer>

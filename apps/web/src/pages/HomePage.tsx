@@ -307,38 +307,53 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
-                <div className="text-4xl font-black text-blue-600 mb-2">
-                  React 19
+              <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg hover:border-blue-200 transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs font-semibold text-blue-500 uppercase tracking-widest">
+                    Frontend
+                  </span>
+                  <div className="text-4xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">
+                    React 19
+                  </div>
+                  <div className="text-lg font-bold text-slate-400">
+                    + Hono v4
+                  </div>
                 </div>
-                <div className="text-4xl font-black text-purple-600 mb-2">
-                  Hono v4
-                </div>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-500 mt-4 leading-relaxed">
                   Modern, fast, type-safe tech stack for reliability and
                   performance
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
-                <div className="text-4xl font-black text-green-600 mb-2">
-                  LangGraph
+              <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg hover:border-emerald-200 transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs font-semibold text-emerald-500 uppercase tracking-widest">
+                    AI Engine
+                  </span>
+                  <div className="text-4xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">
+                    LangGraph
+                  </div>
+                  <div className="text-lg font-bold text-slate-400">
+                    + NVIDIA NIM
+                  </div>
                 </div>
-                <div className="text-4xl font-black text-amber-600 mb-2">
-                  NVIDIA NIM
-                </div>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-500 mt-4 leading-relaxed">
                   Production-grade AI with multi-agent architecture and
                   enterprise LLMs
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
-                <div className="text-4xl font-black text-red-600 mb-2">
-                  GDPR
+              <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center hover:shadow-lg hover:border-purple-200 transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs font-semibold text-purple-500 uppercase tracking-widest">
+                    Security
+                  </span>
+                  <div className="text-4xl font-black text-slate-900 group-hover:text-purple-600 transition-colors">
+                    GDPR
+                  </div>
+                  <div className="text-lg font-bold text-slate-400">
+                    + RBAC
+                  </div>
                 </div>
-                <div className="text-4xl font-black text-indigo-600 mb-2">
-                  RBAC
-                </div>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-500 mt-4 leading-relaxed">
                   Enterprise security with audit logs, encryption, and privacy
                   compliance
                 </p>
