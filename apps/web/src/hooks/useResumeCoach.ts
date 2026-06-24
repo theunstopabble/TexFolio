@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthContext";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import api from "../services/api";
 
 // ============================================
 // Types
@@ -49,23 +46,8 @@ export interface QuickScoreResult {
 async function runCoachAnalysis(
   resumeData: Record<string, unknown>,
   jobDescription: string | undefined,
-  getToken: () => Promise<string | null>,
 ): Promise<CoachAnalysisResult> {
-  const token = await getToken();
-  if (!token) {
-    throw new Error("Authentication required. Please sign in.");
-  }
-
-  const response = await axios.post(
-    `${API_URL}/agents/coach`,
-    { resumeData, jobDescription },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
+  const response = await api.post("/agents/coach", { resumeData, jobDescription });
   return response.data.data;
 }
 
@@ -75,23 +57,8 @@ async function runCoachAnalysis(
 async function getQuickScore(
   resumeData: Record<string, unknown>,
   jobDescription: string | undefined,
-  getToken: () => Promise<string | null>,
 ): Promise<QuickScoreResult> {
-  const token = await getToken();
-  if (!token) {
-    throw new Error("Authentication required. Please sign in.");
-  }
-
-  const response = await axios.post(
-    `${API_URL}/agents/quick-score`,
-    { resumeData, jobDescription },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
+  const response = await api.post("/agents/quick-score", { resumeData, jobDescription });
   return response.data.data;
 }
 
@@ -99,13 +66,7 @@ async function getQuickScore(
 // Hooks
 // ============================================
 
-/**
- * Hook for running the Resume Coach Agent
- * Provides comprehensive resume analysis with breakdown by category
- */
 export function useResumeCoach() {
-  const { getToken } = useAuth();
-
   return useMutation({
     mutationFn: async ({
       resumeData,
@@ -114,7 +75,7 @@ export function useResumeCoach() {
       resumeData: Record<string, unknown>;
       jobDescription?: string;
     }) => {
-      return runCoachAnalysis(resumeData, jobDescription, getToken);
+      return runCoachAnalysis(resumeData, jobDescription);
     },
     onSuccess: (data) => {
       toast.success(`Analysis complete! Score: ${data.finalScore}/100`);
@@ -125,13 +86,7 @@ export function useResumeCoach() {
   });
 }
 
-/**
- * Hook for getting quick ATS score
- * Faster analysis with just score and top recommendations
- */
 export function useQuickScore() {
-  const { getToken } = useAuth();
-
   return useMutation({
     mutationFn: async ({
       resumeData,
@@ -140,7 +95,7 @@ export function useQuickScore() {
       resumeData: Record<string, unknown>;
       jobDescription?: string;
     }) => {
-      return getQuickScore(resumeData, jobDescription, getToken);
+      return getQuickScore(resumeData, jobDescription);
     },
     onSuccess: (data) => {
       toast.success(`ATS Score: ${data.atsScore}/100`);

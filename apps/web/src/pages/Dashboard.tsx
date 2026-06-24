@@ -70,7 +70,7 @@ const OrganizationSection = () => {
           </div>
           <button
             onClick={() => navigate("/organizations")}
-            className="flex items-center gap-2 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 text-sm font-medium w-full sm:w-auto justify-center"
+            className="btn btn-secondary w-full sm:w-auto justify-center"
           >
             View All
             <ArrowRight className="w-4 h-4" />
@@ -97,7 +97,7 @@ const OrganizationSection = () => {
         </div>
         <button
           onClick={() => navigate(`/organizations/${activeOrg._id}`)}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-medium border border-blue-200 w-full sm:w-auto justify-center"
+          className="btn btn-secondary w-full sm:w-auto justify-center"
         >
           Manage
           <ArrowRight className="w-4 h-4" />
@@ -313,15 +313,9 @@ const Dashboard = () => {
               <div className="flex gap-2">
                 <Link
                   to={`/edit/${resume._id}`}
-                  className="flex-1 btn btn-secondary text-xs sm:text-sm py-2 justify-center"
-                >
-                  Edit
-                </Link>
-                <Link
-                  to={`/edit/${resume._id}`}
                   className="flex-1 btn btn-primary text-xs sm:text-sm py-2 justify-center"
                 >
-                  View
+                  Edit
                 </Link>
                 <button
                   onClick={() => {
