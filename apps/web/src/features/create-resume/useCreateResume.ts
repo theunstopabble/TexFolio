@@ -200,7 +200,7 @@ export const useCreateResume = () => {
             endDate: formatDate(e.endDate),
             description:
               typeof e.description === "string"
-                ? (e.description as unknown as string)
+                ? String(e.description)
                     .split("\n")
                     .filter((d) => d.trim())
                 : e.description,
@@ -218,7 +218,7 @@ export const useCreateResume = () => {
             category: s.category,
             skills:
               typeof s.skills === "string"
-                ? (s.skills as unknown as string)
+                ? String(s.skills)
                     .split(",")
                     .map((sk) => sk.trim())
                 : s.skills,
@@ -229,7 +229,7 @@ export const useCreateResume = () => {
             ...p,
             technologies:
               typeof p.technologies === "string"
-                ? (p.technologies as unknown as string)
+                ? String(p.technologies)
                     .split(",")
                     .map((t) => t.trim())
                 : p.technologies,

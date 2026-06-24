@@ -123,7 +123,7 @@ export const useResumeEditor = () => {
           ...e,
           description:
             typeof e.description === "string"
-              ? e.description
+              ? String(e.description)
                   .split("\n")
                   .filter((d) => d.trim())
               : e.description,
@@ -132,7 +132,7 @@ export const useResumeEditor = () => {
           category: s.category,
           skills:
             typeof s.skills === "string"
-              ? s.skills
+              ? String(s.skills)
                   .split(",")
                   .map((sk) => sk.trim())
               : s.skills,
@@ -141,7 +141,7 @@ export const useResumeEditor = () => {
           ...p,
           technologies:
             typeof p.technologies === "string"
-              ? p.technologies
+              ? String(p.technologies)
                   .split(",")
                   .map((t) => t.trim())
               : p.technologies,
