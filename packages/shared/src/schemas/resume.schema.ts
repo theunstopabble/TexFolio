@@ -43,7 +43,7 @@ export const educationSchema = z.object({
 // ============================================
 export const projectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
-  description: z.string().optional(),
+  description: z.string().default(""),
   technologies: z.array(z.string()).default([]),
   link: z.string().url().optional().or(z.literal("")),
   github: z.string().url().optional().or(z.literal("")),

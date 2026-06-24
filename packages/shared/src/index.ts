@@ -1,10 +1,8 @@
 // Main entry point for @texfolio/shared package
-// All exports from this package are re-exported here
+// Zod Schemas are the single source of truth — use inferred types from schemas.
+// Legacy types/ directory is deprecated and no longer re-exported.
 
-// Legacy TypeScript interfaces (for backward compatibility)
-export * from "./types/index.js";
-
-// Zod Schemas (new - single source of truth)
+// Zod Schemas (single source of truth)
 // Re-export schemas with explicit names to avoid conflicts
 export {
   // Resume Schemas
@@ -34,6 +32,13 @@ export {
   createOrderRequestSchema,
   verifyPaymentRequestSchema,
   // Zod-inferred types (use these for new code)
+  type PersonalInfo,
+  type Experience,
+  type Education,
+  type Project,
+  type SkillCategory,
+  type Certification,
+  type Resume,
   type Customization,
   type CreateResumeInput,
   type UpdateResumeInput,
@@ -44,4 +49,9 @@ export {
   type AICoverLetterRequest,
   type CreateOrderRequest,
   type VerifyPaymentRequest,
+  type PaginationParams,
+  type GenerateResumeRequest,
+  type GenerateResumeResponse,
+  type ATSScoreResult,
+  type ATSCheckRequest,
 } from "./schemas/index.js";

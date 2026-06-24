@@ -9,6 +9,10 @@ import type { IResume } from "../models/resume.model.js";
 import { sendEmail } from "../services/email.service.js";
 import { auditService } from "../services/audit.service.js";
 import { pdfQueue } from "../queues/pdf.queue.js";
+import {
+  createResumeSchema,
+  updateResumeSchema,
+} from "@texfolio/shared";
 
 // Helper to extract audit metadata from Hono context
 const getAuditMeta = (c: Context, statusCode: number) => ({
@@ -28,86 +32,6 @@ const getOrgCtx = (user: HonoUser) =>
 
 // Create resume router
 export const resumeRoutes = new Hono();
-
-// ============================================
-// Validation Schemas
-// ============================================
-const createResumeSchema = z.object({
-  title: z.string().min(1).max(100),
-  templateId: z.string().default("classic"),
-  personalInfo: z.object({
-    fullName: z.string().min(1),
-    email: z.string().email(),
-    phone: z.string(),
-    location: z.string(),
-    linkedin: z.string().optional(),
-    github: z.string().optional(),
-    portfolio: z.string().optional(),
-  }),
-  summary: z.string().optional(),
-  experience: z
-    .array(
-      z.object({
-        company: z.string(),
-        position: z.string(),
-        location: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        description: z.array(z.string()).default([]),
-      }),
-    )
-    .default([]),
-  education: z
-    .array(
-      z.object({
-        institution: z.string(),
-        degree: z.string(),
-        field: z.string(),
-        location: z.string().optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        gpa: z.string().optional(),
-      }),
-    )
-    .default([]),
-  skills: z
-    .array(
-      z.object({
-        category: z.string(),
-        skills: z.array(z.string()),
-      }),
-    )
-    .default([]),
-  projects: z
-    .array(
-      z.object({
-        name: z.string(),
-        description: z.string().default(""),
-        technologies: z.array(z.string()).default([]),
-        sourceCode: z.string().default(""),
-        liveUrl: z.string().default(""),
-      }),
-    )
-    .default([]),
-  certifications: z
-    .array(
-      z.object({
-        name: z.string(),
-        issuer: z.string().optional(),
-        date: z.string().optional(),
-      }),
-    )
-    .default([]),
-  customization: z
-    .object({
-      primaryColor: z.string().default("#2563EB"),
-      fontFamily: z.enum(["serif", "sans"]).default("serif"),
-    })
-    .optional(),
-  sectionOrder: z.array(z.string()).optional(),
-});
-
-const updateResumeSchema = createResumeSchema.partial();
 
 // ============================================
 // Public Routes (no auth required)

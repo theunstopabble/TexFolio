@@ -1,39 +1,15 @@
-export interface Experience {
-  company: string;
-  position: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  description: string[];
-}
+import type {
+  ATSScoreResult,
+  Experience,
+  Education,
+  SkillCategory,
+  Project,
+  Certification,
+} from "@texfolio/shared";
 
-export interface Education {
-  institution: string;
-  degree: string;
-  field: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  gpa?: string;
-}
+export type ATSAnalysisResult = ATSScoreResult;
 
-export interface Skill {
-  category: string;
-  skills: string[];
-}
-
-export interface Project {
-  name: string;
-  description: string;
-  technologies: string[];
-  sourceCode?: string;
-  liveUrl?: string;
-}
-
-export interface Certification {
-  name: string;
-  issuer: string;
-}
+export type Skill = SkillCategory;
 
 export interface ResumeFormData {
   title: string;
@@ -57,13 +33,4 @@ export interface ResumeFormData {
   skills: Skill[];
   projects: Project[];
   certifications: Certification[];
-}
-
-export interface ATSAnalysisResult {
-  score: number;
-  summary: string;
-  keywords_found: string[];
-  keywords_missing: string[];
-  formatting_issues: string[];
-  suggestions: string[];
 }
