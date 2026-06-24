@@ -16,7 +16,7 @@ const NavLink = ({
   return (
     <Link
       to={to}
-      className={`text-sm lg:text-base font-extrabold transition-all duration-200 px-3 py-2 lg:px-5 lg:py-2.5 rounded-full no-underline tracking-wide whitespace-nowrap ${isActive
+      className={`shrink-0 text-sm lg:text-base font-extrabold transition-all duration-200 px-3 py-2 lg:px-5 lg:py-2.5 rounded-full no-underline tracking-wide whitespace-nowrap ${isActive
           ? "bg-blue-600/10 text-blue-800"
           : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
         }`}
@@ -39,9 +39,9 @@ const Header = () => {
   }, [location]);
 
   return (
-    <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
+    <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 transition-all duration-300 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20">
-        <div className="flex items-center justify-between h-full">
+        <div className="flex items-center justify-between h-full gap-2">
           {/* Logo */}
           <Link
             to="/"
@@ -61,7 +61,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 min-w-0 shrink">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/templates">Templates</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
@@ -80,12 +80,12 @@ const Header = () => {
           </nav>
 
           {/* User Actions & Mobile Toggle */}
-          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5 xl:gap-3">
+          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5 xl:gap-3 shrink-0">
             {user ? (
               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5 xl:gap-3">
                 <Link
                   to="/create"
-                  className="hidden 2xl:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
+                  className="hidden 2xl:inline-flex bg-slate-900 text-white text-sm lg:text-base font-bold px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap shrink-0"
                 >
                   + New
                 </Link>
@@ -119,7 +119,7 @@ const Header = () => {
                 {/* User Menu */}
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity group shrink-0"
                 >
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center text-blue-700 font-extrabold text-sm ring-2 ring-white shadow-sm overflow-hidden shrink-0">
                     {user.imageUrl ? (
@@ -135,7 +135,7 @@ const Header = () => {
                       (user.name || "U").charAt(0).toUpperCase()
                     )}
                   </div>
-                  <span className="text-sm font-bold text-slate-800 hidden 2xl:block group-hover:text-blue-700 transition-colors max-w-[100px] truncate">
+                  <span className="text-sm font-bold text-slate-800 hidden 2xl:block group-hover:text-blue-700 transition-colors max-w-[80px] truncate shrink-0">
                     {(user.name || "User").split(" ")[0]}
                   </span>
                 </Link>
@@ -164,16 +164,16 @@ const Header = () => {
                 </button>
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-3">
+              <div className="hidden md:flex items-center gap-3 shrink-0">
                 <Link
                   to="/login"
-                  className="text-slate-600 hover:text-slate-900 font-bold text-sm lg:text-base px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-50 transition-all no-underline"
+                  className="shrink-0 text-slate-600 hover:text-slate-900 font-bold text-sm lg:text-base px-4 py-2 lg:px-5 lg:py-2.5 rounded-full hover:bg-slate-50 transition-all no-underline"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-slate-900 text-white text-sm lg:text-base font-bold px-5 py-2 lg:px-6 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
+                  className="shrink-0 bg-slate-900 text-white text-sm lg:text-base font-bold px-5 py-2 lg:px-6 lg:py-2.5 rounded-full hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline whitespace-nowrap"
                 >
                   Sign Up
                 </Link>
