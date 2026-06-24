@@ -15,18 +15,18 @@ export interface ResumeData {
   experience: {
     company: string;
     position: string;
-    location: string;
-    startDate: string;
-    endDate: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
     description: string[] | string;
   }[];
   education: {
     institution: string;
     degree: string;
     field: string;
-    location: string;
-    startDate: string;
-    endDate: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
     gpa?: string;
   }[];
   skills: {
@@ -42,7 +42,8 @@ export interface ResumeData {
   }[];
   certifications: {
     name: string;
-    issuer: string;
+    issuer?: string;
+    date?: string;
   }[];
 }
 
@@ -90,7 +91,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   };
 
   // Helper to format dates (YYYY-MM -> Mon YYYY)
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "";
     const [year, month] = dateStr.split("-");
     if (!year || !month) return dateStr;

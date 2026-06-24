@@ -8,8 +8,8 @@ import type {
 } from "@texfolio/shared";
 
 export type ATSAnalysisResult = ATSScoreResult;
-
 export type Skill = SkillCategory;
+export type { Experience, Education, Project, Certification };
 
 export interface ResumeFormData {
   title: string;

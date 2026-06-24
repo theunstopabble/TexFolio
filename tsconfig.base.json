@@ -14,6 +14,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "paths": {
+      "@texfolio/shared": ["./packages/shared/src/index.ts"],
       "@texfolio/shared/*": ["./packages/shared/src/*"]
     }
   },
