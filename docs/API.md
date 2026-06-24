@@ -242,15 +242,25 @@ Full LangGraph multi-agent resume analysis (Content → ATS → Format → Impac
   "success": true,
   "data": {
     "finalScore": 78,
-    "analysisResults": {
-      "contentAnalysis": { "score": 82, "feedback": ["..."] },
-      "atsAnalysis": { "score": 75, "keywords": ["React"], "missing": ["Docker"] },
-      "formatAnalysis": { "score": 80, "issues": ["..."] },
-      "impactAnalysis": { "score": 74, "suggestions": ["..."] }
+    "breakdown": {
+      "content": { "score": 82, "feedback": ["..."] },
+      "ats": { "score": 75, "keywords": ["React"], "missing": ["Docker"] },
+      "format": { "score": 80, "issues": ["..."] },
+      "impact": { "score": 74, "suggestions": ["..."] }
     },
     "recommendations": ["📝 Content: ...", "🔍 ATS: Add keyword \"Docker\""]
   }
 }
+```
+
+### POST /api/agents/quick-score
+
+Quick ATS score without the full LangGraph pipeline. Returns a single score.
+
+**Auth:** Clerk JWT  
+**Body:**
+```json
+{ "resumeData": { ... } }
 ```
 
 ### POST /api/agents/import/linkedin
@@ -259,6 +269,18 @@ Parse a LinkedIn PDF export and extract structured resume data.
 
 **Auth:** Clerk JWT  
 **Body:** `multipart/form-data` with PDF file
+
+### POST /api/ai/analyze
+
+Analyze a resume and return structured feedback.
+
+**Auth:** Clerk JWT
+
+### POST /api/ai/ats-check
+
+Run ATS compatibility check against a job description.
+
+**Auth:** Clerk JWT
 
 ### POST /api/ai/improve
 
@@ -280,7 +302,7 @@ Generate action-oriented bullet points for a job title.
 
 **Response:**
 ```json
-{ "success": true, "data": ["Architected microservices...", "Reduced deploy time by 60%..."] }
+{ "success": true, "data": { "bullets": ["Architected microservices...", "Reduced deploy time by 60%..."] } }
 ```
 
 ### POST /api/ai/cover-letter
@@ -450,6 +472,44 @@ Create a Razorpay order for Pro upgrade.
 ### POST /api/payments/verify
 
 Verify Razorpay payment signature and upgrade user to Pro tier.
+
+### POST /api/payments/webhook
+
+Razorpay webhook handler (no auth — validated by HMAC signature). Processes payment events and triggers Pro upgrades.
+
+---
+
+## Analytics
+
+**Source:** `apps/api/src/routes.hono/analytics.routes.ts`
+
+### GET /api/analytics
+
+Get dashboard analytics (total resumes, chart data, top skills, avg ATS score).
+
+**Auth:** Clerk JWT
+
+---
+
+## Auth
+
+**Source:** `apps/api/src/routes.hono/auth.routes.ts`
+
+### GET /api/auth/me
+
+Get current authenticated user info.
+
+**Auth:** Clerk JWT
+
+---
+
+## Public Routes
+
+**Source:** `apps/api/src/routes.hono/public.routes.ts`
+
+### GET /api/public/r/:shareId
+
+View a publicly shared resume by share ID. No authentication required.
 
 ---
 

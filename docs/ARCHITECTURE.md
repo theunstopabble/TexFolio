@@ -296,9 +296,9 @@ App.tsx
   └─ React Router v7
       ├─ /                    → HomePage
       ├─ /dashboard           → Dashboard (org context banner)
+      ├─ /create              → CreateResume (stepper)
+      ├─ /edit/:id            → EditResume (drag-and-drop editor)
       ├─ /resumes             → ResumeList
-      ├─ /resumes/new         → CreateResume (stepper)
-      ├─ /resumes/:id/edit    → EditResume (drag-and-drop editor)
       ├─ /organizations       → Organizations (list, create)
       ├─ /organizations/:id   → OrganizationDetail
       ├─ /organizations/:id/settings → OrganizationSettings
@@ -307,6 +307,9 @@ App.tsx
       ├─ /cover-letter        → CoverLetter
       ├─ /templates           → Templates
       ├─ /profile             → UserProfile
+      ├─ /privacy             → Privacy
+      ├─ /terms               → Terms
+      ├─ /about               → About
       └─ /r/:shareId          → PublicResume (no auth)
 ```
 

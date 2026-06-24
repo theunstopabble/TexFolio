@@ -5,7 +5,6 @@
 # TexFolio - AI-Powered LaTeX Resume Builder
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-2563EB?style=for-the-badge&logo=vercel&logoColor=white)](https://texfolio.vercel.app/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Frontend](https://img.shields.io/badge/Frontend-React_19_%7C_Vite-61DAFB?style=for-the-badge&logo=react)](apps/web)
 [![Backend](https://img.shields.io/badge/Backend-Hono_%7C_Node.js-339933?style=for-the-badge&logo=nodedotjs)](apps/api)
 [![AI](https://img.shields.io/badge/AI-LangGraph_%7C_NVIDIA_NIM_%7C_Groq-FF6F00?style=for-the-badge&logo=openai)](apps/api/src/agents)
@@ -310,9 +309,9 @@ Comprehensive documentation for the TexFolio platform is available in the `docs/
 
 | Document | Description |
 |:---------|:------------|
-| [`API.md`](docs/API.md) | Complete REST API reference (30+ endpoints, auth & error patterns) |
+| [`API.md`](docs/API.md) | Complete REST API reference (37+ endpoints, auth & error patterns) |
 | [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, middleware pipeline, security & caching layers |
-| [`DB_SCHEMA.md`](docs/DB_SCHEMA.md) | 14 MongoDB collections: models, fields, relations & ER diagram |
+| [`DB_SCHEMA.md`](docs/DB_SCHEMA.md) | 7 Mongoose models: schemas, fields, relations & ER diagram |
 | [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Production deployment: Vercel + Render + MongoDB Atlas + Cloudinary |
 | [`EDGE_CASES.md`](docs/EDGE_CASES.md) | Security & performance edge cases, graceful degradation, failure modes |
 | [`TECH_STACK.md`](docs/TECH_STACK.md) | Layer-by-layer dependency inventory: frontend, backend, DevOps |
@@ -327,18 +326,19 @@ All protected routes strictly require a Clerk `Bearer` token, unless noted other
 
 ### **Resumes API (`/api/resumes`)**
 
-| Method   | Endpoint                      | Auth  | Description                                      |
-| :------- | :---------------------------- | :---- | :----------------------------------------------- |
-| `GET`    | `/api/resumes`                | Clerk | Get all user resumes (personal + org-authorized) |
-| `POST`   | `/api/resumes`                | Clerk | Create a new resume (personal or org-scoped)     |
-| `GET`    | `/api/resumes/:id`            | Clerk | Get resume details (ownership or org visibility) |
-| `PUT`    | `/api/resumes/:id`            | Clerk | Update resume (owner, admin, or editor in org)   |
-| `DELETE` | `/api/resumes/:id`            | Clerk | Delete resume (owner or org admin)               |
-| `GET`    | `/api/resumes/:id/pdf`        | Clerk | Enqueue PDF generation (returns job ID)          |
-| `GET`    | `/api/resumes/:id/pdf-status` | Clerk | Poll BullMQ job progress (10% → 30% → 100%)      |
-| `GET`    | `/api/resumes/:id/download`   | Clerk | Download generated PDF file                      |
-| `POST`   | `/api/resumes/:id/email`      | Clerk | Email PDF via Brevo                              |
-| `PUT`    | `/api/resumes/:id/share`      | Clerk | Toggle public visibility + generate shareId      |
+| Method   | Endpoint                                     | Auth  | Description                                      |
+| :------- | :------------------------------------------- | :---- | :----------------------------------------------- |
+| `GET`    | `/api/resumes`                               | Clerk | Get all user resumes (personal + org-authorized) |
+| `POST`   | `/api/resumes`                               | Clerk | Create a new resume (personal or org-scoped)     |
+| `GET`    | `/api/resumes/:id`                           | Clerk | Get resume details (ownership or org visibility) |
+| `PUT`    | `/api/resumes/:id`                           | Clerk | Update resume (owner, admin, or editor in org)   |
+| `DELETE` | `/api/resumes/:id`                           | Clerk | Delete resume (owner or org admin)               |
+| `GET`    | `/api/resumes/:id/pdf`                       | Clerk | Synchronous PDF download (returns PDF binary)    |
+| `POST`   | `/api/resumes/:id/pdf/queue`                 | Clerk | Enqueue async PDF generation via BullMQ          |
+| `GET`    | `/api/resumes/:id/pdf/queue/:jobId`          | Clerk | Poll async PDF job progress                      |
+| `GET`    | `/api/resumes/:id/pdf/queue/:jobId/download` | Clerk | Download completed async PDF                     |
+| `POST`   | `/api/resumes/:id/email`                     | Clerk | Email PDF via Brevo                              |
+| `PATCH`  | `/api/resumes/:id/visibility`                | Clerk | Toggle public visibility + generate shareId      |
 
 ### **AI Services (`/api/ai` & `/api/agents`)**
 
