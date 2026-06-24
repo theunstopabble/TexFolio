@@ -90,7 +90,7 @@ const CreateResume = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Left Column: Form */}
         <div className="space-y-6">
-          <form className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-6">
             <ResumeFormSteps
               currentStep={currentStep}
               formMethods={formMethods}
@@ -125,7 +125,7 @@ const CreateResume = () => {
                     type="button"
                     onClick={onSubmit}
                     disabled={loading}
-                    className="btn btn-primary px-8 bg-green-600 hover:bg-green-700"
+                    className="btn btn-success px-8"
                   >
                     {loading ? "Generating..." : "✨ Generate Resume"}
                   </button>
@@ -136,7 +136,7 @@ const CreateResume = () => {
         </div>
 
         {/* Right Column: Live Preview (Sticky) */}
-        <div className="hidden lg:block sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700">
+        <div className="hidden lg:block sticky top-20 h-[calc(100vh-6rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700">
           <div className="flex justify-between items-center mb-4 text-white">
             <h3 className="font-bold text-lg flex items-center gap-2">
               👀 Live Preview

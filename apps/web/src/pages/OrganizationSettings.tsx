@@ -39,9 +39,9 @@ export default function OrganizationSettingsPage() {
 
   useEffect(() => {
     if (!id) return;
-    organizationApi
-      .getById(id)
-      .then((res) => {
+    const fetchOrg = async () => {
+      try {
+        const res = await organizationApi.getById(id);
         if (res.data.success) {
           const data = res.data.data as OrgDetail;
           setOrg(data);
@@ -51,8 +51,13 @@ export default function OrganizationSettingsPage() {
           setEnforceCompanyFont(data.settings?.enforceCompanyFont || false);
           setDisableAI(data.settings?.disableAI || false);
         }
-      })
-      .finally(() => setLoading(false));
+      } catch {
+        // handled by interceptor
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrg();
   }, [id]);
 
   const handleSave = async () => {
@@ -209,7 +214,7 @@ export default function OrganizationSettingsPage() {
           <button
             onClick={handleSave}
             disabled={saving || !isOwner}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 w-full sm:w-auto"
+            className="btn btn-primary flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <Save className="w-4 h-4" />
             {saving ? "Saving..." : "Save Changes"}
@@ -218,7 +223,7 @@ export default function OrganizationSettingsPage() {
           {isOwner && (
             <button
               onClick={handleDelete}
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 w-full sm:w-auto"
+              className="btn btn-secondary flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 border-red-300 w-full sm:w-auto"
             >
               <Trash2 className="w-4 h-4" />
               Delete Organization

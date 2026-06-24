@@ -72,12 +72,13 @@ export const ResumeFormSections = ({
           </h2>
           <div className="space-y-6">
             <div>
-              <label className="form-label block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="resumeTitle" className="form-label block text-sm font-medium text-slate-700 mb-1">
                 Resume Title
               </label>
               <input
+                id="resumeTitle"
                 {...register("title", { required: true })}
-                className="form-input w-full p-2 border rounded-lg"
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="e.g. Software Engineer Resume"
               />
             </div>
@@ -177,36 +178,60 @@ export const ResumeFormSections = ({
             👤 Personal Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              {...register("personalInfo.fullName")}
-              className="form-input p-2 border rounded"
-              placeholder="Full Name"
-            />
-            <input
-              {...register("personalInfo.email")}
-              className="form-input p-2 border rounded"
-              placeholder="Email"
-            />
-            <input
-              {...register("personalInfo.phone")}
-              className="form-input p-2 border rounded"
-              placeholder="Phone"
-            />
-            <input
-              {...register("personalInfo.location")}
-              className="form-input p-2 border rounded"
-              placeholder="Location"
-            />
-            <input
-              {...register("personalInfo.linkedin")}
-              className="form-input p-2 border rounded"
-              placeholder="LinkedIn URL"
-            />
-            <input
-              {...register("personalInfo.github")}
-              className="form-input p-2 border rounded"
-              placeholder="GitHub URL"
-            />
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+              <input
+                id="fullName"
+                {...register("personalInfo.fullName")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g. John Doe"
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <input
+                id="email"
+                {...register("personalInfo.email")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g. john@example.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <input
+                id="phone"
+                {...register("personalInfo.phone")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g. +1 555-1234"
+              />
+            </div>
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-slate-700 mb-1">Location</label>
+              <input
+                id="location"
+                {...register("personalInfo.location")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="e.g. San Francisco, CA"
+              />
+            </div>
+            <div>
+              <label htmlFor="linkedin" className="block text-sm font-medium text-slate-700 mb-1">LinkedIn URL</label>
+              <input
+                id="linkedin"
+                {...register("personalInfo.linkedin")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://linkedin.com/in/..."
+              />
+            </div>
+            <div>
+              <label htmlFor="github" className="block text-sm font-medium text-slate-700 mb-1">GitHub URL</label>
+              <input
+                id="github"
+                {...register("personalInfo.github")}
+                className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://github.com/..."
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -225,9 +250,11 @@ export const ResumeFormSections = ({
           originalText={watch("summary")}
           onResult={(text) => setValue("summary", text, { shouldDirty: true })}
         />
+        <label htmlFor="summary" className="sr-only">Professional Summary</label>
         <textarea
+          id="summary"
           {...register("summary")}
-          className="form-input w-full p-3 border rounded min-h-[150px]"
+          className="form-input w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[150px]"
           placeholder="Write a brief professional summary..."
         />
       </div>
@@ -277,40 +304,61 @@ export const ResumeFormSections = ({
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <input
-                  {...register(`experience.${index}.company`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Company"
-                />
-                <input
-                  {...register(`experience.${index}.position`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Position"
-                />
-                <input
-                  {...register(`experience.${index}.location`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Location"
-                />
-                <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label htmlFor={`exp-company-${index}`} className="sr-only">Company</label>
                   <input
-                    {...register(`experience.${index}.startDate`)}
-                    className="form-input p-2 border rounded"
-                    placeholder="Start Date"
-                  />
-                  <input
-                    {...register(`experience.${index}.endDate`)}
-                    className="form-input p-2 border rounded"
-                    placeholder="End Date"
+                    id={`exp-company-${index}`}
+                    {...register(`experience.${index}.company`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Company"
                   />
                 </div>
+                <div>
+                  <label htmlFor={`exp-position-${index}`} className="sr-only">Position</label>
+                  <input
+                    id={`exp-position-${index}`}
+                    {...register(`experience.${index}.position`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Position"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`exp-location-${index}`} className="sr-only">Location</label>
+                  <input
+                    id={`exp-location-${index}`}
+                    {...register(`experience.${index}.location`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Location"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label htmlFor={`exp-start-${index}`} className="sr-only">Start Date</label>
+                    <input
+                      id={`exp-start-${index}`}
+                      {...register(`experience.${index}.startDate`)}
+                      className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Start Date"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor={`exp-end-${index}`} className="sr-only">End Date</label>
+                    <input
+                      id={`exp-end-${index}`}
+                      {...register(`experience.${index}.endDate`)}
+                      className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="End Date"
+                    />
+                  </div>
+                </div>
               </div>
-              {/* Note: We handle array-string conversion in hook onSubmit, here we bind to unknown for simplicity but better to manage as text */}
+              <label htmlFor={`exp-desc-${index}`} className="sr-only">Description</label>
               <textarea
+                id={`exp-desc-${index}`}
                 {...register(
                   `experience.${index}.description` as `experience.${number}.description`,
                 )}
-                className="form-input w-full p-2 border rounded h-24"
+                className="form-input w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
                 placeholder="Description (bullets will be split by new line)"
               />
             </div>
@@ -368,36 +416,60 @@ export const ResumeFormSections = ({
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <input
-                  {...register(`education.${index}.institution`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Institution"
-                />
-                <input
-                  {...register(`education.${index}.degree`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Degree"
-                />
-                <input
-                  {...register(`education.${index}.field`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Field of Study"
-                />
-                <input
-                  {...register(`education.${index}.location`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Location"
-                />
-                <input
-                  {...register(`education.${index}.startDate`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Start Date"
-                />
-                <input
-                  {...register(`education.${index}.endDate`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="End Date"
-                />
+                <div>
+                  <label htmlFor={`edu-institution-${index}`} className="sr-only">Institution</label>
+                  <input
+                    id={`edu-institution-${index}`}
+                    {...register(`education.${index}.institution`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Institution"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`edu-degree-${index}`} className="sr-only">Degree</label>
+                  <input
+                    id={`edu-degree-${index}`}
+                    {...register(`education.${index}.degree`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Degree"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`edu-field-${index}`} className="sr-only">Field of Study</label>
+                  <input
+                    id={`edu-field-${index}`}
+                    {...register(`education.${index}.field`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Field of Study"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`edu-location-${index}`} className="sr-only">Location</label>
+                  <input
+                    id={`edu-location-${index}`}
+                    {...register(`education.${index}.location`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Location"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`edu-start-${index}`} className="sr-only">Start Date</label>
+                  <input
+                    id={`edu-start-${index}`}
+                    {...register(`education.${index}.startDate`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Start Date"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`edu-end-${index}`} className="sr-only">End Date</label>
+                  <input
+                    id={`edu-end-${index}`}
+                    {...register(`education.${index}.endDate`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="End Date"
+                  />
+                </div>
               </div>
             </div>
           ))}
@@ -445,18 +517,26 @@ export const ResumeFormSections = ({
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input
-                  {...register(`skills.${index}.category`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Category (e.g. Languages)"
-                />
-                <input
-                  {...register(
-                    `skills.${index}.skills` as `skills.${number}.skills`
-                  )}
-                  className="form-input p-2 border rounded"
-                  placeholder="Skills (comma separated)"
-                />
+                <div>
+                  <label htmlFor={`skill-cat-${index}`} className="sr-only">Category</label>
+                  <input
+                    id={`skill-cat-${index}`}
+                    {...register(`skills.${index}.category`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Category (e.g. Languages)"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`skill-list-${index}`} className="sr-only">Skills</label>
+                  <input
+                    id={`skill-list-${index}`}
+                    {...register(
+                      `skills.${index}.skills` as `skills.${number}.skills`
+                    )}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Skills (comma separated)"
+                  />
+                </div>
               </div>
             </div>
           ))}
@@ -506,32 +586,50 @@ export const ResumeFormSections = ({
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <input
-                  {...register(`projects.${index}.name`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Project Name"
-                />
-                <input
-                  {...register(
-                    `projects.${index}.technologies` as `projects.${number}.technologies`
-                  )}
-                  className="form-input p-2 border rounded"
-                  placeholder="Technologies (comma separated)"
-                />
-                <input
-                  {...register(`projects.${index}.sourceCode`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Source Code URL"
-                />
-                <input
-                  {...register(`projects.${index}.liveUrl`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Live Demo URL"
-                />
+                <div>
+                  <label htmlFor={`proj-name-${index}`} className="sr-only">Project Name</label>
+                  <input
+                    id={`proj-name-${index}`}
+                    {...register(`projects.${index}.name`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Project Name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`proj-tech-${index}`} className="sr-only">Technologies</label>
+                  <input
+                    id={`proj-tech-${index}`}
+                    {...register(
+                      `projects.${index}.technologies` as `projects.${number}.technologies`
+                    )}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Technologies (comma separated)"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`proj-source-${index}`} className="sr-only">Source Code URL</label>
+                  <input
+                    id={`proj-source-${index}`}
+                    {...register(`projects.${index}.sourceCode`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Source Code URL"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`proj-live-${index}`} className="sr-only">Live Demo URL</label>
+                  <input
+                    id={`proj-live-${index}`}
+                    {...register(`projects.${index}.liveUrl`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Live Demo URL"
+                  />
+                </div>
               </div>
+              <label htmlFor={`proj-desc-${index}`} className="sr-only">Project Description</label>
               <textarea
+                id={`proj-desc-${index}`}
                 {...register(`projects.${index}.description`)}
-                className="form-input w-full p-2 border rounded h-20"
+                className="form-input w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-20"
                 placeholder="Project Description"
               />
             </div>
@@ -580,16 +678,24 @@ export const ResumeFormSections = ({
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input
-                  {...register(`certifications.${index}.name`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Certification Name"
-                />
-                <input
-                  {...register(`certifications.${index}.issuer`)}
-                  className="form-input p-2 border rounded"
-                  placeholder="Issuer Organization"
-                />
+                <div>
+                  <label htmlFor={`cert-name-${index}`} className="sr-only">Certification Name</label>
+                  <input
+                    id={`cert-name-${index}`}
+                    {...register(`certifications.${index}.name`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Certification Name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`cert-issuer-${index}`} className="sr-only">Issuer</label>
+                  <input
+                    id={`cert-issuer-${index}`}
+                    {...register(`certifications.${index}.issuer`)}
+                    className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Issuer Organization"
+                  />
+                </div>
               </div>
             </div>
           ))}

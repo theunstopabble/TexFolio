@@ -47,7 +47,7 @@ const OrganizationSection = () => {
             </div>
             <Link
               to="/organizations"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium w-full sm:w-auto justify-center"
+              className="btn btn-primary w-full sm:w-auto justify-center"
             >
               <Plus className="w-4 h-4" />
               Create Org
@@ -125,7 +125,9 @@ const Dashboard = () => {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center min-h-[60vh] flex items-center justify-center">
         <div>
-          <div className="text-4xl animate-spin mb-4">⏳</div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900 mx-auto mb-4" role="status">
+            <span className="sr-only">Loading</span>
+          </div>
           <p className="text-slate-600 text-sm sm:text-base">Loading your analytics...</p>
         </div>
       </div>
@@ -330,6 +332,7 @@ const Dashboard = () => {
                   disabled={isSendingEmail}
                   className="w-8 sm:w-10 btn btn-secondary text-xs sm:text-sm py-2 flex items-center justify-center shrink-0"
                   title="Email to Me"
+                  aria-label="Email this resume to me"
                 >
                   📧
                 </button>

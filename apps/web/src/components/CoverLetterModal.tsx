@@ -112,10 +112,11 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="cl-job-title" className="block text-sm font-medium text-slate-700 mb-1">
                           Job Title (Optional)
                         </label>
                         <input
+                          id="cl-job-title"
                           type="text"
                           className="form-input w-full"
                           placeholder="e.g. Frontend Developer"
@@ -124,10 +125,11 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label htmlFor="cl-company" className="block text-sm font-medium text-slate-700 mb-1">
                           Company (Optional)
                         </label>
                         <input
+                          id="cl-company"
                           type="text"
                           className="form-input w-full"
                           placeholder="e.g. Google"
@@ -138,10 +140,11 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                      <label htmlFor="cl-job-desc" className="block text-sm font-medium text-slate-700 mb-1">
                         Job Description <span className="text-red-500">*</span>
                       </label>
                       <textarea
+                        id="cl-job-desc"
                         className="form-input w-full min-h-[150px]"
                         placeholder="Paste the full job description here..."
                         value={jobDescription}
@@ -153,7 +156,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                       <button
                         onClick={handleGenerate}
                         disabled={loading}
-                        className="btn bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
+                        className="btn btn-primary w-full sm:w-auto"
                       >
                         {loading ? (
                           <span className="flex items-center gap-2">

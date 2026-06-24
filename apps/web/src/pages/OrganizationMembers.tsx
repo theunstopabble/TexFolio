@@ -17,9 +17,9 @@ interface Member {
 export default function OrganizationMembersPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const activeRole = useOrganizationStore((s) =>
-    s.organizations.find((o) => o.organization._id === id)?.role ?? null
-  );
+  const orgs = useOrganizationStore((s) => s.organizations);
+  const activeRole = orgs.find((o) => o.organization._id === id)?.role ?? null;
+  const ownerId = orgs.find((o) => o.organization._id === id)?.organization.ownerId ?? null;
 
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,7 +119,7 @@ export default function OrganizationMembersPage() {
         {canAdmin(activeRole) && (
           <button
             onClick={() => setInviting(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto justify-center"
+            className="btn btn-primary w-full sm:w-auto flex items-center gap-2 justify-center"
           >
             <UserPlus className="w-4 h-4" />
             Invite Member
@@ -137,15 +137,21 @@ export default function OrganizationMembersPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 User ID
+                <span className="ml-1 inline-flex items-center gap-1 text-xs text-slate-400 cursor-help" title="Ask the user to copy their User ID from their Profile page in Settings.">
+                  ⓘ
+                </span>
               </label>
               <input
                 type="text"
                 value={inviteUserId}
                 onChange={(e) => setInviteUserId(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="user_..."
+                placeholder="e.g. user_2aBcDeFgHiJkLmN"
                 required
               />
+              <p className="mt-1 text-xs text-slate-400">
+                Ask the user to copy this from their Profile page (Settings → Profile → User ID).
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -165,14 +171,14 @@ export default function OrganizationMembersPage() {
           <div className="flex gap-3">
             <button
               type="submit"
-              className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="btn btn-primary flex-1 sm:flex-none"
             >
               Send Invite
             </button>
             <button
               type="button"
               onClick={() => setInviting(false)}
-              className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50"
+              className="btn btn-secondary flex-1 sm:flex-none"
             >
               Cancel
             </button>
@@ -224,7 +230,7 @@ export default function OrganizationMembersPage() {
                 )}
                 {canAdmin(activeRole) &&
                   member.role !== "owner" &&
-                  member.userId !== useOrganizationStore.getState().organizations.find((o) => o.organization._id === id)?.organization.ownerId && (
+                  member.userId !== ownerId && (
                   <button
                     onClick={() => handleRemove(member.userId)}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0"

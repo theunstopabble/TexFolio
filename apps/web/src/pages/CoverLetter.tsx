@@ -76,8 +76,10 @@ const CoverLetter = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl animate-pulse">Loading...</div>
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900" role="status">
+          <span className="sr-only">Loading</span>
+        </div>
       </div>
     );
   }
@@ -98,13 +100,15 @@ const CoverLetter = () => {
         {/* Input Section */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label htmlFor="resume-select" className="block text-sm font-medium text-slate-700 mb-2">
               Select Your Resume
             </label>
             <select
+              id="resume-select"
               value={selectedResumeId}
               onChange={(e) => setSelectedResumeId(e.target.value)}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              aria-label="Select your resume"
             >
               {resumes.map((resume) => (
                 <option key={resume._id} value={resume._id}>
@@ -120,14 +124,16 @@ const CoverLetter = () => {
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label htmlFor="job-description" className="block text-sm font-medium text-slate-700 mb-2">
               Job Description
             </label>
             <textarea
+              id="job-description"
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Paste the job requirements here..."
               className="w-full h-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              aria-label="Job description text"
             />
           </div>
 
@@ -165,6 +171,7 @@ const CoverLetter = () => {
               value={generatedLetter}
               onChange={(e) => setGeneratedLetter(e.target.value)}
               className="flex-1 w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-serif text-slate-700 leading-relaxed bg-slate-50"
+              aria-label="Generated cover letter"
             />
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">

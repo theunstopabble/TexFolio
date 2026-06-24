@@ -170,7 +170,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                 <div className="mt-6 flex justify-end">
                   <button
                     type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    className="btn btn-primary"
                     onClick={onClose}
                   >
                     Got it, thanks!

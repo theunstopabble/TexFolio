@@ -56,3 +56,9 @@ apps/api/temp/
 PROJECT_STATUS.md
 
 .windsurf/
+AGENTS.md
+graphify-out
+.graphifyignore
+audit-findings.json
+.opencode
+

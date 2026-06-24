@@ -70,7 +70,7 @@ export default function OrganizationsPage() {
         </h1>
         <button
           onClick={() => setIsCreating(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto justify-center"
+          className="btn btn-primary w-full sm:w-auto flex items-center gap-2 justify-center"
         >
           <Plus className="w-4 h-4" />
           Create Organization
@@ -130,14 +130,14 @@ export default function OrganizationsPage() {
           <div className="flex gap-3">
             <button
               type="submit"
-              className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="btn btn-primary flex-1 sm:flex-none"
             >
               Create
             </button>
             <button
               type="button"
               onClick={() => setIsCreating(false)}
-              className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              className="btn btn-secondary flex-1 sm:flex-none"
             >
               Cancel
             </button>
@@ -156,7 +156,7 @@ export default function OrganizationsPage() {
           </p>
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
+            className="btn btn-primary w-full sm:w-auto"
           >
             Create Organization
           </button>
@@ -204,7 +204,7 @@ export default function OrganizationsPage() {
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleSelect(organization._id)}
-                  className="flex-1 sm:flex-none px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                  className="flex-1 sm:flex-none text-sm btn btn-secondary"
                 >
                   Switch
                 </button>

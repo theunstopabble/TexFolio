@@ -123,7 +123,7 @@ export const useResumeEditor = () => {
           ...e,
           description:
             typeof e.description === "string"
-              ? (e.description as unknown as string)
+              ? e.description
                   .split("\n")
                   .filter((d) => d.trim())
               : e.description,
@@ -132,7 +132,7 @@ export const useResumeEditor = () => {
           category: s.category,
           skills:
             typeof s.skills === "string"
-              ? (s.skills as unknown as string)
+              ? s.skills
                   .split(",")
                   .map((sk) => sk.trim())
               : s.skills,
@@ -141,7 +141,7 @@ export const useResumeEditor = () => {
           ...p,
           technologies:
             typeof p.technologies === "string"
-              ? (p.technologies as unknown as string)
+              ? p.technologies
                   .split(",")
                   .map((t) => t.trim())
               : p.technologies,
@@ -196,8 +196,7 @@ export const useResumeEditor = () => {
       setAtsLoading(true);
       setAtsModalOpen(true);
       const data = watch();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _id, ...cleanData } = data as unknown as {
+      const { _id: _unused, ...cleanData } = data as unknown as {
         _id?: string;
       } & ResumeFormData;
       const res = await aiApi.checkATSScore({ resumeData: cleanData });

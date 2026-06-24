@@ -72,7 +72,9 @@ const EditResume = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl animate-spin mb-4">⏳</div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900 mx-auto mb-4" role="status">
+            <span className="sr-only">Loading</span>
+          </div>
           <p className="text-slate-600">Loading resume...</p>
         </div>
       </div>
@@ -102,7 +104,7 @@ const EditResume = () => {
           <button
             type="button"
             onClick={() => setShareModalOpen(true)}
-            className="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            className="btn btn-primary flex items-center gap-2"
           >
             <span>🔗</span> Share
           </button>
@@ -144,20 +146,26 @@ const EditResume = () => {
         ))}
       </div>
 
-      {/* Mobile Tab Toggle */}
-      <div className="lg:hidden flex mb-6 bg-slate-100 p-1 rounded-lg">
-        <button
-          onClick={() => setActiveTab("editor")}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "editor" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-        >
-          ✏️ Editor
-        </button>
-        <button
-          onClick={() => setActiveTab("preview")}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-        >
-          👀 Preview
-        </button>
+      {/* Mobile Tab Toggle + Step Indicator */}
+      <div className="lg:hidden space-y-3 mb-6">
+        <div className="flex bg-slate-100 p-1 rounded-lg">
+          <button
+            onClick={() => setActiveTab("editor")}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "editor" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+          >
+            ✏️ Editor
+          </button>
+          <button
+            onClick={() => setActiveTab("preview")}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+          >
+            👀 Preview
+          </button>
+        </div>
+        <div className="flex justify-between items-center text-sm font-medium text-slate-600 bg-slate-100 p-3 rounded-lg">
+          <span>Step {activeStep + 1} of {steps.length}</span>
+          <span className="text-purple-600">{steps[activeStep].title}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -205,13 +213,11 @@ const EditResume = () => {
 
               <div className="flex gap-3">
                 <button
-                  type="button" // Change to button type to prevent submit, unless last step intended to save
+                  type="button"
                   onClick={() => {
-                    // Auto-save on next? Or just navigate?
-                    // For now just navigate, user explicitly saves.
                     if (activeStep < steps.length - 1) nextStep();
                   }}
-                  className={`btn btn-primary px-6 ${activeStep === steps.length - 1 ? "hidden" : ""}`}
+                  className={`btn btn-primary px-6 ${activeStep === steps.length - 1 ? "invisible" : ""}`}
                 >
                   Next →
                 </button>
@@ -219,7 +225,7 @@ const EditResume = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="btn bg-green-600 hover:bg-green-700 text-white px-8"
+                  className="btn btn-success px-8"
                 >
                   {saving ? "⏳ Saving..." : "💾 Save Changes"}
                 </button>
@@ -230,7 +236,7 @@ const EditResume = () => {
 
         {/* Right Column: Live Preview (Sticky) */}
         <div
-          className={`${activeTab === "editor" ? "hidden lg:block" : "block"} lg:sticky lg:top-24 h-[calc(100vh-8rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700`}
+          className={`${activeTab === "editor" ? "hidden lg:block" : "block"} lg:sticky lg:top-20 h-[calc(100vh-6rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700`}
         >
           <div className="flex justify-between items-center mb-4 text-white">
             <h3 className="font-bold text-lg flex items-center gap-2">

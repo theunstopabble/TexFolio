@@ -76,7 +76,7 @@ export default function OrganizationDetailPage() {
         <p className="text-slate-600">Organization not found.</p>
         <button
           onClick={() => navigate("/organizations")}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="btn btn-primary mt-4"
         >
           Back to Organizations
         </button>
@@ -122,7 +122,7 @@ export default function OrganizationDetailPage() {
           <div className="flex gap-2 w-full sm:w-auto justify-end">
             <button
               onClick={() => navigate(`/organizations/${id}/members`)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 text-sm sm:text-base"
+              className="btn btn-secondary flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               <Users className="w-4 h-4" />
               Members
@@ -130,7 +130,7 @@ export default function OrganizationDetailPage() {
             {canAdmin(activeRole) && (
               <button
                 onClick={() => navigate(`/organizations/${id}/settings`)}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 text-sm sm:text-base"
+                className="btn btn-secondary flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 <Settings className="w-4 h-4" />
                 Settings
