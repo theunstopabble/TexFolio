@@ -3,7 +3,6 @@ import { useAuth } from "../hooks/useAuth";
 import SeoMeta from "../components/SeoMeta";
 import {
   websiteSchema,
-  webAppSchema,
   organizationSchema,
   faqSchema,
   personSchema,
@@ -64,7 +63,6 @@ const HomePage = () => {
         canonicalUrl="https://texfolio.vercel.app/"
         jsonLd={[
           websiteSchema,
-          webAppSchema,
           organizationSchema,
           personSchema(),
           faqSchema(faqItems),
