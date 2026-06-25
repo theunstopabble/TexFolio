@@ -1,6 +1,6 @@
 import type { UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import type { ResumeFormData } from "../../types";
-import TemplateSelector from "../../../components/TemplateSelector";
+import TemplateSelector from "../../../../components/TemplateSelector";
 
 interface BasicInfoSectionProps {
   register: UseFormRegister<ResumeFormData>;
