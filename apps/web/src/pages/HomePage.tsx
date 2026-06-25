@@ -59,7 +59,7 @@ const HomePage = () => {
     <>
       <SeoMeta
         title="AI-Powered LaTeX Resume Builder"
-        description="Build professional, ATS-friendly LaTeX resumes in minutes with AI assistance. No coding required. Powered by advanced AI and rendered in beautiful LaTeX. Used by professionals worldwide."
+        description="Build professional, ATS-friendly LaTeX resumes in minutes with AI assistance. No coding required. Beautifully rendered and optimized to get you hired."
         keywords="resume builder, AI resume, LaTeX resume, ATS friendly resume, professional resume builder, cover letter generator, resume templates, AI resume coach, free resume builder online"
         canonicalUrl="https://texfolio.vercel.app/"
         jsonLd={[

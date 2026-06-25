@@ -49,20 +49,14 @@ export const webAppSchema = {
   name: "TexFolio",
   url: BASE_URL,
   description:
-    "AI-powered LaTeX resume builder SaaS with LangGraph multi-agent resume coach, real LaTeX PDF rendering, FAANG-ready templates, and ATS analysis.",
+    "Build professional, ATS-friendly LaTeX resumes in minutes with AI assistance. Built with React 19, Hono, and LangGraph.",
   applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "INR",
-  },
+  operatingSystem: "All",
   author: {
     "@type": "Person",
     name: "Gautam Kumar",
     url: AUTHOR_URL,
   },
-  softwareVersion: "2.0.0",
 };
 
 export function faqSchema(questions: { question: string; answer: string }[]) {
