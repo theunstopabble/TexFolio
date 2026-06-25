@@ -70,6 +70,14 @@ const Header = () => {
                   <NavLink to="/dashboard">Dashboard</NavLink>
                   <NavLink to="/resumes">My Resumes</NavLink>
                   <NavLink to="/organizations">Organizations</NavLink>
+                  <a
+                    href="https://interviewminds.vercel.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 text-sm lg:text-[0.8125rem] xl:text-sm font-extrabold transition-all duration-200 px-2 py-1 lg:px-2.5 lg:py-1.5 xl:px-3.5 xl:py-2 rounded-full no-underline tracking-wide whitespace-nowrap text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50"
+                  >
+                    🎤 Practice
+                  </a>
                 </>
               )}
             </div>
@@ -229,6 +237,14 @@ const Header = () => {
                 <NavLink to="/dashboard">Dashboard</NavLink>
                 <NavLink to="/resumes">My Resumes</NavLink>
                 <NavLink to="/organizations">Organizations</NavLink>
+                <a
+                  href="https://interviewminds.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block font-extrabold px-5 py-2.5 rounded-full text-emerald-600 hover:bg-emerald-50 transition-all no-underline"
+                >
+                  🎤 Practice
+                </a>
               </div>
               <div className="border-t border-slate-100 pt-2">
                 <Link

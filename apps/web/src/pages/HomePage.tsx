@@ -14,6 +14,7 @@ const howToSteps = [
   { step: "2", title: "Fill in Your Details", desc: "Enter your experience, education, and skills. Or import your LinkedIn profile with AI parsing.", color: "bg-purple-50 text-purple-600" },
   { step: "3", title: "Optimize with AI", desc: "Use our AI coach to analyze your resume across 4 dimensions: Content, ATS, Format, and Impact.", color: "bg-green-50 text-green-600" },
   { step: "4", title: "Export as PDF", desc: "Render your resume with real LaTeX for professional-grade typography and download instantly.", color: "bg-amber-50 text-amber-600" },
+  { step: "5", title: "Practice with AI", desc: "Take your resume to InterviewMinds and practice with realistic AI mock interviews tailored to your skills and target roles.", color: "bg-emerald-50 text-emerald-600" },
 ];
 
 const faqItems = [
@@ -56,6 +57,11 @@ const faqItems = [
     question: "What templates are available?",
     answer:
       "We offer Premium (modern tech/business), Classic (traditional/academic), and FAANGPath (optimized for top tech companies) templates. Each is LaTeX-rendered, ATS-friendly, and fully customizable. More templates are coming soon.",
+  },
+  {
+    question: "Can I practice interviews after building my resume?",
+    answer:
+      "Yes! TexFolio integrates with InterviewMinds — an AI-powered mock interview platform. Once your resume is ready, you can practice with realistic AI interviews tailored to your skills and target roles. It's the perfect next step in your job preparation journey.",
   },
 ];
 
@@ -119,6 +125,14 @@ const HomePage = () => {
               >
                 View Templates
               </Link>
+              <a
+                href="https://interviewminds.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-bold text-lg hover:from-emerald-400 hover:to-teal-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+              >
+                🎤 Practice with AI
+              </a>
             </div>
           </div>
         </div>
