@@ -59,6 +59,22 @@ export const webAppSchema = {
   },
 };
 
+export function howToSchema(steps: { step: string; title: string; desc: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "How to Build a Resume with TexFolio",
+    description:
+      "Build a standout resume in four simple steps with TexFolio's AI-powered platform.",
+    step: steps.map((s) => ({
+      "@type": "HowToStep",
+      position: parseInt(s.step),
+      name: s.title,
+      text: s.desc,
+    })),
+  };
+}
+
 export function faqSchema(questions: { question: string; answer: string }[]) {
   return {
     "@context": "https://schema.org",

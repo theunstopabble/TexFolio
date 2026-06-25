@@ -55,7 +55,7 @@ const Pricing = () => {
   return (
     <>
       <SeoMeta
-        title="Pricing"
+        title="Pricing - AI-Powered LaTeX Resume Builder"
         description="TexFolio pricing - Start for free, upgrade to Pro for ₹499/lifetime. Unlimited resumes, AI coach analysis, cover letter generator, premium FAANG templates, and more."
         keywords="resume builder pricing, free resume builder, pro resume builder, AI resume pricing, LaTeX resume cost"
         canonicalUrl="https://texfolio.vercel.app/pricing"

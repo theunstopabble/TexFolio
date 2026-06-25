@@ -5,8 +5,16 @@ import {
   websiteSchema,
   organizationSchema,
   faqSchema,
+  howToSchema,
   personSchema,
 } from "../lib/structuredData";
+
+const howToSteps = [
+  { step: "1", title: "Choose a Template", desc: "Select from FAANG-ready, Premium, or Classic LaTeX templates optimized for ATS compatibility.", color: "bg-blue-50 text-blue-600" },
+  { step: "2", title: "Fill in Your Details", desc: "Enter your experience, education, and skills. Or import your LinkedIn profile with AI parsing.", color: "bg-purple-50 text-purple-600" },
+  { step: "3", title: "Optimize with AI", desc: "Use our AI coach to analyze your resume across 4 dimensions: Content, ATS, Format, and Impact.", color: "bg-green-50 text-green-600" },
+  { step: "4", title: "Export as PDF", desc: "Render your resume with real LaTeX for professional-grade typography and download instantly.", color: "bg-amber-50 text-amber-600" },
+];
 
 const faqItems = [
   {
@@ -65,6 +73,7 @@ const HomePage = () => {
           websiteSchema,
           organizationSchema,
           personSchema(),
+          howToSchema(howToSteps),
           faqSchema(faqItems),
         ]}
       />
@@ -128,32 +137,7 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Choose a Template",
-                  desc: "Select from FAANG-ready, Premium, or Classic LaTeX templates optimized for ATS compatibility.",
-                  color: "bg-blue-50 text-blue-600",
-                },
-                {
-                  step: "2",
-                  title: "Fill in Your Details",
-                  desc: "Enter your experience, education, and skills. Or import your LinkedIn profile with AI parsing.",
-                  color: "bg-purple-50 text-purple-600",
-                },
-                {
-                  step: "3",
-                  title: "Optimize with AI",
-                  desc: "Use our AI coach to analyze your resume across 4 dimensions: Content, ATS, Format, and Impact.",
-                  color: "bg-green-50 text-green-600",
-                },
-                {
-                  step: "4",
-                  title: "Export as PDF",
-                  desc: "Render your resume with real LaTeX for professional-grade typography and download instantly.",
-                  color: "bg-amber-50 text-amber-600",
-                },
-              ].map((item) => (
+              {howToSteps.map((item) => (
                 <div
                   key={item.step}
                   className="text-center p-6 rounded-2xl border border-slate-100 bg-white shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"

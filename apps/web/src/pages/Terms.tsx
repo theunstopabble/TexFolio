@@ -5,7 +5,7 @@ const Terms = () => {
   return (
     <>
       <SeoMeta
-        title="Terms of Service"
+        title="Terms of Service - Usage Terms & Policies"
         description="TexFolio Terms of Service - Read the terms and conditions for using our AI-powered LaTeX resume builder platform."
         canonicalUrl="https://texfolio.vercel.app/terms"
         keywords="terms of service, terms and conditions, resume builder terms"

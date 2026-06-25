@@ -5,7 +5,7 @@ const Privacy = () => {
   return (
     <>
       <SeoMeta
-        title="Privacy Policy"
+        title="Privacy Policy - Data Protection & GDPR"
         description="TexFolio Privacy Policy - Learn how we collect, use, and protect your personal data when you use our AI-powered LaTeX resume builder."
         canonicalUrl="https://texfolio.vercel.app/privacy"
         keywords="privacy policy, data protection, GDPR, resume builder privacy"

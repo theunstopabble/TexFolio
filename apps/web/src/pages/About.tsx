@@ -5,8 +5,8 @@ const About = () => {
   return (
     <>
       <SeoMeta
-        title="About"
-        description="Learn about TexFolio - the AI-powered LaTeX resume builder built by Gautam Kumar. Our mission is to help professionals create standout resumes using AI and LaTeX precision."
+        title="About TexFolio - AI-Powered LaTeX Resume Builder"
+        description="Learn about TexFolio - the AI-powered LaTeX resume builder by Gautam Kumar. Helping professionals create standout resumes with AI and LaTeX precision."
         canonicalUrl="https://texfolio.vercel.app/about"
         keywords="about texfolio, AI resume builder, gautam kumar, latex resume, resume builder team"
         jsonLd={[personSchema(), organizationSchema]}
