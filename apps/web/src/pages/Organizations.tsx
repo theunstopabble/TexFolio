@@ -39,7 +39,7 @@ export default function OrganizationsPage() {
         navigate(`/organizations/${res.data.data._id}`);
       }
     } catch {
-      // error handled by interceptor
+      toast.error("Failed to create organization");
     }
   };
 

@@ -253,21 +253,17 @@ export const generatePDF = async (
 
   // Apply org branding overrides before transforming
   const brandedResume = { ...resume };
-  if (orgBranding?.primaryColor) {
+  if (orgBranding?.primaryColor || orgBranding?.enforceCompanyFont) {
     brandedResume.customization = {
+      primaryColor: "#2563EB",
       ...brandedResume.customization,
-      primaryColor: orgBranding.primaryColor,
+      ...(orgBranding?.primaryColor && { primaryColor: orgBranding.primaryColor }),
+      ...(orgBranding?.enforceCompanyFont && { fontFamily: "sans" as const }),
     };
-  }
-  if (orgBranding?.enforceCompanyFont) {
-    brandedResume.customization = {
-      ...brandedResume.customization,
-      fontFamily: "sans",
-    } as any;
   }
 
   // Transform data and render template
-  const data = transformResumeData(brandedResume as unknown as IResume);
+  const data = transformResumeData(brandedResume as IResume);
   console.log(`Template: ${template_id}, Sections: ${JSON.stringify(data.DYNAMIC_SECTIONS?.length || 0)} sections, Name: ${data.FULL_NAME}`);
   const renderedLatex = Mustache.render(template, data, {}, ["<<", ">>"]);
   console.log(`Rendered LaTeX length: ${renderedLatex.length} chars`);

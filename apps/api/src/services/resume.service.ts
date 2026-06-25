@@ -173,8 +173,8 @@ export class ResumeService {
       throw new Error("Resume not found");
     }
     // Convert Mongoose document to plain object to ensure all fields are accessible
-    const resumePlain = resume.toObject({ getters: false, virtuals: false });
-    return await generatePdfService(resumePlain as unknown as IResume);
+    const resumePlain = resume.toObject({ getters: false, virtuals: false }) as IResume;
+    return await generatePdfService(resumePlain);
   }
 }
 

@@ -70,17 +70,13 @@ const linkedInSchema = z.object({
 const MAX_TEXT_LENGTH = 50000;
 
 export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
-  console.log("🚀 Starting LinkedIn PDF Parse...");
   try {
-    // 1. Extract raw text from PDF
-    console.log("📄 Step 1: Parsing PDF buffer...");
     let rawText = "";
     try {
       const data = await pdf(pdfBuffer);
       rawText = data.text;
-      console.log("✅ PDF Parsed. Text length:", rawText?.length);
     } catch (pdfError) {
-      console.error("❌ Step 1 Failed: PDF extraction error", pdfError);
+      console.error("PDF extraction error", pdfError);
       throw new Error("Failed to extract text from PDF");
     }
 
@@ -88,24 +84,18 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
       throw new Error("PDF appears to be empty or unreadable");
     }
 
-    // Truncate text to prevent prompt injection via massive input
     if (rawText.length > MAX_TEXT_LENGTH) {
       console.warn(
-        `⚠️ PDF text truncated from ${rawText.length} to ${MAX_TEXT_LENGTH} chars`,
+        `PDF text truncated from ${rawText.length} to ${MAX_TEXT_LENGTH} chars`,
       );
       rawText = rawText.substring(0, MAX_TEXT_LENGTH);
     }
 
-    // 2. Initialize Groq client
     if (!env.GROQ_API_KEY || env.GROQ_API_KEY === "your-groq-api-key") {
       throw new Error("GROQ_API_KEY is not configured. Please set a valid API key.");
     }
     
-    console.log("🤖 Step 2: Initializing Groq model...");
     const groq = new Groq({ apiKey: env.GROQ_API_KEY });
-
-    // 3. Prompt for Extraction
-    console.log("📤 Step 3: Sending to AI...");
     const systemPrompt = `
       You are an expert Resume Parser. Extract ALL structured data from this LinkedIn PDF.
       Return ONLY valid JSON (no markdown code blocks) matching this structure:
@@ -171,11 +161,7 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
       max_tokens: 4096,
     });
 
-    console.log("📥 Step 4: AI Response received");
-
-    // 4. Parse JSON Response
     let jsonString = response.choices[0]?.message?.content || "";
-    // Clean up potential markdown code blocks
     jsonString = jsonString
       .replace(/```json/g, "")
       .replace(/```/g, "")
@@ -183,18 +169,14 @@ export const parseLinkedInPdf = async (pdfBuffer: Buffer) => {
 
     try {
       const parsedData = JSON.parse(jsonString);
-
-      // Validate against schema to ensure safe output
       const validatedData = linkedInSchema.parse(parsedData);
-      console.log("✅ JSON Parsed and validated successfully");
       return validatedData;
     } catch (parseError) {
-      console.error("❌ Step 4 Failed: JSON parse/validation error", parseError);
-      console.log("Raw AI Response:", jsonString);
+      console.error("AI response parse/validation error", parseError);
       throw new Error("Failed to parse AI response");
     }
   } catch (error) {
-    console.error("❌ LinkedIn Parse Flow Error:", error);
+    console.error("LinkedIn Parse Flow Error:", error);
     throw error;
   }
 };

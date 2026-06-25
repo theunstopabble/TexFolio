@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Building2, Users, Settings, FileText, ArrowLeft, Shield } from "lucide-react";
 import { useOrganizationStore, canAdmin } from "../stores/organizationStore";
 import { organizationApi } from "../services/api";
@@ -51,7 +52,7 @@ export default function OrganizationDetailPage() {
         if (orgRes.data.success) setOrg(orgRes.data.data);
         if (resumesRes.data.success) setResumes(resumesRes.data.data);
       } catch {
-        // handled by interceptor
+        toast.error("Failed to load organization details");
       } finally {
         setLoading(false);
       }

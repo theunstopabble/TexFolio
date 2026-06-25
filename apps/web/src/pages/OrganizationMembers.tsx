@@ -34,7 +34,7 @@ export default function OrganizationMembersPage() {
       const res = await organizationApi.listMembers(id);
       if (res.data.success) setMembers(res.data.data);
     } catch {
-      // handled
+      toast.error("Failed to fetch members");
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function OrganizationMembersPage() {
         await fetchMembers();
       }
     } catch {
-      // handled
+      toast.error("Failed to invite member");
     }
   };
 
@@ -73,7 +73,7 @@ export default function OrganizationMembersPage() {
         await fetchMembers();
       }
     } catch {
-      // handled
+      toast.error("Failed to update role");
     }
   };
 
@@ -85,7 +85,7 @@ export default function OrganizationMembersPage() {
       toast.success("Member removed");
       await fetchMembers();
     } catch {
-      // handled
+      toast.error("Failed to remove member");
     }
   };
 

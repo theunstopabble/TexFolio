@@ -52,7 +52,7 @@ export default function OrganizationSettingsPage() {
           setDisableAI(data.settings?.disableAI || false);
         }
       } catch {
-        // handled by interceptor
+        toast.error("Failed to load organization");
       } finally {
         setLoading(false);
       }
@@ -79,7 +79,7 @@ export default function OrganizationSettingsPage() {
         toast.success("Organization updated");
       }
     } catch {
-      // handled
+      toast.error("Failed to update organization");
     } finally {
       setSaving(false);
     }
@@ -93,7 +93,7 @@ export default function OrganizationSettingsPage() {
       toast.success("Organization deleted");
       navigate("/organizations");
     } catch {
-      // handled
+      toast.error("Failed to delete organization");
     }
   };
 
