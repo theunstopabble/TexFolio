@@ -129,7 +129,7 @@ const HomePage = () => {
                 href="https://interviewminds.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-bold text-lg hover:from-emerald-400 hover:to-teal-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                className="hidden md:flex px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-bold text-lg hover:from-emerald-400 hover:to-teal-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
                 🎤 Practice with AI
               </a>
