@@ -307,16 +307,16 @@ App.tsx
 
 Comprehensive documentation for the TexFolio platform is available in the `docs/` directory:
 
-| Document | Description |
-|:---------|:------------|
-| [`API.md`](docs/API.md) | Complete REST API reference (37+ endpoints, auth & error patterns) |
-| [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, middleware pipeline, security & caching layers |
-| [`DB_SCHEMA.md`](docs/DB_SCHEMA.md) | 7 Mongoose models: schemas, fields, relations & ER diagram |
-| [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Production deployment: Vercel + Render + MongoDB Atlas + Cloudinary |
-| [`EDGE_CASES.md`](docs/EDGE_CASES.md) | Security & performance edge cases, graceful degradation, failure modes |
-| [`TECH_STACK.md`](docs/TECH_STACK.md) | Layer-by-layer dependency inventory: frontend, backend, DevOps |
-| [`WORKFLOW.md`](docs/WORKFLOW.md) | User journey, admin ops & delivery driver Mermaid workflows |
-| [`AI_DISCOVERABILITY_FRAMEWORKS.md`](docs/AI_DISCOVERABILITY_FRAMEWORKS.md) | AI discoverability: AEO, GEO, LLMO, AI-SEO, E-E-A-T & traditional SEO |
+| Document                                                                    | Description                                                            |
+| :-------------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| [`API.md`](docs/API.md)                                                     | Complete REST API reference (37+ endpoints, auth & error patterns)     |
+| [`ARCHITECTURE.md`](docs/ARCHITECTURE.md)                                   | System design, middleware pipeline, security & caching layers          |
+| [`DB_SCHEMA.md`](docs/DB_SCHEMA.md)                                         | 7 Mongoose models: schemas, fields, relations & ER diagram             |
+| [`DEPLOYMENT.md`](docs/DEPLOYMENT.md)                                       | Production deployment: Vercel + Render + MongoDB Atlas + Cloudinary    |
+| [`EDGE_CASES.md`](docs/EDGE_CASES.md)                                       | Security & performance edge cases, graceful degradation, failure modes |
+| [`TECH_STACK.md`](docs/TECH_STACK.md)                                       | Layer-by-layer dependency inventory: frontend, backend, DevOps         |
+| [`WORKFLOW.md`](docs/WORKFLOW.md)                                           | User journey, admin ops & delivery driver Mermaid workflows            |
+| [`AI_DISCOVERABILITY_FRAMEWORKS.md`](docs/AI_DISCOVERABILITY_FRAMEWORKS.md) | AI discoverability: AEO, GEO, LLMO, AI-SEO, E-E-A-T & traditional SEO  |
 
 ---
 
@@ -466,9 +466,9 @@ Returns a complete JSON dump containing:
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 **Author:** [Gautam Kumar](https://gautam-kr.vercel.app/)
- <a href="https://linkedin.com/in/gautamkr62" target="_blank">
-    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-  </a> 
+<a href="https://linkedin.com/in/gautamkr62" target="_blank">
+<img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+</a>
 **Website:** [Texfolio](https://texfolio.vercel.app/)
 
 ---
@@ -481,9 +481,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 🌐 More Projects by Gautam Kumar
 
-| Project | Description | Link |
-|---------|-------------|------|
-| **Portfolio** | Personal portfolio & developer profile | [gautam-kr.vercel.app](https://gautam-kr.vercel.app) |
-| **InterviewMinds** | Enterprise AI mock interview platform | [interviewminds.vercel.app](https://interviewminds.vercel.app) |
-| **SwadKart** | Multi-vendor food delivery platform with AI chatbot | [swadkart.vercel.app](https://swadkart.vercel.app) |
-| **Satark-AI** | Deepfake detection & speaker verification platform | [satark-deepfake.vercel.app](https://satark-deepfake.vercel.app) |
+| Project            | Description                                         | Link                                                             |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
+| **Portfolio**      | Personal portfolio & developer profile              | [gautam-kr.vercel.app](https://gautam-kr.vercel.app)             |
+| **InterviewMinds** | Production-grade AI Mock Interview Platform         | [interviewminds.vercel.app](https://interviewminds.vercel.app)   |
+| **SwadKart**       | Multi-vendor food delivery platform with AI chatbot | [swadkart.vercel.app](https://swadkart.vercel.app)               |
+| **Satark-AI**      | Deepfake detection & speaker verification platform  | [satark-deepfake.vercel.app](https://satark-deepfake.vercel.app) |

@@ -125,7 +125,8 @@ const Footer = () => {
               target="_blank"
               rel="noopener"
               className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
-              title="Gautam Kumar — Full-Stack Developer & AI Engineer"
+              title="Gautam Kumar — Full-Stack Developer | Solo-shipped 4 SaaS products | AI integration
+"
             >
               Gautam Kumar
             </a>

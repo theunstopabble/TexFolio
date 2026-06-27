@@ -20,6 +20,7 @@ A comprehensive documentation of the six discoverability frameworks implemented 
 ## 1. SEO — Search Engine Optimization
 
 ### Objective
+
 Maximize organic visibility on traditional search engines (Google, Bing, Yandex) through technical optimization, semantic markup, and content structuring.
 
 ### Implementation Details
@@ -28,8 +29,14 @@ Maximize organic visibility on traditional search engines (Google, Bing, Yandex)
 
 ```html
 <title>TexFolio | AI-Powered LaTeX Resume Builder</title>
-<meta name="description" content="Build professional, ATS-friendly LaTeX resumes..." />
-<meta name="keywords" content="resume builder, AI resume, LaTeX resume, ATS friendly..." />
+<meta
+  name="description"
+  content="Build professional, ATS-friendly LaTeX resumes..."
+/>
+<meta
+  name="keywords"
+  content="resume builder, AI resume, LaTeX resume, ATS friendly..."
+/>
 <meta name="author" content="Gautam Kumar" />
 <meta name="robots" content="index, follow" />
 <meta name="language" content="English" />
@@ -40,15 +47,15 @@ Maximize organic visibility on traditional search engines (Google, Bing, Yandex)
 
 A reusable `SeoMeta` component wraps `react-helmet-async` to inject page-specific meta tags at runtime:
 
-| Page | Title | Description |
-|------|-------|-------------|
-| `/` | AI-Powered LaTeX Resume Builder | Build professional, ATS-friendly LaTeX resumes... |
-| `/templates` | Resume Templates | Choose from FAANGPath, Premium, and Classic... |
-| `/pricing` | Pricing | Start for free, upgrade to Pro for ₹499/lifetime... |
-| `/about` | About | Learn about TexFolio — the AI-powered LaTeX resume builder... |
-| `/privacy` | Privacy Policy | How we collect, use, and protect your personal data... |
-| `/terms` | Terms of Service | Terms and conditions for using TexFolio... |
-| `/r/:shareId` | {Name} - Resume | Dynamic per-resume meta tags with candidate name |
+| Page          | Title                           | Description                                                   |
+| ------------- | ------------------------------- | ------------------------------------------------------------- |
+| `/`           | AI-Powered LaTeX Resume Builder | Build professional, ATS-friendly LaTeX resumes...             |
+| `/templates`  | Resume Templates                | Choose from FAANGPath, Premium, and Classic...                |
+| `/pricing`    | Pricing                         | Start for free, upgrade to Pro for ₹499/lifetime...           |
+| `/about`      | About                           | Learn about TexFolio — the AI-powered LaTeX resume builder... |
+| `/privacy`    | Privacy Policy                  | How we collect, use, and protect your personal data...        |
+| `/terms`      | Terms of Service                | Terms and conditions for using TexFolio...                    |
+| `/r/:shareId` | {Name} - Resume                 | Dynamic per-resume meta tags with candidate name              |
 
 #### 1.3 Open Graph & Twitter Cards
 
@@ -95,13 +102,20 @@ Sitemap: https://texfolio.vercel.app/sitemap.xml
 
 ```html
 <link rel="alternate" href="https://texfolio.vercel.app/" hreflang="en" />
-<link rel="alternate" href="https://texfolio.vercel.app/" hreflang="x-default" />
+<link
+  rel="alternate"
+  href="https://texfolio.vercel.app/"
+  hreflang="x-default"
+/>
 ```
 
 #### 1.7 Search Console Verification
 
 ```html
-<meta name="google-site-verification" content="N7Wz1Ta9dmB6G5JGUTIwCvHKG-7Lpf-EuF3zVkdGxKw" />
+<meta
+  name="google-site-verification"
+  content="N7Wz1Ta9dmB6G5JGUTIwCvHKG-7Lpf-EuF3zVkdGxKw"
+/>
 ```
 
 - Google Search Console: Verified and configured
@@ -109,13 +123,13 @@ Sitemap: https://texfolio.vercel.app/sitemap.xml
 
 #### 1.8 Performance Optimization
 
-| Technique | Implementation |
-|-----------|---------------|
-| Code Splitting | Vite `manualChunks` in `vite.config.ts` |
-| Lazy Loading | `React.lazy()` for all non-landing pages |
-| DNS Prefetch | `<link rel="dns-prefetch">` for Clerk and Render |
-| Bundling | Rolldown Vite with tree-shaking |
-| Caching | Vite content-hashed chunk names (`[name]-[hash].js`) |
+| Technique      | Implementation                                       |
+| -------------- | ---------------------------------------------------- |
+| Code Splitting | Vite `manualChunks` in `vite.config.ts`              |
+| Lazy Loading   | `React.lazy()` for all non-landing pages             |
+| DNS Prefetch   | `<link rel="dns-prefetch">` for Clerk and Render     |
+| Bundling       | Rolldown Vite with tree-shaking                      |
+| Caching        | Vite content-hashed chunk names (`[name]-[hash].js`) |
 
 #### 1.9 Structured Data (index.html)
 
@@ -130,6 +144,7 @@ Three inline JSON-LD blocks at the global level:
 ## 2. AEO — Answer Engine Optimization
 
 ### Objective
+
 Structure content so it can be extracted as featured snippets, "People also ask" answers, and direct answers in search engine result pages (SERPs).
 
 ### Implementation Details
@@ -158,14 +173,14 @@ export function faqSchema(questions: { question: string; answer: string }[]) {
 
 **Covered Questions:**
 
-1. *What is TexFolio and how does it work?*
-2. *Is TexFolio free to use?*
-3. *What is ATS and why does it matter?*
-4. *How does the AI resume coach work?*
-5. *What makes TexFolio different from other resume builders?*
-6. *Can I import my LinkedIn profile?*
-7. *Is my data secure and private?*
-8. *What templates are available?*
+1. _What is TexFolio and how does it work?_
+2. _Is TexFolio free to use?_
+3. _What is ATS and why does it matter?_
+4. _How does the AI resume coach work?_
+5. _What makes TexFolio different from other resume builders?_
+6. _Can I import my LinkedIn profile?_
+7. _Is my data secure and private?_
+8. _What templates are available?_
 
 #### 2.2 Visual FAQ Section
 
@@ -189,6 +204,7 @@ All FAQ answers are 1–3 sentences with direct, scannable language optimized fo
 ## 3. GEO — Generative Engine Optimization
 
 ### Objective
+
 Optimize content for citation and reference by generative AI engines (ChatGPT, Google Gemini, Perplexity, Claude) by establishing entity authority and structured relationships.
 
 ### Implementation Details
@@ -222,7 +238,8 @@ Organization
 Person
   ├── knowsAbout → React, TypeScript, LangChain, LLMs, MongoDB, LaTeX
   ├── sameAs → GitHub, LinkedIn, Portfolio
-  └── jobTitle → Full-Stack Developer & AI Engineer
+  └── jobTitle → Full-Stack Developer
+
 
 WebApplication
   ├── author → Person
@@ -255,6 +272,7 @@ These are referenced in JSON-LD `sameAs` arrays across all schema types, creatin
 ## 4. LLMO — Large Language Model Optimization
 
 ### Objective
+
 Format content and metadata so LLMs (GPT-4, Claude, Gemini) can efficiently extract, understand, and reference TexFolio in training data and inference responses.
 
 ### Implementation Details
@@ -263,15 +281,15 @@ Format content and metadata so LLMs (GPT-4, Claude, Gemini) can efficiently extr
 
 Five schema.org types provide full entity coverage:
 
-| Schema Type | Location | Purpose |
-|-------------|----------|---------|
-| `WebApplication` | `index.html` | Product description, pricing, tech stack |
-| `Organization` | `index.html` | Business entity, founder, social links |
-| `WebSite` | `index.html` | Search action enablement |
-| `Person` | `HomePage.tsx`, `PublicResume.tsx` | Author/resume owner expertise |
-| `Product` | `Pricing.tsx` | Paid tier offering |
-| `FAQPage` | `HomePage.tsx` | Question-answer pairs for training |
-| `BreadcrumbList` | `Templates.tsx`, `Pricing.tsx` | Navigation hierarchy |
+| Schema Type      | Location                           | Purpose                                  |
+| ---------------- | ---------------------------------- | ---------------------------------------- |
+| `WebApplication` | `index.html`                       | Product description, pricing, tech stack |
+| `Organization`   | `index.html`                       | Business entity, founder, social links   |
+| `WebSite`        | `index.html`                       | Search action enablement                 |
+| `Person`         | `HomePage.tsx`, `PublicResume.tsx` | Author/resume owner expertise            |
+| `Product`        | `Pricing.tsx`                      | Paid tier offering                       |
+| `FAQPage`        | `HomePage.tsx`                     | Question-answer pairs for training       |
+| `BreadcrumbList` | `Templates.tsx`, `Pricing.tsx`     | Navigation hierarchy                     |
 
 #### 4.2 Person Schema with Expertise (`apps/web/src/lib/structuredData.ts`)
 
@@ -281,7 +299,8 @@ export function personSchema() {
     "@type": "Person",
     name: "Gautam Kumar",
     url: "https://gautam-kr.vercel.app",
-    jobTitle: "Full-Stack Developer & AI Engineer",
+    jobTitle: "Full-Stack Developer"
+",
     knowsAbout: [
       "React", "TypeScript", "Node.js", "LangChain",
       "Large Language Models", "MongoDB", "LaTeX",
@@ -334,20 +353,21 @@ This ensures individual resume pages are discoverable as personal entity pages.
 ## 5. AISEO — AI Search Optimization
 
 ### Objective
+
 Optimize for AI-powered search experiences (Google SGE, Bing Chat, Perplexity, You.com) by providing schema-rich content that AI search engines can synthesize into direct answers.
 
 ### Implementation Details
 
 #### 5.1 Google SGE (Search Generative Experience) Readiness
 
-| Requirement | Implementation |
-|-------------|---------------|
-| Structured Data | WebApplication, Product, FAQPage, BreadcrumbList |
-| Content Freshness | Weekly sitemap updates for `/` and `/templates` |
-| Mobile Optimization | Full responsive design via Tailwind CSS |
-| Page Speed | Vite code-splitting, lazy loading, DNS prefetch |
-| Secure Connection | HTTPS via Vercel + Hono security headers |
-| Author Credibility | Person schema with sameAs verification |
+| Requirement         | Implementation                                   |
+| ------------------- | ------------------------------------------------ |
+| Structured Data     | WebApplication, Product, FAQPage, BreadcrumbList |
+| Content Freshness   | Weekly sitemap updates for `/` and `/templates`  |
+| Mobile Optimization | Full responsive design via Tailwind CSS          |
+| Page Speed          | Vite code-splitting, lazy loading, DNS prefetch  |
+| Secure Connection   | HTTPS via Vercel + Hono security headers         |
+| Author Credibility  | Person schema with sameAs verification           |
 
 #### 5.2 Product Schema for AI Shopping (`apps/web/src/pages/Pricing.tsx`)
 
@@ -356,7 +376,7 @@ productSchema(
   "TexFolio Pro - Lifetime Resume Builder",
   "Unlimited resumes, AI coach analysis, cover letter generator...",
   "499",
-)
+);
 ```
 
 This enables AI search engines to surface TexFolio Pro as a purchasable product in AI-powered shopping experiences.
@@ -367,7 +387,7 @@ This enables AI search engines to surface TexFolio Pro as a purchasable product 
 breadcrumbSchema([
   { name: "Home", url: "https://texfolio.vercel.app/" },
   { name: "Templates", url: "https://texfolio.vercel.app/templates" },
-])
+]);
 ```
 
 Breadcrumb JSON-LD helps AI search engines understand site hierarchy and page context.
@@ -379,6 +399,7 @@ The `FAQPage` schema (8 questions) is specifically designed for AI search engine
 #### 5.5 Semantic HTML Structure
 
 All pages follow proper heading hierarchy:
+
 - `h1` → Page title (unique per page)
 - `h2` → Section headers (Features, How It Works, FAQ, Pricing)
 - `h3` → Individual item titles (template names, feature names)
@@ -394,51 +415,56 @@ All pages follow proper heading hierarchy:
 ## 6. EEAT — Experience, Expertise, Authoritativeness, Trustworthiness
 
 ### Objective
+
 Demonstrate first-hand experience, deep expertise, authoritative presence, and trustworthiness to satisfy Google's Quality Rater Guidelines and improve ranking for YMYL (Your Money or Your Life) content.
 
 ### Implementation Details
 
 #### 6.1 Experience
 
-| Signal | Implementation |
-|--------|---------------|
-| Product Experience | Working SaaS deployed to Vercel + Render |
-| Real User Base | Authentication via Clerk, MongoDB Atlas |
-| Monetization | Razorpay payment integration (₹499 Pro tier) |
-| Production AI | LangGraph agents + NVIDIA NIM + Groq in production |
-| Years of Development | Multiple version releases (V2.0+) |
+| Signal               | Implementation                                     |
+| -------------------- | -------------------------------------------------- |
+| Product Experience   | Working SaaS deployed to Vercel + Render           |
+| Real User Base       | Authentication via Clerk, MongoDB Atlas            |
+| Monetization         | Razorpay payment integration (₹499 Pro tier)       |
+| Production AI        | LangGraph agents + NVIDIA NIM + Groq in production |
+| Years of Development | Multiple version releases (V2.0+)                  |
 
 Demonstrated in:
+
 - **About page** (`apps/web/src/pages/About.tsx`): "TexFolio is a solo project built by Gautam Kumar... demonstrates production-level SaaS architecture"
 - **HomePage tech stats**: "React 19 + Hono v4 + LangGraph + NVIDIA NIM"
 
 #### 6.2 Expertise
 
-| Signal | Implementation |
-|--------|---------------|
-| Author Credentials | Full-Stack Developer & AI Engineer (in JSON-LD) |
-| Technology Mastery | React 19, Hono v4, LangChain, MongoDB, LaTeX |
-| AI Expertise | LangGraph multi-agent systems, NVIDIA NIM, Groq |
+| Signal                  | Implementation                                  |
+| ----------------------- | ----------------------------------------------- | ---------------------------- | -------------- |
+| Author Credentials      | Full-Stack Developer                            | Solo-shipped 4 SaaS products | AI integration |
+| (in JSON-LD)            |
+| Technology Mastery      | React 19, Hono v4, LangChain, MongoDB, LaTeX    |
+| AI Expertise            | LangGraph multi-agent systems, NVIDIA NIM, Groq |
 | Resume/Domain Knowledge | ATS analysis, LaTeX typography, FAANG templates |
-| Open Source | Public GitHub repository |
+| Open Source             | Public GitHub repository                        |
 
 Files demonstrating expertise:
+
 - `apps/web/src/pages/About.tsx` — Full tech stack and capabilities listing
 - `apps/web/src/lib/structuredData.ts` — `personSchema()` with `knowsAbout` array
 - `apps/web/index.html` — Author JSON-LD with job title and sameAs
 
 #### 6.3 Authoritativeness
 
-| Signal | Implementation |
-|--------|---------------|
-| Personal Brand | `https://gautam-kr.vercel.app` portfolio |
-| GitHub Presence | `github.com/theunstopabble` with public code |
-| LinkedIn Profile | `linkedin.com/in/gautamkr62` |
-| Open Source Code | Full repository visible on GitHub |
-| Third-party Links | sameAs arrays linking to verified profiles |
-| Clear Attribution | "Built by Gautam Kumar" in Footer |
+| Signal            | Implementation                               |
+| ----------------- | -------------------------------------------- |
+| Personal Brand    | `https://gautam-kr.vercel.app` portfolio     |
+| GitHub Presence   | `github.com/theunstopabble` with public code |
+| LinkedIn Profile  | `linkedin.com/in/gautamkr62`                 |
+| Open Source Code  | Full repository visible on GitHub            |
+| Third-party Links | sameAs arrays linking to verified profiles   |
+| Clear Attribution | "Built by Gautam Kumar" in Footer            |
 
 Schema representation:
+
 ```json
 {
   "@type": "Person",
@@ -454,30 +480,30 @@ Schema representation:
 
 #### 6.4 Trustworthiness
 
-| Signal | Implementation | Location |
-|--------|---------------|----------|
-| **Privacy Policy** | Full 9-section policy covering data collection, AI processing, GDPR rights, cookies, security | `/privacy` |
-| **Terms of Service** | Full 10-section terms covering accounts, payments, AI content, liability | `/terms` |
-| **GDPR Compliance** | Data export/deletion routes (`/api/me/export`, `/api/me/delete`) | `apps/api/src/routes.hono/gdpr.routes.ts` |
-| **Data Encryption** | TLS/SSL, MongoDB Atlas encryption at rest | `apps/api/src/hono.ts:40` |
-| **Security Headers** | Helmet secureHeaders middleware | `apps/api/src/hono.ts:40` |
-| **CORS Hardening** | Origin whitelist per environment | `apps/api/src/hono.ts:48-63` |
-| **Rate Limiting** | Tiered (Free/Pro/Anonymous) + strict for auth/payments | `apps/api/src/hono.ts:66-86` |
-| **Input Sanitization** | Global middleware for XSS prevention | `apps/api/src/hono.ts:89-94` |
-| **Audit Logging** | Enterprise audit trail for all operations | `apps/api/src/services/audit.service.ts` |
-| **Authentication** | Clerk with Google/GitHub SSO | `apps/web/src/App.tsx:98` |
-| **Payment Security** | Razorpay (no credit card storage) | `apps/web/src/hooks/useRazorpay.ts` |
-| **Contact Availability** | Developer portfolio and social links | Footer + About page |
-| **AI Transparency** | Clear disclosure of AI-generated content limitations | Terms of Service Section 6 |
+| Signal                   | Implementation                                                                                | Location                                  |
+| ------------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Privacy Policy**       | Full 9-section policy covering data collection, AI processing, GDPR rights, cookies, security | `/privacy`                                |
+| **Terms of Service**     | Full 10-section terms covering accounts, payments, AI content, liability                      | `/terms`                                  |
+| **GDPR Compliance**      | Data export/deletion routes (`/api/me/export`, `/api/me/delete`)                              | `apps/api/src/routes.hono/gdpr.routes.ts` |
+| **Data Encryption**      | TLS/SSL, MongoDB Atlas encryption at rest                                                     | `apps/api/src/hono.ts:40`                 |
+| **Security Headers**     | Helmet secureHeaders middleware                                                               | `apps/api/src/hono.ts:40`                 |
+| **CORS Hardening**       | Origin whitelist per environment                                                              | `apps/api/src/hono.ts:48-63`              |
+| **Rate Limiting**        | Tiered (Free/Pro/Anonymous) + strict for auth/payments                                        | `apps/api/src/hono.ts:66-86`              |
+| **Input Sanitization**   | Global middleware for XSS prevention                                                          | `apps/api/src/hono.ts:89-94`              |
+| **Audit Logging**        | Enterprise audit trail for all operations                                                     | `apps/api/src/services/audit.service.ts`  |
+| **Authentication**       | Clerk with Google/GitHub SSO                                                                  | `apps/web/src/App.tsx:98`                 |
+| **Payment Security**     | Razorpay (no credit card storage)                                                             | `apps/web/src/hooks/useRazorpay.ts`       |
+| **Contact Availability** | Developer portfolio and social links                                                          | Footer + About page                       |
+| **AI Transparency**      | Clear disclosure of AI-generated content limitations                                          | Terms of Service Section 6                |
 
 #### 6.5 E-E-A-T Content Pages
 
-| Page | URL | E-E-A-T Contribution |
-|------|-----|---------------------|
-| About | `/about` | Experience + Expertise (creator bio, tech stack, mission) |
-| Privacy Policy | `/privacy` | Trustworthiness (data handling transparency) |
-| Terms of Service | `/terms` | Trustworthiness (legal framework, liability) |
-| Homepage | `/` | All four pillars (FAQ, features, trust section) |
+| Page             | URL        | E-E-A-T Contribution                                      |
+| ---------------- | ---------- | --------------------------------------------------------- |
+| About            | `/about`   | Experience + Expertise (creator bio, tech stack, mission) |
+| Privacy Policy   | `/privacy` | Trustworthiness (data handling transparency)              |
+| Terms of Service | `/terms`   | Trustworthiness (legal framework, liability)              |
+| Homepage         | `/`        | All four pillars (FAQ, features, trust section)           |
 
 #### 6.6 Footer Trust Signals
 
@@ -493,28 +519,28 @@ TexFolio
 
 ## Cross-Framework Matrix
 
-| Feature | SEO | AEO | GEO | LLMO | AISEO | EEAT |
-|---------|:---:|:---:|:---:|:----:|:-----:|:----:|
-| JSON-LD WebApplication | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| JSON-LD Organization | ✅ | — | ✅ | ✅ | ✅ | ✅ |
-| JSON-LD Person | — | — | ✅ | ✅ | — | ✅ |
-| JSON-LD FAQPage | — | ✅ | — | ✅ | ✅ | — |
-| JSON-LD Product | — | — | ✅ | ✅ | ✅ | — |
-| JSON-LD BreadcrumbList | ✅ | — | — | — | ✅ | — |
-| Meta Tags per Page | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Open Graph / Twitter | ✅ | — | — | — | ✅ | — |
-| Sitemap.xml | ✅ | — | — | — | — | — |
-| Robots.txt | ✅ | — | — | — | — | — |
-| hreflang | ✅ | — | — | — | — | — |
-| Search Console | ✅ | — | ✅ | — | ✅ | — |
-| Privacy Policy | — | — | — | — | — | ✅ |
-| Terms of Service | — | — | — | — | — | ✅ |
-| About Page | ✅ | — | ✅ | ✅ | — | ✅ |
-| FAQ Section (visible) | — | ✅ | — | ✅ | ✅ | — |
-| How It Works Section | — | ✅ | — | — | — | — |
-| Author sameAs | — | — | ✅ | ✅ | — | ✅ |
-| Author Expertise (knowsAbout) | — | — | — | ✅ | — | ✅ |
-| GDPR / Security | — | — | — | — | — | ✅ |
+| Feature                       | SEO | AEO | GEO | LLMO | AISEO | EEAT |
+| ----------------------------- | :-: | :-: | :-: | :--: | :---: | :--: |
+| JSON-LD WebApplication        | ✅  |  —  | ✅  |  ✅  |  ✅   |  ✅  |
+| JSON-LD Organization          | ✅  |  —  | ✅  |  ✅  |  ✅   |  ✅  |
+| JSON-LD Person                |  —  |  —  | ✅  |  ✅  |   —   |  ✅  |
+| JSON-LD FAQPage               |  —  | ✅  |  —  |  ✅  |  ✅   |  —   |
+| JSON-LD Product               |  —  |  —  | ✅  |  ✅  |  ✅   |  —   |
+| JSON-LD BreadcrumbList        | ✅  |  —  |  —  |  —   |  ✅   |  —   |
+| Meta Tags per Page            | ✅  | ✅  | ✅  |  ✅  |  ✅   |  ✅  |
+| Open Graph / Twitter          | ✅  |  —  |  —  |  —   |  ✅   |  —   |
+| Sitemap.xml                   | ✅  |  —  |  —  |  —   |   —   |  —   |
+| Robots.txt                    | ✅  |  —  |  —  |  —   |   —   |  —   |
+| hreflang                      | ✅  |  —  |  —  |  —   |   —   |  —   |
+| Search Console                | ✅  |  —  | ✅  |  —   |  ✅   |  —   |
+| Privacy Policy                |  —  |  —  |  —  |  —   |   —   |  ✅  |
+| Terms of Service              |  —  |  —  |  —  |  —   |   —   |  ✅  |
+| About Page                    | ✅  |  —  | ✅  |  ✅  |   —   |  ✅  |
+| FAQ Section (visible)         |  —  | ✅  |  —  |  ✅  |  ✅   |  —   |
+| How It Works Section          |  —  | ✅  |  —  |  —   |   —   |  —   |
+| Author sameAs                 |  —  |  —  | ✅  |  ✅  |   —   |  ✅  |
+| Author Expertise (knowsAbout) |  —  |  —  |  —  |  ✅  |   —   |  ✅  |
+| GDPR / Security               |  —  |  —  |  —  |  —   |   —   |  ✅  |
 
 ---
 
@@ -546,13 +572,13 @@ Use the following tools to validate all JSON-LD implementations:
 
 ### Expected Rich Results
 
-| Page | Expected Rich Result |
-|------|---------------------|
-| `/` | FAQ (8 questions), WebApplication, Person, Organization, WebSite |
-| `/templates` | BreadcrumbList |
-| `/pricing` | Product, BreadcrumbList, Organization |
-| `/about` | Person, Organization |
-| `/r/:shareId` | Person (dynamic per resume) |
+| Page          | Expected Rich Result                                             |
+| ------------- | ---------------------------------------------------------------- |
+| `/`           | FAQ (8 questions), WebApplication, Person, Organization, WebSite |
+| `/templates`  | BreadcrumbList                                                   |
+| `/pricing`    | Product, BreadcrumbList, Organization                            |
+| `/about`      | Person, Organization                                             |
+| `/r/:shareId` | Person (dynamic per resume)                                      |
 
 ---
 
@@ -589,4 +615,4 @@ Use the following tools to validate all JSON-LD implementations:
 
 ---
 
-*Documentation maintained as part of TexFolio's discoverability infrastructure.*
+_Documentation maintained as part of TexFolio's discoverability infrastructure._
