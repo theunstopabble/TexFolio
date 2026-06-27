@@ -30,8 +30,7 @@ export const organizationSchema = {
     "@type": "Person",
     name: "Gautam Kumar",
     url: AUTHOR_URL,
-    jobTitle: "Full-Stack Developer | Solo-shipped 4 SaaS products | AI integration
-",
+    jobTitle: "Full-Stack Developer",
     sameAs: [
       "https://github.com/theunstopabble",
       "https://www.linkedin.com/in/gautamkr62",
@@ -130,8 +129,7 @@ export function personSchema() {
     "@type": "Person",
     name: "Gautam Kumar",
     url: AUTHOR_URL,
-    jobTitle: "Full-Stack Developer | Solo-shipped 4 SaaS products | AI integration
-",
+    jobTitle: "Full-Stack Developer",
     description:
       "Full-stack developer and AI engineer specializing in React, TypeScript, LangChain, and LLM-powered applications.",
     sameAs: [
