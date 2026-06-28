@@ -1,0 +1,17 @@
+# TexFolio
+
+> AI-Powered LaTeX Resume Builder. Create ATS-friendly resumes with AI assistance in minutes — no coding required.
+
+## Pages
+
+- [Home](https://texfolio.vercel.app/): Landing page with features, templates, and pricing overview
+- [Templates](https://texfolio.vercel.app/templates): Browse and preview LaTeX resume templates
+- [Pricing](https://texfolio.vercel.app/pricing): Subscription plans for TexFolio
+- [Privacy Policy](https://texfolio.vercel.app/privacy): Data handling and privacy practices
+- [Terms of Service](https://texfolio.vercel.app/terms): Terms governing use of TexFolio
+
+## Creator
+
+- [Portfolio](https://gautam-kr.vercel.app): Gautam Kumar's personal site and projects
+- [GitHub](https://github.com/theunstopabble): Gautam's open-source repositories
+- [LinkedIn](https://www.linkedin.com/in/gautamkr62): Gautam's professional profile

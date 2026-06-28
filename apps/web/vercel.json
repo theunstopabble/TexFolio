@@ -2,6 +2,9 @@
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/llms-ctx.txt", "destination": "/llms-ctx.txt" },
+    { "source": "/llms-ctx-full.txt", "destination": "/llms-ctx-full.txt" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
