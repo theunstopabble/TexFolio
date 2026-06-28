@@ -95,7 +95,7 @@ const About = () => {
             <div>
               <p className="text-slate-700 leading-relaxed mb-4">
                 TexFolio is a solo project built by{" "}
-                <strong>Gautam Kumar</strong>, a Full-Stack Developer & AI
+                <strong>Gautam Kumar</strong>, a Full-Stack Developer | Solo-shipped 4 SaaS Products | AI Integration
                 Engineer. With expertise in React, TypeScript, LangChain,
                 MongoDB, and LaTeX, Gautam built TexFolio to demonstrate
                 production-level SaaS architecture while solving a real problem:
