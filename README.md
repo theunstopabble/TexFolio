@@ -465,7 +465,7 @@ Returns a complete JSON dump containing:
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Author:** [Gautam Kumar](https://gautam-kr.vercel.app/) — Full-Stack Developer | Solo-shipped 4 SaaS Products | AI Integration
+**Author:** [Gautam Kumar](https://gautam-kr.vercel.app/) — Full-Stack Developer | Solo-shipped SaaS Products | AI Integration
 <a href="https://linkedin.com/in/gautamkr62" target="_blank">
 <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
 </a>

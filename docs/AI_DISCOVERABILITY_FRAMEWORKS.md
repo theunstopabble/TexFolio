@@ -439,7 +439,7 @@ Demonstrated in:
 
 | Signal                  | Implementation                                  |
 | ----------------------- | ----------------------------------------------- | ---------------------------- | -------------- |
-| Author Credentials      | Full-Stack Developer                            | Solo-shipped 4 SaaS Products | AI Integration |
+| Author Credentials      | Full-Stack Developer | Solo-shipped SaaS Products | AI Integration |
 | (in JSON-LD)            |
 | Technology Mastery      | React 19, Hono v4, LangChain, MongoDB, LaTeX    |
 | AI Expertise            | LangGraph multi-agent systems, NVIDIA NIM, Groq |
