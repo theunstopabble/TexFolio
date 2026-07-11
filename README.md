@@ -1,4 +1,4 @@
-# <div align="center"> <img src="apps/web/public/logo.png" alt="TexFolio logo" width="100%" /> </div>
+# <div align="center"> <img src="apps/web/public/README-logo.png" alt="TexFolio logo" width="100%" /> </div>
 
 <div align="center">
 
