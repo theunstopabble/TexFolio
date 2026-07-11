@@ -1,5 +1,4 @@
-<div align="center">
-  <img src="apps/web/public/README-logo.png" alt="TexFolio logo" width="350" />
+<div align="center"><img src="apps/web/public/README-logo.png" alt="TexFolio logo" width="180" /></div>
 
   # TexFolio - AI-Powered LaTeX Resume Builder
 
