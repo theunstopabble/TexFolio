@@ -1,10 +1,7 @@
-# <div align="center">
-  <img src="apps/web/public/README-logo.png" alt="TexFolio logo" width="350" />
-</div>
-
 <div align="center">
+  <img src="apps/web/public/README-logo.png" alt="TexFolio logo" width="350" />
 
-# TexFolio - AI-Powered LaTeX Resume Builder
+  # TexFolio - AI-Powered LaTeX Resume Builder
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-2563EB?style=for-the-badge&logo=vercel&logoColor=white)](https://texfolio.vercel.app/)
 [![Frontend](https://img.shields.io/badge/Frontend-React_19_%7C_Vite-61DAFB?style=for-the-badge&logo=react)](apps/web)
