@@ -28,7 +28,7 @@
     "mern",
     "saas"
   ],
-  "author": "Gautam",
+  "author": "Gautam Kumar <gautamkumar43421@gmail.com> (https://gautam-kr.vercel.app)",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2",
