@@ -278,6 +278,10 @@ resumeRoutes.get("/:id/pdf", async (c) => {
     const fs = await import("fs/promises");
     const pdfBuffer = await fs.readFile(pdfPath);
 
+    // Clean up the generated PDF to avoid unbounded temp-file growth
+    // (non-blocking — never fail the response over cleanup)
+    fs.unlink(pdfPath).catch(() => {});
+
     return new Response(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",

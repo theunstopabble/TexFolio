@@ -44,7 +44,9 @@ const ResumeFormSteps: React.FC<ResumeFormStepsProps> = ({
           onImportSuccess={onImportSuccess}
         />
       )}
-      {currentStep === 1 && <PersonalInfoStep register={register} />}
+      {currentStep === 1 && (
+        <PersonalInfoStep register={register} errors={errors} />
+      )}
       {currentStep === 2 && <SummaryStep register={register} />}
       {currentStep === 3 && (
         <EducationStep register={register} fieldArray={fieldArrays.education} />

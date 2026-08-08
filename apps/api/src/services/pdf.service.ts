@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { spawn } from "child_process";
+import { randomUUID } from "crypto";
 import Mustache from "mustache";
 import { IResume } from "../models/index.js";
 import { env } from "../config/env.js";
@@ -21,7 +22,7 @@ const TEMPLATES_DIR = path.join(__dirname, "../templates");
 // Temp directory for generated files
 const TEMP_DIR = path.join(__dirname, "../../temp");
 
-// Escape special LaTeX characters
+// Escape special LaTeX characters (also drops emoji/control chars pdflatex can't render)
 const escapeLatex = (text: string): string => {
   if (!text) return "";
 
@@ -44,6 +45,10 @@ const escapeLatex = (text: string): string => {
   // Double-check for any remaining weird patterns
   decoded = decoded.replace(/x2F/gi, "/");
 
+  // Drop characters pdflatex (utf8 inputenc) cannot render: emoji, symbols,
+  // and non-Latin-1 unicode. Allows Latin-1 supplement (é, ü, …) + Latin Extended-A.
+  decoded = decoded.replace(/[^\u0000-\u017F]/g, "?");
+
   // Then escape for LaTeX
   return decoded
     .replace(/\\/g, "\\textbackslash{}")
@@ -56,6 +61,16 @@ const escapeLatex = (text: string): string => {
     .replace(/\}/g, "\\}")
     .replace(/~/g, "\\textasciitilde{}")
     .replace(/\^/g, "\\textasciicircum{}");
+};
+
+// Escape a URL for use inside \href{...}: strip chars LaTeX can't handle,
+// %-encode the ones that break compilation (& % # _ { } ^ ~ and spaces).
+const escapeLatexUrl = (url: string): string => {
+  if (!url) return "";
+  return encodeURI(url)
+    .replace(/&/g, "%26")
+    .replace(/%/g, "%25")
+    .replace(/#/g, "%23");
 };
 
 // Transform resume data to template variables
@@ -128,8 +143,8 @@ const transformResumeData = (resume: IResume) => {
           ? proj.technologies.join(", ")
           : proj.technologies,
       ),
-      SOURCE_CODE: proj.sourceCode || null,
-      LIVE_URL: proj.liveUrl || null,
+      SOURCE_CODE: escapeLatexUrl(proj.sourceCode || ""),
+      LIVE_URL: escapeLatexUrl(proj.liveUrl || ""),
     })),
   });
 
@@ -210,13 +225,13 @@ const transformResumeData = (resume: IResume) => {
     IS_SANS: isSans,
     FULL_NAME: escapeLatex(personalInfo.fullName),
     EMAIL: escapeLatex(personalInfo.email),
-    EMAIL_RAW: personalInfo.email, // Raw email for mailto:
+    EMAIL_RAW: escapeLatexUrl(personalInfo.email), // Raw email for mailto:
     PHONE: escapeLatex(personalInfo.phone),
     LOCATION: escapeLatex(personalInfo.location),
-    LINKEDIN: ensureUrlPrefix(personalInfo.linkedin), // URL with https:// for href
-    LINKEDIN_DISPLAY: cleanUrlForDisplay(personalInfo.linkedin), // Clean URL for display
-    GITHUB: ensureUrlPrefix(personalInfo.github), // URL with https:// for href
-    GITHUB_DISPLAY: cleanUrlForDisplay(personalInfo.github), // Clean URL for display
+    LINKEDIN: ensureUrlPrefix(escapeLatexUrl(personalInfo.linkedin || "")), // URL with https:// for href
+    LINKEDIN_DISPLAY: cleanUrlForDisplay(escapeLatex(personalInfo.linkedin || "")), // Clean URL for display
+    GITHUB: ensureUrlPrefix(escapeLatexUrl(personalInfo.github || "")), // URL with https:// for href
+    GITHUB_DISPLAY: cleanUrlForDisplay(escapeLatex(personalInfo.github || "")), // Clean URL for display
 
     // Dynamic Sections
     DYNAMIC_SECTIONS: dynamicSections,
@@ -268,10 +283,10 @@ export const generatePDF = async (
   const renderedLatex = Mustache.render(template, data, {}, ["<<", ">>"]);
   console.log(`Rendered LaTeX length: ${renderedLatex.length} chars`);
 
-  // Generate unique filename
-  const timestamp = Date.now();
-  const texFilename = `resume_${timestamp}.tex`;
-  const pdfFilename = `resume_${timestamp}.pdf`;
+  // Generate unique filename (UUID prevents collisions between concurrent generations)
+  const uuid = randomUUID();
+  const texFilename = `resume_${uuid}.tex`;
+  const pdfFilename = `resume_${uuid}.pdf`;
   const texFile = path.join(TEMP_DIR, texFilename);
   const pdfFile = path.join(TEMP_DIR, pdfFilename);
 
@@ -392,11 +407,16 @@ export const generatePDF = async (
       await pdflatexPromise;
       console.log("pdflatex completed successfully");
     } catch (err) {
-      console.warn(
-        "pdflatex warning:",
-        err instanceof Error ? err.message : String(err),
-      );
-      // Continue to check if PDF was created (pdflatex may return non-zero even on success)
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn("pdflatex warning:", message);
+      try {
+        await fs.access(pdfFile);
+        console.log("PDF exists despite pdflatex warning, continuing");
+      } catch {
+        throw new Error(
+          `LaTeX compile failed and no PDF was produced: ${message}`,
+        );
+      }
     }
 
     // Check if PDF was created and has content
@@ -444,7 +464,7 @@ export const generatePDF = async (
     const auxFiles = [".aux", ".log", ".out", ".tex"];
     for (const ext of auxFiles) {
       try {
-        await fs.unlink(path.join(TEMP_DIR, `resume_${timestamp}${ext}`));
+        await fs.unlink(path.join(TEMP_DIR, `resume_${uuid}${ext}`));
       } catch {
         // Ignore if file doesn't exist
       }

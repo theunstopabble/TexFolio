@@ -8,9 +8,9 @@ export const personalInfoSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone number is required"),
   location: z.string().min(1, "Location is required"),
-  linkedin: z.string().url().optional().or(z.literal("")),
-  github: z.string().url().optional().or(z.literal("")),
-  portfolio: z.string().url().optional().or(z.literal("")),
+  linkedin: z.string().optional().or(z.literal("")),
+  github: z.string().optional().or(z.literal("")),
+  portfolio: z.string().optional().or(z.literal("")),
 });
 
 // ============================================
@@ -45,10 +45,10 @@ export const projectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().default(""),
   technologies: z.array(z.string()).default([]),
-  link: z.string().url().optional().or(z.literal("")),
-  github: z.string().url().optional().or(z.literal("")),
-  sourceCode: z.string().url().optional().or(z.literal("")),
-  liveUrl: z.string().url().optional().or(z.literal("")),
+  link: z.string().optional().or(z.literal("")),
+  github: z.string().optional().or(z.literal("")),
+  sourceCode: z.string().optional().or(z.literal("")),
+  liveUrl: z.string().optional().or(z.literal("")),
 });
 
 // ============================================

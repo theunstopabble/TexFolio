@@ -45,11 +45,24 @@ api.interceptors.request.use(async (config) => {
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response) {
-      const { status, data } = error.response;
-      const message = data?.error || data?.message || "An unexpected error occurred";
-      
+      const { status, data, config } = error.response;
+      let message: string | undefined;
+
+      // responseType "blob" requests (PDF) carry JSON errors as a Blob —
+      // read and parse it so the real server error is shown.
+      if (config?.responseType === "blob" && data instanceof Blob) {
+        try {
+          const text = await data.text();
+          const parsed = JSON.parse(text) as { error?: string; message?: string };
+          message = parsed.error || parsed.message;
+        } catch {
+          message = undefined;
+        }
+      }
+      message = message || data?.error || data?.message || "An unexpected error occurred";
+
       // Handle specific error codes
       switch (status) {
         case 401:
@@ -65,10 +78,10 @@ api.interceptors.response.use(
           toast.error("Too many requests. Please wait a moment.");
           break;
         case 500:
-          toast.error("Server error. Please try again later.");
+          toast.error(message || "Server error. Please try again later.");
           break;
         default:
-          toast.error(message);
+          toast.error(message || "An unexpected error occurred");
       }
     } else if (error.request) {
       // Network error - no response from server
@@ -77,7 +90,7 @@ api.interceptors.response.use(
       // Other errors
       toast.error(error.message || "An unexpected error occurred");
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -101,10 +114,27 @@ export const resumeApi = {
 
   // Generate PDF - returns blob URL (caller MUST revoke after use)
   generatePdf: async (id: string) => {
-    const response = await api.get(`/resumes/${id}/pdf`, {
-      responseType: "blob",
-    });
-    return URL.createObjectURL(response.data);
+    try {
+      const response = await api.get(`/resumes/${id}/pdf`, {
+        responseType: "blob",
+        // PDF generation can take longer than the 60s default (server compiles LaTeX)
+        timeout: 120000,
+      });
+      return URL.createObjectURL(response.data);
+    } catch (error) {
+      // Server errors arrive as JSON even when responseType is "blob" — surface
+      // the real message instead of the generic "An unexpected error occurred".
+      if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const parsed = JSON.parse(text) as { error?: string; message?: string };
+          throw new Error(parsed.error || parsed.message || "Failed to generate PDF");
+        } catch {
+          throw new Error("Failed to generate PDF");
+        }
+      }
+      throw error;
+    }
   },
 
   // Revoke a blob URL to free memory

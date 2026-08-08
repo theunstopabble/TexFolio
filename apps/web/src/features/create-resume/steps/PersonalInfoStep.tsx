@@ -1,11 +1,12 @@
-import type { UseFormRegister } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import type { ResumeFormData } from "../../resume-editor/types";
 
 interface PersonalInfoStepProps {
   register: UseFormRegister<ResumeFormData>;
+  errors: FieldErrors<ResumeFormData>;
 }
 
-const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ register }) => (
+const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ register, errors }) => (
   <div className="card animate-fade-in shadow-lg">
     <h2 className="card-title mb-6">👤 Personal Information</h2>
     <div className="space-y-4">
@@ -20,11 +21,24 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ register }) => (
       <div className="form-group">
         <label className="form-label">Email *</label>
         <input
-          {...register("personalInfo.email", { required: true })}
+          {...register("personalInfo.email", {
+            required: true,
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: "Enter a valid email address",
+            },
+          })}
           type="email"
           className="form-input"
           placeholder="john@example.com"
         />
+        {errors.personalInfo?.email && (
+          <span className="text-red-500 text-sm">
+            {errors.personalInfo.email.message === "Enter a valid email address"
+              ? "Enter a valid email address"
+              : "Required"}
+          </span>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="form-group">

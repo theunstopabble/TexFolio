@@ -206,7 +206,7 @@ export const useCreateResume = () => {
                 : e.description,
           })),
         education: data.education
-          .filter((e) => e.institution && e.degree)
+          .filter((e) => e.institution && e.degree && e.field)
           .map((e) => ({
             ...e,
             startDate: formatDate(e.startDate),
