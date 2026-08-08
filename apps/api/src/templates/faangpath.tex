@@ -1,6 +1,6 @@
 \documentclass{resume}
 
-\usepackage[left=0.4in,top=0.4in,right=0.4in,bottom=0.4in]{geometry}
+\usepackage[a4paper,left=0.4in,top=0.4in,right=0.4in,bottom=0.4in]{geometry}
 \newcommand{\tab}[1]{\hspace{.2667\textwidth}\rlap{#1}} 
 \newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
 
@@ -67,9 +67,18 @@ GPA: <<&GPA>>
 <<#IS_PROJECTS>>
 \begin{rSection}{<<&TITLE>>}
 \begin{itemize}
-\vspace{-1.25em}
 <<#PROJECTS>>
-\item \textbf{<<&NAME>>.} {<<&DESCRIPTION>><<#TECHNOLOGIES>> \textit{Technologies: <<&TECHNOLOGIES>>}<</TECHNOLOGIES>><<#LIVE_URL>> \href{<<&LIVE_URL>>}{(Try it here)}<</LIVE_URL>>}
+\item \textbf{<<&NAME>>}<<#DESCRIPTION>>. <<&DESCRIPTION>><</DESCRIPTION>> \\
+\vspace{1pt}
+<<#TECHNOLOGIES>>\small\textit{Technologies: <<&TECHNOLOGIES>>}<</TECHNOLOGIES>>
+<<#HAS_LINKS>>
+\hfill {\scriptsize
+<<#SOURCE_CODE>>\href{<<&SOURCE_CODE>>}{[Source]}<</SOURCE_CODE>>
+<<#SOURCE_CODE>><<#LIVE_URL>> $|$ <</LIVE_URL>><</SOURCE_CODE>>
+<<#LIVE_URL>>\href{<<&LIVE_URL>>}{[Live Demo]}<</LIVE_URL>>
+}
+<</HAS_LINKS>>
+\vspace{3pt}
 <</PROJECTS>>
 \end{itemize}
 \end{rSection}

@@ -145,6 +145,7 @@ const transformResumeData = (resume: IResume) => {
       ),
       SOURCE_CODE: escapeLatexUrl(proj.sourceCode || ""),
       LIVE_URL: escapeLatexUrl(proj.liveUrl || ""),
+      HAS_LINKS: Boolean(proj.sourceCode || proj.liveUrl),
     })),
   });
 
