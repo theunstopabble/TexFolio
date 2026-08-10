@@ -35,15 +35,18 @@
     <<#GITHUB_DISPLAY>> $|$ \href{<<&GITHUB>>}{<<&GITHUB_DISPLAY>>}<</GITHUB_DISPLAY>>
 \end{center}
 
+% DYNAMIC SECTIONS
+<<#DYNAMIC_SECTIONS>>
+
 % Summary
-<<#SUMMARY>>
-\section{Summary}
+<<#IS_SUMMARY>>
+\section{<<&TITLE>>}
 <<&SUMMARY>>
-<</SUMMARY>>
+<</IS_SUMMARY>>
 
 % Experience
 <<#IS_EXPERIENCE>>
-\section{Experience}
+\section{<<&TITLE>>}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#EXPERIENCE>>
     \item
@@ -62,7 +65,7 @@
 
 % Education
 <<#IS_EDUCATION>>
-\section{Education}
+\section{<<&TITLE>>}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#EDUCATION>>
     \item
@@ -76,7 +79,7 @@
 
 % Projects
 <<#IS_PROJECTS>>
-\section{Projects}
+\section{<<&TITLE>>}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#PROJECTS>>
     \item \textbf{<<&NAME>>} -- <<&DESCRIPTION>> \\
@@ -91,12 +94,25 @@
 
 % Skills
 <<#IS_SKILLS>>
-\section{Skills}
+\section{<<&TITLE>>}
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#SKILLS>>
     \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
 <</SKILLS>>
 \end{itemize}
 <</IS_SKILLS>>
+
+% Certifications
+<<#IS_CERTIFICATIONS>>
+\section{<<&TITLE>>}
+\begin{itemize}[leftmargin=0.15in, label={}]
+<<#CERTIFICATIONS>>
+    \item \textbf{<<&NAME>>}<<#ISSUER>>
+    (<<&ISSUER>>)<</ISSUER>>
+<</CERTIFICATIONS>>
+\end{itemize}
+<</IS_CERTIFICATIONS>>
+
+<</DYNAMIC_SECTIONS>>
 
 \end{document}

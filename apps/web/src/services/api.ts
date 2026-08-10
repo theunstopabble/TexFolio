@@ -116,6 +116,7 @@ export const resumeApi = {
   generatePdf: async (id: string) => {
     try {
       const response = await api.get(`/resumes/${id}/pdf`, {
+        params: { t: Date.now() },
         responseType: "blob",
         // PDF generation can take longer than the 60s default (server compiles LaTeX)
         timeout: 120000,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
 import { resumeApi, aiApi } from "../../../services/api";
@@ -33,6 +33,9 @@ export const useResumeEditor = () => {
   // Modals
   const [clModalOpen, setClModalOpen] = useState(false);
   const [aiCoachOpen, setAiCoachOpen] = useState(false);
+
+  // Last-saved snapshot for dirty-tracking (ensures edits always reach the PDF)
+  const savedSnapshotRef = useRef<string>("");
 
   // Form Setup
   const { register, control, handleSubmit, reset, watch, setValue } =
@@ -72,6 +75,37 @@ export const useResumeEditor = () => {
             "projects",
             "certifications",
           ],
+          personalInfo: data.personalInfo,
+          summary: data.summary || "",
+          experience:
+            data.experience?.map((exp: Record<string, unknown>) => ({
+              ...exp,
+              description: Array.isArray(exp.description)
+                ? exp.description.join("\n")
+                : (exp.description as string) || "",
+            })) || [],
+          education: data.education || [],
+          skills:
+            data.skills?.map((s: Record<string, unknown>) => ({
+              ...s,
+              skills: Array.isArray(s.skills)
+                ? s.skills.join(", ")
+                : (s.skills as string) || "",
+            })) || [],
+          projects:
+            data.projects?.map((p: Record<string, unknown>) => ({
+              ...p,
+              technologies: Array.isArray(p.technologies)
+                ? p.technologies.join(", ")
+                : (p.technologies as string) || "",
+            })) || [],
+          certifications: data.certifications || [],
+        });
+
+        // Record snapshot AFTER reset so the loaded state is considered "saved"
+        savedSnapshotRef.current = JSON.stringify({
+          title: data.title,
+          templateId: data.templateId || "classic",
           personalInfo: data.personalInfo,
           summary: data.summary || "",
           experience:
@@ -149,6 +183,7 @@ export const useResumeEditor = () => {
       };
 
       await resumeApi.update(id!, formattedData);
+      savedSnapshotRef.current = JSON.stringify(watch());
       toast.success("Resume updated successfully! 🎉");
       // navigate("/resumes"); // Don't navigate away, let user keep editing
     } catch (error) {
@@ -213,6 +248,16 @@ export const useResumeEditor = () => {
   const handleDownload = async () => {
     try {
       setLoading(true);
+
+      // Dirty-check: if the form has unsaved edits, save before generating the
+      // PDF so the download always reflects the latest content.
+      const isDirty =
+        savedSnapshotRef.current !== "" &&
+        JSON.stringify(watch()) !== savedSnapshotRef.current;
+      if (isDirty) {
+        await onSubmit(watch());
+      }
+
       const url = await resumeApi.generatePdf(id!);
       window.open(url, "_blank");
       // Revoke blob URL after a delay to allow browser to load it
