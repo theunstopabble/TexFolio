@@ -102,10 +102,24 @@ export const useResumeEditor = () => {
           certifications: data.certifications || [],
         });
 
-        // Record snapshot AFTER reset so the loaded state is considered "saved"
+        // Record snapshot AFTER reset so the loaded state is considered "saved".
+        // Must include customization + sectionOrder (exactly as reset set them)
+        // so JSON.stringify(watch()) dirty-check is accurate after load.
         savedSnapshotRef.current = JSON.stringify({
           title: data.title,
           templateId: data.templateId || "classic",
+          customization: data.customization || {
+            primaryColor: "#2563EB",
+            fontFamily: "serif",
+          },
+          sectionOrder: data.sectionOrder || [
+            "summary",
+            "experience",
+            "education",
+            "skills",
+            "projects",
+            "certifications",
+          ],
           personalInfo: data.personalInfo,
           summary: data.summary || "",
           experience:

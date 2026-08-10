@@ -400,6 +400,9 @@ resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
     const fs = await import("fs/promises");
     const pdfBuffer = await fs.readFile(result.outputPath);
 
+    // Clean up the generated PDF after serving (non-blocking cleanup)
+    fs.unlink(result.outputPath).catch(() => {});
+
     const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
     const sanitizeFilename = (name: string) =>
       name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";
@@ -444,7 +447,10 @@ resumeRoutes.post(
       const fs = await import("fs/promises");
       const pdfBuffer = await fs.readFile(pdfPath);
 
-      // 3. Send Email via Brevo
+      // 3. Clean up temp PDF after reading (non-blocking — never fail over cleanup)
+      fs.unlink(pdfPath).catch(() => {});
+
+      // 4. Send Email via Brevo
       const fullName = resume.personalInfo?.fullName || "User";
       await sendEmail({
         to: email,

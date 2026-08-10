@@ -91,6 +91,12 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
     return `https://${trimmed}`;
   };
 
+  // Strip protocol/www for display (mirrors pdf.service cleanUrlForDisplay)
+  const cleanUrlDisplay = (url: string | null | undefined): string => {
+    if (!url) return "";
+    return url.replace(/^https?:\/\//, "").replace(/^www\./, "");
+  };
+
   // Templates render dates as-is (raw YYYY-MM) feeding LaTeX directly via
   // escapeLatex — the live preview MUST show the same raw string to be faithful.
   const rawDate = (dateStr: string | undefined) => dateStr || "";
@@ -275,7 +281,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                 rel="noreferrer"
                 className="hover:underline"
               >
-                linkedin
+                {isPremium
+                  ? "LinkedIn"
+                  : cleanUrlDisplay(data.personalInfo.linkedin)}
               </a>
               {sanitizeUrl(data.personalInfo.github) && <span>|</span>}
             </>
@@ -287,7 +295,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               rel="noreferrer"
               className="hover:underline"
             >
-              github
+              {isPremium ? "GitHub" : cleanUrlDisplay(data.personalInfo.github)}
             </a>
           )}
         </div>
@@ -341,6 +349,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <div className="flex justify-between items-baseline md:flex-row flex-col">
                 <span className="italic text-sm">
                   {edu.degree} {edu.field ? `in ${edu.field}` : ""}
+                  {edu.gpa ? ` -- GPA: ${edu.gpa}` : ""}
                 </span>
                 <span className="text-sm">
                   {dateRangeEmDash(edu.startDate, edu.endDate)}
@@ -351,15 +360,16 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             <div key={i}>
               <div className="flex justify-between items-baseline md:flex-row flex-col">
                 <h3 className="font-bold text-md">{edu.institution}</h3>
-                <span className="italic text-xs">
-                  {dateRangeEmDash(edu.startDate, edu.endDate)}
-                </span>
+                <span className="text-sm">{edu.location}</span>
               </div>
               <div className="flex justify-between items-baseline md:flex-row flex-col">
                 <span className="italic text-sm">
                   {edu.degree} {edu.field ? `in ${edu.field}` : ""}
+                  {edu.gpa ? ` -- GPA: ${edu.gpa}` : ""}
                 </span>
-                <span className="text-sm">{edu.gpa && `GPA: ${edu.gpa}`}</span>
+                <span className="text-sm italic">
+                  {dateRangeEmDash(edu.startDate, edu.endDate)}
+                </span>
               </div>
             </div>
           ),
@@ -383,7 +393,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
           ))}
         </div>
       ) : (
-        <ul className="text-sm list-disc ml-4 space-y-0.5">
+        <ul
+          className={`text-sm space-y-0.5 ${
+            isPremium ? "list-disc ml-4" : ""
+          }`}
+        >
           {data.skills.map((skill, i) => (
             <li key={i}>
               <span className="font-bold">{skill.category}:</span>{" "}
@@ -424,17 +438,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
               <>
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-bold text-md">{exp.company}</h3>
-                  <span className="text-sm">
-                    {isPremium
-                      ? dateRangeEmDash(exp.startDate, exp.endDate)
-                      : exp.location}
-                  </span>
+                  <span className="text-sm">{exp.location}</span>
                 </div>
 
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="italic text-sm">{exp.position}</span>
                   <span className="text-sm italic">
-                    {isPremium ? exp.location : ""}
+                    {dateRangeEmDash(exp.startDate, exp.endDate)}
                   </span>
                 </div>
               </>
@@ -463,41 +473,111 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
 
   const renderProjects = () => {
     if (!data.projects?.length || !data.projects.some((p) => p.name)) return null;
+
+    // Template link labels mirror each .tex (\footnotesize{\scriptsize...})
+    const sourceLabel = isPremium ? "[Source Code]" : "[Source]";
+    const demoLabel = isPremium || isFaangpath ? "[Live Demo]" : "[Demo]";
+
+    const renderProjectLinks = (proj: ResumeData["projects"][number]) => {
+      const links = [];
+      const src = sanitizeUrl(proj.sourceCode);
+      const live = sanitizeUrl(proj.liveUrl);
+      if (src) {
+        links.push(
+          <a
+            key="src"
+            href={src}
+            className="text-[10px] text-blue-800 hover:underline"
+          >
+            {sourceLabel}
+          </a>,
+        );
+      }
+      if (live) {
+        if (links.length > 0 && (isPremium || isFaangpath)) links.push(<span key="sep"> | </span>);
+        links.push(
+          <a
+            key="live"
+            href={live}
+            className="text-[10px] text-blue-800 hover:underline"
+          >
+            {demoLabel}
+          </a>,
+        );
+      }
+      return links.length > 0 ? links : null;
+    };
+
     return renderSection(
       "Projects",
-      <div className={isFaangpath ? "space-y-2" : "space-y-2"}>
+      <div className="space-y-2">
         {data.projects.map((proj, i) => (
           <div key={i}>
-            <div className="flex justify-between items-baseline">
-              <h3 className="font-bold text-md">
-                {proj.name}
-                <span className={`font-normal text-sm ml-2 ${isFaangpath ? "" : ""}`}>
-                  |{" "}
-                  <i className="italic">
-                    {parseList(proj.technologies).join(", ")}
-                  </i>
-                </span>
-              </h3>
-              <div className="flex gap-2 text-sm whitespace-nowrap">
-                {sanitizeUrl(proj.sourceCode) && (
-                  <a
-                    href={sanitizeUrl(proj.sourceCode)}
-                    className="text-blue-800 hover:underline"
-                  >
-                    [Source Code]
-                  </a>
+            {isFaangpath ? (
+              // faangpath.tex: {\bf NAME}. DESCRIPTION \newline *Technologies* \hfill [links]
+              <>
+                <div className="font-bold text-md">
+                  {proj.name}
+                  {proj.description && (
+                    <span className="font-normal">. {proj.description}</span>
+                  )}
+                </div>
+                {parseList(proj.technologies).length > 0 && (
+                  <div className="flex justify-between items-baseline text-sm">
+                    <span className="italic">
+                      Technologies: {parseList(proj.technologies).join(", ")}
+                    </span>
+                    <div className="flex gap-1 whitespace-nowrap text-[10px]">
+                      {renderProjectLinks(proj)}
+                    </div>
+                  </div>
                 )}
-                {sanitizeUrl(proj.liveUrl) && (
-                  <a
-                    href={sanitizeUrl(proj.liveUrl)}
-                    className="text-blue-800 hover:underline"
-                  >
-                    [Live Demo]
-                  </a>
+              </>
+            ) : isPremium ? (
+              // premium.tex: {\bf NAME} | {\it technologies} \hfill [links] \\ bullet description
+              <>
+                <div className="flex justify-between items-baseline text-md">
+                  <h3 className="font-bold text-md">
+                    {proj.name}
+                    {parseList(proj.technologies).length > 0 && (
+                      <span className="font-normal text-sm ml-2">
+                        | <i>{parseList(proj.technologies).join(", ")}</i>
+                      </span>
+                    )}
+                  </h3>
+                  {renderProjectLinks(proj) && (
+                    <div className="flex gap-1 whitespace-nowrap text-[10px]">
+                      {renderProjectLinks(proj)}
+                    </div>
+                  )}
+                </div>
+                {proj.description && (
+                  <ul className="list-disc ml-4 text-sm space-y-0.5">
+                    <li className="text-justify">{proj.description}</li>
+                  </ul>
                 )}
-              </div>
-            </div>
-            <p className="text-sm mt-0.5 text-justify">{proj.description}</p>
+              </>
+            ) : (
+              // classic.tex: {\bf NAME} -- DESCRIPTION \newline {\it Technologies} \hfill [links]
+              <>
+                <div className="font-bold text-md">
+                  {proj.name}
+                  {proj.description && (
+                    <span className="font-normal"> -- {proj.description}</span>
+                  )}
+                </div>
+                {parseList(proj.technologies).length > 0 && (
+                  <div className="flex justify-between items-baseline text-sm">
+                    <span className="italic">
+                      Technologies: {parseList(proj.technologies).join(", ")}
+                    </span>
+                    <div className="flex gap-1 whitespace-nowrap text-[10px]">
+                      {renderProjectLinks(proj)}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         ))}
       </div>,
