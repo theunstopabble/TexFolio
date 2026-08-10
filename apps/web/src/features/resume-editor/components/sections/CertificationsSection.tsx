@@ -68,7 +68,7 @@ export const CertificationsSection = ({
       ))}
       {certFields.length === 0 && (
         <p className="text-center text-slate-500 py-4">
-          No certifications added.
+          No certifications added yet.
         </p>
       )}
     </div>

@@ -38,7 +38,7 @@ export const useResumeEditor = () => {
   const savedSnapshotRef = useRef<string>("");
 
   // Form Setup
-  const { register, control, handleSubmit, reset, watch, setValue } =
+  const { register, control, handleSubmit, reset, watch, setValue, formState } =
     useForm<ResumeFormData>();
   // Use watch() for live preview updates (formData must react to changes)
   const formData = watch();
@@ -297,6 +297,7 @@ export const useResumeEditor = () => {
     setValue,
     watch,
     onSubmit,
+    formState,
 
     // State
     loading,

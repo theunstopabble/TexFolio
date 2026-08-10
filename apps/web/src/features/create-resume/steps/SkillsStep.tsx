@@ -9,7 +9,7 @@ interface SkillsStepProps {
 const SkillsStep: React.FC<SkillsStepProps> = ({ register, fieldArray }) => (
   <div className="card animate-fade-in shadow-lg">
     <div className="flex justify-between items-center mb-6">
-      <h2 className="card-title">🛠️ Technical Skills</h2>
+      <h2 className="card-title">🛠️ Skills</h2>
       <button
         type="button"
         onClick={() =>
@@ -28,7 +28,7 @@ const SkillsStep: React.FC<SkillsStepProps> = ({ register, fieldArray }) => (
         >
           <div className="flex justify-between mb-3">
             <span className="font-semibold text-slate-700">
-              Skill Group #{index + 1}
+              Skill Category #{index + 1}
             </span>
             <button
               type="button"

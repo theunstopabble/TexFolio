@@ -86,18 +86,18 @@ export const ExperienceSection = ({
                 <label htmlFor={`exp-start-${index}`} className="sr-only">Start Date</label>
                 <input
                   id={`exp-start-${index}`}
+                  type="month"
                   {...register(`experience.${index}.startDate`)}
                   className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Start Date"
                 />
               </div>
               <div>
                 <label htmlFor={`exp-end-${index}`} className="sr-only">End Date</label>
                 <input
                   id={`exp-end-${index}`}
+                  type="month"
                   {...register(`experience.${index}.endDate`)}
                   className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="End Date"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export const ExperienceSection = ({
               `experience.${index}.description` as `experience.${number}.description`,
             )}
             className="form-input w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
-            placeholder="Description (bullets will be split by new line)"
+            placeholder="Description (bullets will be split by new lines)"
           />
         </div>
       ))}

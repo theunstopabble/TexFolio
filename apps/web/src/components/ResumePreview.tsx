@@ -102,13 +102,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
   const rawDate = (dateStr: string | undefined) => dateStr || "";
   const dateRange = (start?: string, end?: string) => {
     const s = rawDate(start);
-    const e = rawDate(end);
+    const e = end ? rawDate(end) : s ? "Present" : "";
     if (!s && !e) return "";
     return `${s} - ${e}`.replace(/ - $/, "");
   };
   const dateRangeEmDash = (start?: string, end?: string) => {
     const s = rawDate(start);
-    const e = rawDate(end);
+    const e = end ? rawDate(end) : s ? "Present" : "";
     if (!s && !e) return "";
     return `${s} – ${e}`.replace(/ – $/, "");
   };

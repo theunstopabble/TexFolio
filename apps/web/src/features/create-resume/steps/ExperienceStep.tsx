@@ -9,7 +9,7 @@ interface ExperienceStepProps {
 const ExperienceStep: React.FC<ExperienceStepProps> = ({ register, fieldArray }) => (
   <div className="card animate-fade-in shadow-lg">
     <div className="flex justify-between items-center mb-6">
-      <h2 className="card-title">💼 Work Experience</h2>
+      <h2 className="card-title">💼 Experience</h2>
       <button
         type="button"
         onClick={() =>
@@ -93,7 +93,7 @@ const ExperienceStep: React.FC<ExperienceStepProps> = ({ register, fieldArray })
       ))}
       {fieldArray.fields.length === 0 && (
         <p className="text-center text-slate-500 py-4">
-          No experience details added yet.
+          No experience added yet.
         </p>
       )}
     </div>

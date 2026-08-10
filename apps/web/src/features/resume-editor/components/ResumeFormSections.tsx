@@ -6,6 +6,7 @@ import type {
   UseFieldArrayAppend,
   UseFieldArrayRemove,
 } from "react-hook-form";
+import type { FieldErrors } from "react-hook-form";
 import type { ResumeFormData } from "../types";
 import { BasicInfoSection } from "./sections/BasicInfoSection";
 import { SummarySection } from "./sections/SummarySection";
@@ -20,6 +21,7 @@ interface ResumeFormSectionsProps {
   register: UseFormRegister<ResumeFormData>;
   watch: UseFormWatch<ResumeFormData>;
   setValue: UseFormSetValue<ResumeFormData>;
+  errors: FieldErrors<ResumeFormData>;
   expFields: FieldArrayWithId<ResumeFormData, "experience", "id">[];
   appendExp: UseFieldArrayAppend<ResumeFormData, "experience">;
   removeExp: UseFieldArrayRemove;
@@ -42,6 +44,7 @@ export const ResumeFormSections = ({
   register,
   watch,
   setValue,
+  errors,
   expFields,
   appendExp,
   removeExp,
@@ -60,7 +63,7 @@ export const ResumeFormSections = ({
 }: ResumeFormSectionsProps) => {
   switch (activeStep) {
     case 0:
-      return <BasicInfoSection register={register} watch={watch} setValue={setValue} />;
+      return <BasicInfoSection register={register} watch={watch} setValue={setValue} errors={errors} />;
     case 1:
       return <SummarySection register={register} watch={watch} setValue={setValue} />;
     case 2:

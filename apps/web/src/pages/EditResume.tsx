@@ -47,6 +47,7 @@ const EditResume = () => {
     nextStep,
     prevStep,
     goToStep,
+    formState,
     // Field Arrays
     experienceFieldArray,
     educationFieldArray,
@@ -181,6 +182,7 @@ const EditResume = () => {
                 register={register}
                 watch={watch}
                 setValue={setValue}
+                errors={formState.errors}
                 // Field Arrays props
                 expFields={experienceFieldArray.fields}
                 appendExp={experienceFieldArray.append}

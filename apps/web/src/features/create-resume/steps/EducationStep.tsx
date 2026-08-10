@@ -98,7 +98,7 @@ const EducationStep: React.FC<EducationStepProps> = ({ register, fieldArray }) =
       ))}
       {fieldArray.fields.length === 0 && (
         <p className="text-center text-slate-500 py-4">
-          No education details added yet.
+          No education added yet.
         </p>
       )}
     </div>

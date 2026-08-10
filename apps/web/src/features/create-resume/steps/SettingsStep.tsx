@@ -48,9 +48,9 @@ const SettingsStep: React.FC<SettingsStepProps> = ({
       <div className="form-group">
         <label className="form-label">Select Template</label>
         <select {...register("templateId")} className="form-input">
-          <option value="premium">Premium (Recommended)</option>
+          <option value="premium">Premium</option>
           <option value="classic">Classic</option>
-          <option value="faangpath">FAANGPath Pro 🚀</option>
+          <option value="faangpath">FAANGPath Pro</option>
         </select>
       </div>
     </div>

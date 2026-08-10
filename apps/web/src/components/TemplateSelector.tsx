@@ -10,7 +10,7 @@ interface TemplateSelectorProps {
 const TEMPLATES = [
   {
     id: "classic",
-    name: "Classic Reader",
+    name: "Classic",
     description:
       "Clean, professional, and ATS-friendly. Best for corporate jobs.",
     isPremium: false,
@@ -18,7 +18,7 @@ const TEMPLATES = [
   },
   {
     id: "premium",
-    name: "Modern Pro",
+    name: "Premium",
     description: "Sleek headers, icons, and accent colors. Stands out.",
     isPremium: true,
     color: "bg-blue-50",

@@ -9,7 +9,7 @@ interface ProjectsStepProps {
 const ProjectsStep: React.FC<ProjectsStepProps> = ({ register, fieldArray }) => (
   <div className="card animate-fade-in shadow-lg">
     <div className="flex justify-between items-center mb-6">
-      <h2 className="card-title">🚀 Notable Projects</h2>
+      <h2 className="card-title">🚀 Projects</h2>
       <button
         type="button"
         onClick={() =>

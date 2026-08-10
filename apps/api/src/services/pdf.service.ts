@@ -102,7 +102,13 @@ const transformResumeData = (resume: IResume) => {
       POSITION: escapeLatex(exp.position),
       LOCATION: escapeLatex(exp.location || ""),
       START_DATE: escapeLatex(exp.startDate || ""),
-      END_DATE: escapeLatex(exp.endDate || ""),
+      END_DATE: escapeLatex(
+        exp.endDate
+          ? exp.endDate
+          : exp.startDate
+            ? "Present"
+            : "",
+      ),
       DESCRIPTION: exp.description?.map((d) => escapeLatex(d)) || [],
     })),
   });
@@ -116,7 +122,13 @@ const transformResumeData = (resume: IResume) => {
       FIELD: escapeLatex(edu.field),
       LOCATION: escapeLatex(edu.location || ""),
       START_DATE: escapeLatex(edu.startDate || ""),
-      END_DATE: escapeLatex(edu.endDate || ""),
+      END_DATE: escapeLatex(
+        edu.endDate
+          ? edu.endDate
+          : edu.startDate
+            ? "Present"
+            : "",
+      ),
       GPA: edu.gpa ? escapeLatex(edu.gpa) : null,
     })),
   });
