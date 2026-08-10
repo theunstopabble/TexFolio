@@ -138,7 +138,6 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | ESLint | 9.39 | Code linting |
 | Concurrently | 8.2 | Parallel dev scripts |
 | GitHub Actions | — | CI/CD pipeline |
-| sharp | 0.34 | Image optimization (build-time) |
 
 ---
 

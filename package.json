@@ -19,7 +19,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "keywords": [
     "resume-builder",
@@ -31,7 +31,6 @@
   "author": "Gautam Kumar <gautamkumar43421@gmail.com> (https://gautam-kr.vercel.app)",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "sharp": "^0.34.5"
+    "concurrently": "^8.2.2"
   }
 }
