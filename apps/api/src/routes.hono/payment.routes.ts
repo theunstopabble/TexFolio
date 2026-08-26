@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { authMiddleware } from "../middleware.hono/auth.middleware.js";
-import { rateLimiter } from "../middleware.hono/rate-limit.middleware.js";
+import { rateLimiter } from "../middleware.hono/rate-limit.memory.js";
 import { paymentService } from "../services/payment.service.js";
 import crypto from "crypto";
 import { env } from "../config/env.js";

@@ -1,14 +1,11 @@
 import { Queue, Worker, type Job } from "bullmq";
-import { Redis } from "ioredis";
+import { getRedisConnection, closeRedis } from "../config/redis.js";
 import { env } from "../config/env.js";
 import { generatePDF } from "../services/pdf.service.js";
 import { Resume, Organization } from "../models/index.js";
 
 // Redis connection shared between queue and worker
-const redisConnection = new Redis(env.REDIS_URL || "redis://localhost:6379", {
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-});
+const redisConnection = getRedisConnection();
 
 /**
  * BullMQ Queue for asynchronous PDF generation.
@@ -23,8 +20,8 @@ export const pdfQueue = new Queue("pdf-generation", {
       type: "exponential",
       delay: 2000,
     },
-    removeOnComplete: { count: 100 },
-    removeOnFail: { count: 50 },
+    removeOnComplete: { count: 20 },
+    removeOnFail: { count: 10 },
   },
 });
 
@@ -119,5 +116,5 @@ pdfWorker.on("error", (err: Error) => {
 export async function closePdfQueue(): Promise<void> {
   await pdfQueue.close();
   await pdfWorker.close();
-  await redisConnection.quit();
+  await closeRedis();
 }
