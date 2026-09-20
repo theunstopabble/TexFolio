@@ -315,6 +315,9 @@ resumeRoutes.post("/:id/pdf/queue", async (c) => {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
 
+    if (!pdfQueue) {
+      return c.json({ success: false, error: "PDF generation not available (local development)" }, 503);
+    }
     const job = await pdfQueue.add("generate-pdf", {
       resumeId: id,
       userId: user.userId,
@@ -339,6 +342,9 @@ resumeRoutes.get("/:id/pdf/queue/:jobId", async (c) => {
     const id = c.req.param("id");
     const jobId = c.req.param("jobId");
 
+    if (!pdfQueue) {
+      return c.json({ success: false, error: "PDF generation not available (local development)" }, 503);
+    }
     const job = await pdfQueue.getJob(jobId);
     if (!job) {
       return c.json({ success: false, error: "Job not found" }, 404);
@@ -373,6 +379,9 @@ resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
     const id = c.req.param("id");
     const jobId = c.req.param("jobId");
 
+    if (!pdfQueue) {
+      return c.json({ success: false, error: "PDF generation not available (local development)" }, 503);
+    }
     const job = await pdfQueue.getJob(jobId);
     if (!job) {
       return c.json({ success: false, error: "Job not found" }, 404);

@@ -21,7 +21,7 @@ import { organizationRoutes } from "./routes.hono/organization.routes.js";
 import { apiKeyRoutes } from "./routes.hono/api-key.routes.js";
 import { gdprRoutes } from "./routes.hono/gdpr.routes.js";
 import { aiService } from "./services/ai.service.js";
-import { closePdfQueue } from "./queues/pdf.queue.js";
+import { closePdfQueue, initPdfQueue } from "./queues/pdf.queue.js";
 
 // Create Hono app
 const app = new Hono();
@@ -289,6 +289,14 @@ const startServer = async (): Promise<void> => {
   try {
     // Connect to database
     await connectDatabase();
+
+    // Initialize PDF queue (will connect to Redis if available)
+    try {
+      initPdfQueue();
+      console.log("📄 PDF Queue initialized");
+    } catch (err) {
+      console.warn("⚠️ PDF Queue initialization skipped (Redis unavailable):", err instanceof Error ? err.message : String(err));
+    }
 
     // Start Hono server
     const port = Number(env.PORT) || 5000;

@@ -3,9 +3,24 @@ import { env } from "./env.js";
 
 let redisConnection: Redis | null = null;
 
-export function getRedisConnection(): Redis {
+function isProduction(): boolean {
+  return env.NODE_ENV === "production";
+}
+
+export function getRedisConnection(): Redis | null {
+  // Skip Redis connection in local development to preserve Upstash free tier
+  if (!isProduction()) {
+    return null;
+  }
+
   if (!redisConnection) {
-    redisConnection = new Redis(env.REDIS_URL || "redis://localhost:6379", {
+    const redisUrl = env.REDIS_URL;
+    if (!redisUrl) {
+      console.warn("[Redis] REDIS_URL not set, skipping Redis connection");
+      return null;
+    }
+
+    redisConnection = new Redis(redisUrl, {
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
       lazyConnect: true,
@@ -20,7 +35,7 @@ export function getRedisConnection(): Redis {
 
 export async function connectRedis(): Promise<void> {
   const redis = getRedisConnection();
-  if (redis.status === "wait") {
+  if (redis && redis.status === "wait") {
     await redis.connect();
   }
 }

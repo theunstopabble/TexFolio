@@ -136,8 +136,9 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
     freeMax,
     proMax,
     message = "Rate limit exceeded for your plan. Please upgrade or try again later.",
-    unauthenticatedMax = Math.min(freeMax, 10),
   } = options;
+
+  const unauthenticatedMax = options.unauthenticatedMax ?? Math.min(freeMax, 10);
 
   return async (c: Context, next: Next) => {
     const user = c.get("user");
@@ -158,8 +159,9 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
     const { hits, ttlMs } = incrementWindow(key, windowMs);
     const resetTime = Date.now() + ttlMs;
 
-    c.header("X-RateLimit-Limit", max.toString());
-    c.header("X-RateLimit-Remaining", Math.max(0, max - hits).toString());
+    const effectiveMax = user?.userId ? max : unauthenticatedMax;
+    c.header("X-RateLimit-Limit", effectiveMax.toString());
+    c.header("X-RateLimit-Remaining", Math.max(0, effectiveMax - hits).toString());
     c.header("X-RateLimit-Reset", new Date(resetTime).toISOString());
     if (isPro) {
       c.header("X-RateLimit-Tier", "pro");
@@ -168,8 +170,6 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
     } else {
       c.header("X-RateLimit-Tier", "anonymous");
     }
-
-    const effectiveMax = user?.userId ? max : unauthenticatedMax;
     if (hits > effectiveMax) {
       c.header("Retry-After", Math.ceil(ttlMs / 1000).toString());
       return c.json(
