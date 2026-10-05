@@ -62,7 +62,7 @@ const Templates = () => {
     <>
       <SeoMeta
         title="Resume Templates - FAANG & LaTeX Designs"
-        description="Choose from FAANGPath, Premium, and Classic LaTeX resume templates. Each is ATS-friendly and fully customizable for tech, business, and academic roles."
+        description="Choose from Developer Pro, FAANGPath, Premium, and Classic LaTeX resume templates. Each is ATS-friendly and fully customizable for tech, business, and academic roles."
         keywords="resume templates, LaTeX resume templates, FAANG resume template, professional resume template, ATS-friendly templates, free resume templates"
         canonicalUrl="https://texfolio.vercel.app/templates"
         jsonLd={[

@@ -52,6 +52,7 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | pdf-parse | 1.1 | PDF parsing | LinkedIn PDF import extraction |
 | tsx | 4.19 | Dev runner | TypeScript execution without compilation |
 | @clerk/backend | 3.7 | Auth (server) | Clerk JWT verification + user lookup |
+| Telegram Bot API | v7.x (HTTP) | Founder alerts | Real-time milestone notifications (Signups, Views, PDFs, Payments) |
 
 ### Declared but unused
 

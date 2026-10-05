@@ -44,6 +44,7 @@ TexFolio is an **npm-workspaces monorepo** following a Service-Oriented Architec
 │ • Orgs       │ │           │ │ • Progress│ │ • Clerk           │
 │ • AuditLogs  │ │           │ │           │ │ • Razorpay        │
 │ • ApiKeys    │ │           │ │           │ │ • Brevo           │
+│              │ │           │ │           │ │ • Telegram Bot    │
 └──────────────┘ └───────────┘ └─────┬─────┘ └───────────────────┘
                                      │
                                      ▼

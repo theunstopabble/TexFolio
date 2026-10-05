@@ -99,6 +99,17 @@ paymentRoutes.post(
           { isPro: true, subscriptionId: payload.razorpay_payment_id },
         );
 
+        // Asynchronously notify founder via Telegram
+        import("../services/telegram.service.js")
+          .then(({ telegramService }) => {
+            telegramService.notifyPayment({
+              email: user.email,
+              amount: "₹499",
+              paymentId: payload.razorpay_payment_id,
+            });
+          })
+          .catch(() => {});
+
         return c.json({
           success: true,
           message: "Payment verified successfully. Pro access granted!",
@@ -197,6 +208,18 @@ paymentRoutes.post("/webhook", async (c) => {
         console.log(
           `✅ Webhook: Pro access granted to ${userEmail} (payment: ${razorpayPaymentId})`,
         );
+
+        // Asynchronously notify founder via Telegram
+        const amountInRupees = payment.amount ? `₹${payment.amount / 100}` : "₹499";
+        import("../services/telegram.service.js")
+          .then(({ telegramService }) => {
+            telegramService.notifyPayment({
+              email: userEmail,
+              amount: amountInRupees,
+              paymentId: razorpayPaymentId,
+            });
+          })
+          .catch(() => {});
       }
     }
 

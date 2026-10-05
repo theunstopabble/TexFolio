@@ -56,7 +56,7 @@ const faqItems = [
   {
     question: "What templates are available?",
     answer:
-      "We offer Premium (modern tech/business), Classic (traditional/academic), and FAANGPath (optimized for top tech companies) templates. Each is LaTeX-rendered, ATS-friendly, and fully customizable. More templates are coming soon.",
+      "We offer Developer Pro (ultra-compact engineering), Premium (modern tech/business), Classic (traditional/academic), and FAANGPath (optimized for top tech companies) templates. Each is LaTeX-rendered, ATS-friendly, and fully customizable. More templates are coming soon.",
   },
   {
     question: "Can I practice interviews after building my resume?",

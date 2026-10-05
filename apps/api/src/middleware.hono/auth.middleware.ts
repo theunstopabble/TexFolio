@@ -100,6 +100,16 @@ export const authMiddleware = createMiddleware(
               password: crypto.randomUUID(),
               isPro: false,
             });
+
+            // Asynchronously notify founder via Telegram
+            import("../services/telegram.service.js")
+              .then(({ telegramService }) => {
+                telegramService.notifyNewUser({
+                  email: user?.email,
+                  fullName: user?.fullName,
+                });
+              })
+              .catch(() => {});
           }
         }
       }

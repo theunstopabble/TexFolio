@@ -124,6 +124,10 @@ CORS_ORIGIN=https://texfolio.vercel.app
 
 # API Keys (generate a random 64-char hex string)
 API_KEY_SECRET=<random_64_char_hex>
+
+# Telegram Founder Alerts (Optional)
+TELEGRAM_BOT_TOKEN=8646841885:AAFOcNqvMuFqDMPxQa-J9Q4KFHOW8KfN334
+TELEGRAM_CHAT_ID=752651820
 ```
 
 ### 4.3 LaTeX Rendering on Render

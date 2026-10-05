@@ -38,14 +38,14 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 ### 📄 LaTeX Precision
 
 - **Real LaTeX Rendering:** Uses `pdflatex` to compile high-quality PDFs.
-- **FAANG-Ready Templates:** Includes the popular "FAANGPath" and "Classic" templates used by top tech companies.
-- **Clean URLs:** Automatic formatting of LinkedIn and GitHub links for a cleaner look.
+- **FAANG-Ready Templates:** Includes "Developer Pro", "FAANGPath", "Classic", and "Premium" templates with authentic Computer Modern typography.
+- **Clean URLs:** Automatic formatting of LinkedIn, GitHub, and custom profile links for a cleaner look.
 
 ### 🛠️ Powerful Editor
 
 - **Interactive Stepper:** A guided, step-by-step form experience.
 - **Drag & Drop:** Easily reorder sections (Education, Experience, Skills, etc.).
-- **Live Preview:** Real-time feedback on your edits as you type. ✨
+- **Live Preview:** Real-time feedback on your edits with authentic LaTeX small-caps styling as you type. ✨
 
 ### 🏢 Organizations & RBAC
 
@@ -56,8 +56,9 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 - **Org-Aware Resumes:** Resumes with `visibility: "organization"` are shared across the team.
 - **Audit Logging:** Immutable trail for all membership changes and organization actions.
 
-### 📡 Enterprise Infrastructure
+### 📡 Enterprise Infrastructure & Founder Alerts
 
+- **Smart Telegram Founder Alerts:** Real-time milestone alerts sent to `@TexFolio_bot` (New Users, Recruiter Views with source/device detection, PDF Compiles, and Pro Payments). 100% backend fire-and-forget with zero frontend tracking footprint.
 - **Queue-Based PDF Generation:** BullMQ + Redis offloads LaTeX compilation from the HTTP thread.
   - Progress tracking (10% → 30% → 100%)
   - Automatic retries with exponential backoff
@@ -92,13 +93,13 @@ Unlike traditional resume builders that generate clunky HTML-to-PDF exports, Tex
 
 |                   **Interactive Editor**                   |                          **Dashboard**                           |
 | :--------------------------------------------------------: | :--------------------------------------------------------------: |
-| <img src="docs/editor-demo.png" alt="Editor" width="400"/> | <img src="docs/dashboard-demo.png" alt="Dashboard" width="400"/> |
+| <img src="apps/web/public/editor-demo.png" alt="Editor" width="400"/> | <img src="apps/web/public/dashboard-demo.png" alt="Dashboard" width="400"/> |
 
 |                       **AI Analysis**                       |                         **PDF Preview**                          |
 | :---------------------------------------------------------: | :--------------------------------------------------------------: |
-| <img src="docs/ai-demo.png" alt="AI Analysis" width="400"/> | <img src="docs/preview-demo.png" alt="PDF Preview" width="400"/> |
+| <img src="apps/web/public/ai-demo.png" alt="AI Analysis" width="400"/> | <img src="apps/web/public/preview-demo.png" alt="PDF Preview" width="400"/> |
 
-> _Note: Add your screenshots to a `docs/` folder in the root directory._
+> _Note: Screenshot assets are located in `apps/web/public/` and served statically._
 
 ---
 
@@ -337,6 +338,14 @@ All protected routes strictly require a Clerk `Bearer` token, unless noted other
 | `GET`    | `/api/resumes/:id/pdf/queue/:jobId/download` | Clerk | Download completed async PDF                     |
 | `POST`   | `/api/resumes/:id/email`                     | Clerk | Email PDF via Brevo                              |
 | `PATCH`  | `/api/resumes/:id/visibility`                | Clerk | Toggle public visibility + generate shareId      |
+
+### **Public Resumes (`/api/public`)**
+
+| Method   | Endpoint                     | Auth   | Description                                                           |
+| :------- | :--------------------------- | :----- | :-------------------------------------------------------------------- |
+| `GET`    | `/api/public/r/:shareId`     | Public | View public resume; asynchronously notifies founder via Telegram       |
+| `POST`   | `/api/public/r/:shareId/share` | Clerk  | Enable public sharing for a resume                                    |
+| `DELETE` | `/api/public/r/:shareId/share` | Clerk  | Disable public sharing for a resume                                   |
 
 ### **AI Services (`/api/ai` & `/api/agents`)**
 

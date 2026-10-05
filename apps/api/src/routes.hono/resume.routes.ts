@@ -377,6 +377,17 @@ resumeRoutes.get("/:id/pdf", async (c) => {
 
     const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
 
+    // Asynchronously notify founder via Telegram of PDF generation
+    import("../services/telegram.service.js")
+      .then(({ telegramService }) => {
+        telegramService.notifyPdfGenerated({
+          resumeTitle: resume?.title || "Untitled Resume",
+          email: user.email,
+          templateId: resume?.templateId,
+        });
+      })
+      .catch(() => {});
+
     // Sanitize filename to prevent header injection
     const sanitizeFilename = (name: string) =>
       name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";

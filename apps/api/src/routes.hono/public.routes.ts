@@ -26,6 +26,23 @@ publicRoutes.get("/r/:shareId", async (c) => {
       );
     }
 
+    // Asynchronously notify founder via Telegram with recruiter/device context
+    const referer = c.req.header("referer");
+    const userAgent = c.req.header("user-agent");
+    const ip = c.req.header("x-forwarded-for") || c.req.header("cf-connecting-ip");
+
+    import("../services/telegram.service.js")
+      .then(({ telegramService }) => {
+        telegramService.notifyPublicResumeView({
+          shareId,
+          resumeTitle: resume.title,
+          referer,
+          userAgent,
+          ip,
+        });
+      })
+      .catch(() => {});
+
     return c.json({ success: true, data: resume });
   } catch (error) {
     console.error("Public Resume Error:", error);

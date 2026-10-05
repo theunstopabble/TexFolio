@@ -279,6 +279,86 @@ download and email. Resumes created inside an organization are exempt (the org's
 
 ---
 
+## Public Resumes API
+
+**Source:** `apps/api/src/routes.hono/public.routes.ts`
+
+Endpoints for viewing and sharing public resumes.
+
+### GET /api/public/r/:shareId
+
+Retrieve a publicly shared resume by its `shareId`.
+
+**Auth:** None (Public)
+
+**Telemetry & Founder Alerts:**
+When accessed, the server non-blockingly resolves:
+- **Referral source:** (e.g. LinkedIn, Gautam's Portfolio, ChatGPT, Claude, Google, etc. via `referer` header).
+- **Device & Browser:** (Laptop, Mobile, Tablet, OS, Browser via `user-agent` header).
+- **IP Address:** Client IP (via `x-forwarded-for` or `cf-connecting-ip`).
+- **Telegram Notification:** Dispatches real-time recruiter alert to `@TexFolio_bot` (debounced by 10s per shareId/IP).
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Full-Stack Developer Resume",
+    "personalInfo": { ... },
+    "experience": [ ... ],
+    "education": [ ... ],
+    "skills": [ ... ],
+    "projects": [ ... ]
+  }
+}
+```
+
+### POST /api/public/r/:shareId/share
+
+Enable public sharing for a resume.
+
+**Auth:** Clerk JWT
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Resume shared successfully",
+  "data": { "isPublic": true, "shareId": "xMSoImgRJi" }
+}
+```
+
+### DELETE /api/public/r/:shareId/share
+
+Revoke public sharing for a resume.
+
+**Auth:** Clerk JWT
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Resume unshared successfully",
+  "data": { "isPublic": false }
+}
+```
+
+---
+
+## Telegram Founder Milestone Alerts
+
+**Source:** `apps/api/src/services/telegram.service.ts`
+
+TexFolio includes a zero-overhead, fire-and-forget real-time notification engine using the Telegram Bot API (`@TexFolio_bot`).
+
+### Triggered Milestones:
+1. 👤 **New User Registration** (`auth.middleware.ts`): Fired when a new user record is created.
+2. 👁️ **Recruiter Public Resume View** (`public.routes.ts`): Fired when a public resume is loaded, reporting recruiter source, device, and client IP.
+3. 📄 **Resume Downloaded / PDF Generated** (`resume.routes.ts`): Fired when LaTeX successfully compiles a PDF.
+4. 💰 **Payment / Pro Upgrade** (`payment.routes.ts`): Fired on Razorpay signature verification and webhook events.
+
+---
+
 ## AI Services API
 
 **Source:** `apps/api/src/routes.hono/ai.routes.ts`, `apps/api/src/routes.hono/agent.routes.ts`

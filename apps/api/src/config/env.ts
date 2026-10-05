@@ -26,6 +26,8 @@ const envSchema = z.object({
   USE_DOCKER_LATEX: z.string().optional(), // Run LaTeX via docker exec texfolio-latex
   REDIS_URL: z.string().default("redis://localhost:6379"),
   API_KEY_SECRET: z.string().optional(), // HMAC secret for service-to-service API keys
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_CHAT_ID: z.string().optional(),
 });
 
 // Parse and validate environment variables

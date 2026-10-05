@@ -472,6 +472,15 @@ rejects. The editor exposes matching limits for resume title (100) and descripti
 stale server revision. The API interceptor tags already-reported errors, and
 `isReportedError()` lets callers log instead of showing a second toast.
 
+### Telegram Founder Alerts Resiliency
+
+**Source:** `apps/api/src/services/telegram.service.ts`
+
+- **Zero Latency Impact:** All Telegram dispatch calls are executed asynchronously using dynamic `import(...).then(...).catch(() => {})`. A slow Telegram connection or failure never blocks HTTP responses.
+- **Short Timeout:** Network requests to Telegram Bot API use `AbortSignal.timeout(6000)` (6 seconds) to prevent memory or socket leaks during network partitions.
+- **Anti-Spam Debounce Window:** Recruiter public resume views are debounced with a 10-second gate per `shareId` and client IP to prevent message storms from rapid browser reloads.
+- **Silent Degradation:** If `TELEGRAM_BOT_TOKEN` is unset or Telegram returns an error, the operation fails silently without logging sensitive user credentials or crashing the API process.
+
 ---
 
 ## Graceful Shutdown
