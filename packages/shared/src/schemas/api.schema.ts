@@ -59,6 +59,16 @@ export const atsScoreResultSchema = z.object({
   keywords_missing: z.array(z.string()),
   formatting_issues: z.array(z.string()),
   suggestions: z.array(z.string()),
+  /** Where the numeric score came from: deterministic rules, LLM, or a blend. */
+  source: z.enum(["deterministic", "llm", "hybrid"]).optional(),
+  /** Per-category point breakdown (deterministic checks). */
+  breakdown: z.record(z.number()).optional(),
+  /** Human-readable issues found by deterministic checks. */
+  issues: z.array(z.string()).optional(),
+  /** Set when the model replied with unreadable JSON. */
+  parseFailed: z.boolean().optional(),
+  /** Set when the AI service itself failed. */
+  serviceUnavailable: z.boolean().optional(),
 });
 
 export const aiAnalyzeRequestSchema = z.object({

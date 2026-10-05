@@ -38,6 +38,14 @@ const Footer = () => {
               </li>
               <li>
                 <Link
+                  to="/cover-letter"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  Cover Letter
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/pricing"
                   className="hover:text-blue-400 transition-colors"
                 >

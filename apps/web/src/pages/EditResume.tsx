@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useResumeEditor } from "../features/resume-editor/hooks/useResumeEditor";
 import { ResumeFormSections } from "../features/resume-editor/components/ResumeFormSections";
 import { ShareModal } from "../features/resume-editor/components/ShareModal";
-import ResumePreview from "../components/ResumePreview";
+import { DownloadModal } from "../features/resume-editor/components/DownloadModal";
+import { ResumePreviewStudio } from "../components/ResumePreviewStudio";
 import AIAnalysisModal from "../components/AIAnalysisModal";
 import CoverLetterModal from "../components/CoverLetterModal";
 import AICoachModal from "../components/AICoachModal";
@@ -15,12 +16,14 @@ const EditResume = () => {
     formData,
     register,
     handleSubmit,
+    handleSubmitError,
     setValue,
     watch,
     onSubmit,
     // State
     loading,
     saving,
+    downloading,
     activeStep,
     // Modals
     isAIModalOpen,
@@ -31,6 +34,8 @@ const EditResume = () => {
     setAtsModalOpen,
     atsResult,
     atsLoading,
+    atsJobDescription,
+    setAtsJobDescription,
     shareModalOpen,
     setShareModalOpen,
     isPublic,
@@ -54,16 +59,32 @@ const EditResume = () => {
     skillsFieldArray,
     projectsFieldArray,
     certificationsFieldArray,
+    profileLinksFieldArray,
+    getValues,
   } = useResumeEditor();
 
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+
+  /**
+   * Runs the compile and closes the chooser when it settles.
+   *
+   * `handleDownload` never rejects (it swallows into a toast), so the modal is
+   * guaranteed to dismiss on both success and failure — leaving it open would
+   * ask for one extra click after the browser's own download bar already
+   * signalled completion.
+   */
+  const downloadFromModal = async () => {
+    await handleDownload();
+    setDownloadModalOpen(false);
+  };
 
   const steps = [
     { title: "Basics", icon: "👤" },
     { title: "Summary", icon: "📝" },
-    { title: "Experience", icon: "💼" },
     { title: "Education", icon: "🎓" },
+    { title: "Experience", icon: "💼" },
     { title: "Skills", icon: "🛠️" },
     { title: "Projects", icon: "🚀" },
     { title: "Certifications", icon: "🏆" },
@@ -87,18 +108,31 @@ const EditResume = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold text-slate-900">Edit Resume</h1>
-        <div className="flex flex-wrap gap-2 justify-center">
+        {/* 2-up below md: six full-width stacked buttons ate ~300px of the
+            mobile viewport before the form even started. The ATS input and the
+            Back escape hatch span both columns since their labels are longest. */}
+        <div className="grid grid-cols-2 gap-2 text-sm md:flex md:flex-row md:items-center md:justify-center md:flex-wrap md:text-base">
+          <div className="relative col-span-2 md:w-auto md:max-w-xs">
+            <input
+              type="text"
+              value={atsJobDescription}
+              onChange={(e) => setAtsJobDescription(e.target.value)}
+              placeholder="Paste job description (optional)…"
+              className="form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              aria-label="Job description for ATS keyword matching"
+            />
+          </div>
           <button
             type="button"
-            onClick={handleATSCheck}
-            className="btn bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+            onClick={() => handleATSCheck(atsJobDescription)}
+            className="btn bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500 flex items-center gap-2 md:whitespace-nowrap"
           >
             <span>📊</span> Check ATS Score
           </button>
           <button
             type="button"
             onClick={() => setClModalOpen(true)}
-            className="btn bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2"
+            className="btn bg-teal-600 hover:bg-teal-700 text-white focus:ring-teal-500 flex items-center gap-2"
           >
             <span>✍️</span> Cover Letter
           </button>
@@ -109,12 +143,17 @@ const EditResume = () => {
           >
             <span>🔗</span> Share
           </button>
-          <button onClick={handleDownload} className="btn btn-secondary">
-            📥 Download PDF
+          <button
+            type="button"
+            onClick={() => setDownloadModalOpen(true)}
+            className="btn btn-secondary flex items-center gap-2"
+          >
+            <span>📥</span> Download
           </button>
           <button
+            type="button"
             onClick={() => navigate("/resumes")}
-            className="btn btn-secondary"
+            className="btn btn-secondary col-span-2 md:col-span-1"
           >
             ← Back
           </button>
@@ -126,11 +165,13 @@ const EditResume = () => {
         {steps.map((step, index) => (
           <button
             key={index}
+            type="button"
             onClick={() => goToStep(index)}
-            className={`flex flex-col items-center gap-2 min-w-[80px] transition-all px-2 py-2 rounded-lg ${
+            aria-current={activeStep === index ? "step" : undefined}
+            className={`flex flex-col items-center gap-2 min-w-[80px] transition-all px-2 py-2 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 ${
               activeStep === index
                 ? "text-purple-600 bg-purple-50 font-semibold scale-105"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
             }`}
           >
             <div
@@ -151,21 +192,48 @@ const EditResume = () => {
       <div className="lg:hidden space-y-3 mb-6">
         <div className="flex bg-slate-100 p-1 rounded-lg">
           <button
+            type="button"
             onClick={() => setActiveTab("editor")}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "editor" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+            aria-pressed={activeTab === "editor"}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 ${activeTab === "editor" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
           >
             ✏️ Editor
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab("preview")}
-            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+            aria-pressed={activeTab === "preview"}
+            className={`flex-1 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 ${activeTab === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
           >
             👀 Preview
           </button>
         </div>
-        <div className="flex justify-between items-center text-sm font-medium text-slate-600 bg-slate-100 p-3 rounded-lg">
-          <span>Step {activeStep + 1} of {steps.length}</span>
+        {/* The desktop stepper is `hidden lg:flex`, so below lg the only way to
+            move was single-stepping through all 7 with Previous/Next. These chips
+            give mobile the same jump capability. */}
+        <div className="flex items-center justify-between text-xs font-medium text-slate-500 px-1">
+          <span>
+            Step {activeStep + 1} of {steps.length}
+          </span>
           <span className="text-purple-600">{steps[activeStep].title}</span>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+          {steps.map((step, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => goToStep(index)}
+              aria-current={activeStep === index ? "step" : undefined}
+              className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-600 ${
+                activeStep === index
+                  ? "bg-purple-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              <span aria-hidden="true">{step.icon}</span>
+              {index + 1}. {step.title}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -174,9 +242,24 @@ const EditResume = () => {
         <div
           className={`space-y-6 ${activeTab === "preview" ? "hidden lg:block" : "block"}`}
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Render Active Section */}
-            <div className="min-h-[400px]">
+          <form
+            onSubmit={handleSubmit(onSubmit, handleSubmitError)}
+            className="space-y-6"
+            // Native constraint validation runs over *every* candidate control,
+            // hidden ones included, and cannot show its tooltip on a
+            // display:none element — a bad `type="email"`/`type="number"` value
+            // in an inactive section would block Save with no feedback at all.
+            // react-hook-form owns validation for the whole form.
+            noValidate
+          >
+            {/* Every section renders; only the active one is visible (see
+                ResumeFormSections — inactive sections must stay mounted so
+                react-hook-form validates them).
+                Floor the section so the Prev/Next/Save row doesn't jump when
+                swapping between a tall section (Experience) and a near-empty one
+                (Certifications). 320px covers the typical empty-state card
+                without leaving a half-screen of dead space below it. */}
+            <div className="min-h-[320px]">
               <ResumeFormSections
                 activeStep={activeStep}
                 register={register}
@@ -199,6 +282,10 @@ const EditResume = () => {
                 certFields={certificationsFieldArray.fields}
                 appendCert={certificationsFieldArray.append}
                 removeCert={certificationsFieldArray.remove}
+                plFields={profileLinksFieldArray.fields}
+                appendPl={profileLinksFieldArray.append}
+                removePl={profileLinksFieldArray.remove}
+                getValues={getValues}
               />
             </div>
 
@@ -236,41 +323,16 @@ const EditResume = () => {
           </form>
         </div>
 
-        {/* Right Column: Live Preview (Sticky) */}
+        {/* Right Column: Live Preview (Sticky Studio Canvas) */}
         <div
-          className={`${activeTab === "editor" ? "hidden lg:block" : "block"} lg:sticky lg:top-20 h-[calc(100vh-6rem)] overflow-y-auto rounded-xl shadow-2xl bg-slate-800 p-4 border border-slate-700`}
+          className={`${activeTab === "editor" ? "hidden lg:block" : "block"} lg:sticky lg:top-20 h-[calc(100vh-6rem)]`}
         >
-          <div className="flex justify-between items-center mb-4 text-white">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              👀 Live Preview
-              <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full font-normal">
-                {formData.templateId === "premium"
-                  ? "Premium"
-                  : formData.templateId === "faangpath"
-                    ? "FAANGPath"
-                    : "Classic"}
-              </span>
-            </h3>
-            <span className="text-xs text-slate-400 hidden xl:inline">
-              Updates automatically
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setAiCoachOpen(true)}
-                className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-all"
-              >
-                🤖 AI Coach
-              </button>
-              <button
-                onClick={handleAnalyze}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs px-3 py-1.5 rounded-md font-medium shadow-sm flex items-center gap-1 transition-all"
-              >
-                ✨ AI Analyze
-              </button>
-            </div>
-          </div>
-
-          <ResumePreview data={formData} />
+          <ResumePreviewStudio
+            data={formData}
+            onOpenAiCoach={() => setAiCoachOpen(true)}
+            onOpenAiAnalyze={handleAnalyze}
+            className="h-full"
+          />
 
           <AIAnalysisModal
             isOpen={isAIModalOpen}
@@ -291,7 +353,7 @@ const EditResume = () => {
       <CoverLetterModal
         isOpen={clModalOpen}
         onClose={() => setClModalOpen(false)}
-        resumeData={formData as unknown as Record<string, unknown>}
+        resumeData={formData}
       />
       <ShareModal
         isOpen={shareModalOpen}
@@ -300,10 +362,17 @@ const EditResume = () => {
         shareId={shareId}
         onToggle={handleToggleVisibility}
       />
+      <DownloadModal
+        isOpen={downloadModalOpen}
+        onClose={() => setDownloadModalOpen(false)}
+        data={formData}
+        downloading={downloading}
+        onDownloadPdf={downloadFromModal}
+      />
       <AICoachModal
         isOpen={aiCoachOpen}
         onClose={() => setAiCoachOpen(false)}
-        resumeData={formData as unknown as Record<string, unknown>}
+        resumeData={formData}
       />
     </div>
   );

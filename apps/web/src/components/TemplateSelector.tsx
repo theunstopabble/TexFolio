@@ -1,3 +1,4 @@
+import { isProTemplate } from "@texfolio/shared";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
 
@@ -7,20 +8,23 @@ interface TemplateSelectorProps {
   // isSaving?: boolean; // Removed unused prop
 }
 
+/**
+ * Gating comes from `@texfolio/shared`, not a per-card boolean: the API checks
+ * the same predicate on create/update/PDF, so a hardcoded `isPremium` here could
+ * drift and let the picker offer something the server then rejects.
+ */
 const TEMPLATES = [
   {
     id: "classic",
     name: "Classic",
     description:
       "Clean, professional, and ATS-friendly. Best for corporate jobs.",
-    isPremium: false,
     color: "bg-slate-100",
   },
   {
     id: "premium",
     name: "Premium",
     description: "Sleek headers, icons, and accent colors. Stands out.",
-    isPremium: true,
     color: "bg-blue-50",
   },
   {
@@ -28,10 +32,16 @@ const TEMPLATES = [
     name: "FAANGPath Pro",
     description:
       "FAANG-style template. Perfect for tech roles at top companies.",
-    isPremium: true,
     color: "bg-emerald-50",
   },
-];
+  {
+    id: "developer",
+    name: "Developer Pro",
+    description:
+      "Ultra-compact 1-page design, small-caps headers, fine-tuned 9pt font. Gautam's exact template.",
+    color: "bg-indigo-50",
+  },
+] as const;
 
 const TemplateSelector = ({
   currentTemplate,
@@ -41,8 +51,8 @@ const TemplateSelector = ({
   // simplified check
   const userIsPro = user?.isPro || false;
 
-  const handleSelect = (templateId: string, isPremium: boolean) => {
-    if (isPremium && !userIsPro) {
+  const handleSelect = (templateId: string) => {
+    if (isProTemplate(templateId) && !userIsPro) {
       return; // Prevent selection
     }
     onSelect(templateId);
@@ -55,20 +65,28 @@ const TemplateSelector = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {TEMPLATES.map((template) => {
           const isSelected = currentTemplate === template.id;
-          const isLocked = template.isPremium && !userIsPro;
+          const isPremium = isProTemplate(template.id);
+          const isLocked = isPremium && !userIsPro;
 
           return (
-            <div
-              key={template.id}
-              onClick={() => handleSelect(template.id, template.isPremium)}
-              className={`relative rounded-xl border-2 p-4 cursor-pointer transition-all ${
-                isSelected
-                  ? "border-blue-600 bg-blue-50/50"
-                  : "border-slate-100 hover:border-slate-300"
-              } ${isLocked ? "opacity-75 cursor-not-allowed" : ""}`}
-            >
+            <div key={template.id} className="relative">
+              {/* A real <button>: the old <div onClick> was unreachable by
+                  keyboard. Locked cards are `disabled`, so Tab skips the dead
+                  card and lands on the Upgrade link below it instead. */}
+              <button
+                type="button"
+                onClick={() => handleSelect(template.id)}
+                disabled={isLocked}
+                aria-pressed={isSelected}
+                aria-label={`${template.name} template${isPremium ? " (Pro)" : ""}`}
+                className={`relative block w-full text-left rounded-xl border-2 p-4 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+                  isSelected
+                    ? "border-blue-600 bg-blue-50/50"
+                    : "border-slate-100 hover:border-slate-300"
+                } ${isLocked ? "opacity-75 cursor-not-allowed" : "cursor-pointer"}`}
+              >
               {/* Premium Badge */}
-              {template.isPremium && (
+              {isPremium && (
                 <div className="absolute -top-3 -right-3">
                   {userIsPro ? (
                     <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full border border-green-200">
@@ -109,24 +127,30 @@ const TemplateSelector = ({
                     ? "📄"
                     : template.id === "faangpath"
                       ? "🚀"
-                      : "🎨"}
+                      : template.id === "developer"
+                        ? "⚡"
+                        : "🎨"}
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900">{template.name}</h4>
-                  {isLocked && (
-                    <Link
-                      to="/pricing"
-                      className="text-xs text-blue-600 hover:underline"
-                    >
-                      Upgrade to Unlock
-                    </Link>
-                  )}
                 </div>
               </div>
 
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 {template.description}
               </p>
+              </button>
+
+              {/* Outside the button: an <a> inside a <button> is invalid
+                  (interactive content may not nest) and traps keyboard users. */}
+              {isLocked && (
+                <Link
+                  to="/pricing"
+                  className="mt-1.5 inline-block text-xs text-blue-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded"
+                >
+                  Upgrade to Unlock
+                </Link>
+              )}
             </div>
           );
         })}

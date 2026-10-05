@@ -66,7 +66,8 @@ const organizationSchema = new Schema<IOrganization>(
   },
 );
 
-organizationSchema.index({ slug: 1 });
-organizationSchema.index({ ownerId: 1 });
+// Indexes are declared on the fields above (`slug` unique, `ownerId` index) —
+// repeating them here would emit a non-unique `{ slug: 1 }` alongside the
+// unique one and MongoDB rejects that with IndexKeySpecsConflict.
 
 export const Organization = mongoose.model<IOrganization>("Organization", organizationSchema);

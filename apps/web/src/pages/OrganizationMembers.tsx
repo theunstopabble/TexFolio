@@ -137,7 +137,7 @@ export default function OrganizationMembersPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 User ID
-                <span className="ml-1 inline-flex items-center gap-1 text-xs text-slate-400 cursor-help" title="Ask the user to copy their User ID from their Profile page in Settings.">
+                <span className="ml-1 inline-flex items-center gap-1 text-xs text-slate-500 cursor-help" title="Ask the user to copy their User ID from their Profile page in Settings.">
                   ⓘ
                 </span>
               </label>
@@ -149,7 +149,7 @@ export default function OrganizationMembersPage() {
                 placeholder="e.g. user_2aBcDeFgHiJkLmN"
                 required
               />
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-slate-500">
                 Ask the user to copy this from their Profile page (Settings → Profile → User ID).
               </p>
             </div>
@@ -233,7 +233,7 @@ export default function OrganizationMembersPage() {
                   member.userId !== ownerId && (
                   <button
                     onClick={() => handleRemove(member.userId)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg shrink-0"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg shrink-0"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

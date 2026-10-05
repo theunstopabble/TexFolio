@@ -1,6 +1,6 @@
 # API Reference
 
-**Version:** 2.0.0 | **Last Updated:** May 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 Complete REST API documentation for the TexFolio backend (`apps/api/src/routes.hono/`).
 
@@ -21,17 +21,17 @@ All protected routes require a **Clerk JWT** Bearer token:
 Authorization: Bearer <clerk_session_token>
 ```
 
-Alternatively, service-to-service calls can use **API Key** auth:
-
-```
-X-API-Key: <prefix>.<hmac_signature>
-```
+**API Key auth is not active.** The HMAC key middleware (`apiKeyMiddleware`,
+`requireScope` in `apps/api/src/middleware.hono/api-key.middleware.ts`) is implemented
+but **not mounted on any route** — no endpoint accepts `X-API-Key` today. Keys can be
+created, listed and revoked (see [API Keys](#api-keys)), but every protected route
+requires a Clerk `Bearer` JWT.
 
 ## Common Headers
 
 | Header | Purpose |
 |:--|:--|
-| `Authorization` | Clerk JWT or `ApiKey <key>` |
+| `Authorization` | Clerk JWT (`Bearer <token>`) |
 | `X-Organization-Id` | Active organization context (optional) |
 | `X-Request-ID` | Client-provided correlation ID (auto-generated if absent) |
 | `Content-Type` | `application/json` |
@@ -53,10 +53,13 @@ Error responses:
 ```json
 {
   "success": false,
-  "error": "Human-readable error message",
-  "requestId": "abc123xyz"
+  "error": "Human-readable error message"
 }
 ```
+
+`requestId` is added by the global 500 handler only; route-level 4xx bodies
+(for example a 400 from zod validation or a 404 from a missing resource) contain
+`success` and `error` alone.
 
 ## Rate Limiting Headers
 
@@ -65,10 +68,16 @@ Every `/api/*` response includes:
 | Header | Description |
 |:--|:--|
 | `X-RateLimit-Limit` | Max requests for current window |
-| `X-RateLimit-Remaining` | Remaining requests |
-| `X-RateLimit-Reset` | ISO timestamp when window resets |
-| `X-RateLimit-Tier` | `pro`, `free`, or `anonymous` |
 | `Retry-After` | Seconds until retry (only on 429) |
+
+The limiter (`apps/api/src/middleware.hono/rate-limit.memory.ts`) is an in-process
+**sliding-window** counter, and it runs as global `/api/*` middleware **before**
+route-level auth. As a result the caller is always resolved as anonymous and the
+effective limit is `unauthenticatedMax` (20/min) today; the configured tiers
+(pro 300 / free 60 / anon 20 per 60s) are not reached until the limiter can read
+the authenticated user. The response also carries `X-RateLimit-Remaining`,
+`X-RateLimit-Reset` and `X-RateLimit-Tier` (`pro` | `free` | `anonymous`), but CORS
+only exposes `X-RateLimit-Limit` and `Retry-After` to browser JavaScript.
 
 ---
 
@@ -107,6 +116,9 @@ Create a new resume.
 **Auth:** Clerk JWT  
 **Body:** (validated with Zod)
 
+Premium templates (`PRO_TEMPLATES`) are rejected with **403** for non-Pro users —
+see [Premium templates](#premium-templates).
+
 ```json
 {
   "title": "My Resume",
@@ -116,9 +128,13 @@ Create a new resume.
     "email": "jane@example.com",
     "phone": "+1-555-0100",
     "location": "San Francisco, CA",
-    "linkedin": "linkedin.com/in/janesmith",
-    "github": "github.com/janesmith"
+    "linkedin": "gautamkr62",
+    "github": "janesmith"
   },
+  "profileLinks": [
+    { "platform": "leetcode", "url": "janesmith" },
+    { "platform": "codechef", "url": "jane_smith" }
+  ],
   "summary": "Senior software engineer with 5+ years...",
   "experience": [
     {
@@ -139,6 +155,18 @@ Create a new resume.
 }
 ```
 
+**Profile link fields normalise at write.** `personalInfo.linkedin|github|portfolio`
+and every `profileLinks[].url` accept a bare username, a host without a scheme
+(`github.com/janesmith`) or a full URL, and are stored as the platform's
+canonical `https://` URL — via `normalizeProfileLink()` in
+`packages/shared/src/developerLinks.ts`, the same function the web form's blur
+handler runs. A value that resolves to no URL (e.g. `not a handle!` on a
+prefixed platform, or a bare handle on `portfolio`/`stackoverflow`) is rejected
+with **400** rather than stored as a dead link. `personalInfo.phone` must
+contain 7–15 digits (`isPhone`); its spacing is preserved as typed.
+`profileLinks[].platform` must be one of the `PROFILE_PLATFORMS` enum values;
+rows the UI never sends (blank platform or URL) fail validation here.
+
 **Response:** `201 Created`
 
 ### GET /api/resumes/:id
@@ -148,20 +176,36 @@ Get a single resume by ID. Respects org visibility rules.
 ### PUT /api/resumes/:id
 
 Update a resume. Partial updates supported. Requires ownership or Editor+ role in org.
+Gated by [Premium templates](#premium-templates) — the check uses `body.templateId`
+if sent, otherwise the resume's existing `templateId`.
 
 ### DELETE /api/resumes/:id
 
 Delete a resume. Requires ownership or Admin+ role in org.
 
+### PATCH /api/resumes/:id/ats-score
+
+Persist a computed ATS score on the resume.
+
+**Body:**
+```json
+{ "atsScore": 78 }
+```
+
 ### GET /api/resumes/:id/pdf
 
 **Synchronous** PDF generation. Compiles LaTeX and returns the PDF binary.
+This is the path the web client uses.
+Gated by [Premium templates](#premium-templates).
 
 **Response:** `application/pdf` binary with `Content-Disposition: attachment`
 
 ### POST /api/resumes/:id/pdf/queue
 
 **Async** PDF generation via BullMQ. Returns a job ID for polling.
+Production-only: returns **503** when the queue is unavailable (local development
+without Redis). Not currently used by the web client.
+Gated by [Premium templates](#premium-templates).
 
 **Response:**
 ```json
@@ -195,6 +239,7 @@ Status values: `waiting` → `active` → `completed` | `failed`
 Download the completed async PDF.
 
 **Response:** `application/pdf` binary (409 if job not yet completed)
+Gated by [Premium templates](#premium-templates).
 
 ### PATCH /api/resumes/:id/visibility
 
@@ -211,11 +256,26 @@ Toggle public sharing. Generates a `shareId` (nanoid) on first share.
 ### POST /api/resumes/:id/email
 
 Email the generated PDF via Brevo.
+Gated by [Premium templates](#premium-templates).
 
 **Body:**
 ```json
 { "email": "recipient@example.com" }
 ```
+
+### Premium templates
+
+`PRO_TEMPLATES` (`["premium", "faangpath", "developer"]` in `packages/shared/src/constants.ts`) are gated server-side by
+`proTemplateGate` (`apps/api/src/routes.hono/resume.routes.ts`). `classic` is the free-tier template. A non-Pro user
+selecting one gets:
+
+```json
+{ "success": false, "error": "Premium templates require a Pro subscription" }
+```
+
+with status **403**. The gate covers create, update, sync PDF, queue, queue
+download and email. Resumes created inside an organization are exempt (the org's
+`branding.lockedTemplateId` may legitimately be a premium template).
 
 ---
 
@@ -255,12 +315,17 @@ Full LangGraph multi-agent resume analysis (Content → ATS → Format → Impac
 
 ### POST /api/agents/quick-score
 
-Quick ATS score without the full LangGraph pipeline. Returns a single score.
+Quick ATS score without the full LangGraph pipeline.
 
 **Auth:** Clerk JWT  
 **Body:**
 ```json
-{ "resumeData": { ... } }
+{ "resumeData": { ... }, "jobDescription": "optional" }
+```
+
+**Response:**
+```json
+{ "success": true, "data": { "score": 78, "atsScore": 75, "topRecommendations": ["..."] } }
 ```
 
 ### POST /api/agents/import/linkedin
@@ -268,7 +333,8 @@ Quick ATS score without the full LangGraph pipeline. Returns a single score.
 Parse a LinkedIn PDF export and extract structured resume data.
 
 **Auth:** Clerk JWT  
-**Body:** `multipart/form-data` with PDF file
+**Body:** `multipart/form-data` with a `file` field (PDF only)  
+**Errors:** `413` if over 10MB, `400` if the file is not a PDF
 
 ### POST /api/ai/analyze
 
@@ -311,7 +377,7 @@ Generate a tailored cover letter.
 
 **Body:**
 ```json
-{ "resumeData": { ... }, "jobDescription": "We are looking for..." }
+{ "resume": { ... }, "jobDescription": "We are looking for...", "jobTitle": "optional", "company": "optional" }
 ```
 
 ---
@@ -378,7 +444,8 @@ Remove a member. Admin+ can remove others; any member can remove themselves.
 
 ### GET /api/organizations/:id/resumes
 
-List all resumes with `visibility: "organization"` in this org.
+List every resume scoped to this org (`Resume.find({ organizationId })`) — no
+visibility filter is applied.
 
 ---
 
@@ -389,13 +456,16 @@ List all resumes with `visibility: "organization"` in this org.
 ### POST /api/api-keys
 
 Generate a new HMAC-signed API key. The raw key is returned **only once**.
+Keys can be minted and revoked, but no endpoint validates one yet — see
+[Authentication](#authentication).
 
 **Body:**
 ```json
 {
   "name": "CI Pipeline Key",
   "scopes": ["read:resumes", "write:resumes"],
-  "expiresAt": "2027-01-01T00:00:00Z"
+  "organizationId": "optional",
+  "expiresInDays": 90
 }
 ```
 
@@ -404,9 +474,10 @@ Generate a new HMAC-signed API key. The raw key is returned **only once**.
 {
   "success": true,
   "data": {
-    "key": "txf_abc123.hmac_signature_hex",
+    "key": "<64-hex-random>.<hmac_signature_hex>",
     "name": "CI Pipeline Key",
-    "scopes": ["read:resumes", "write:resumes"]
+    "scopes": ["read:resumes", "write:resumes"],
+    "expiresAt": "2027-01-01T00:00:00Z"
   }
 }
 ```
@@ -455,9 +526,15 @@ Soft-delete with 30-day buffer. Anonymizes PII, revokes memberships, anonymizes 
 
 ### GET /api/audit-logs
 
-Query the immutable audit trail. Supports filtering by `action`, `resourceType`, and date range.
+Query the immutable audit trail. Supports filtering by `action`, `resourceType`, `resourceId`, and a date range.
 
-**Query Params:** `?action=CREATE&resourceType=Resume&from=2026-01-01&to=2026-06-01`
+**Query Params:** `?action=CREATE&resourceType=Resume&startDate=2026-01-01&endDate=2026-06-01&limit=50&offset=0`
+
+**Response:** `{ "success": true, "data": { "logs": [...], "total": 12, "limit": 50, "offset": 0 } }`
+
+### GET /api/audit-logs/activity
+
+Last-24-hour activity summary for the current user.
 
 ---
 
@@ -469,13 +546,31 @@ Query the immutable audit trail. Supports filtering by `action`, `resourceType`,
 
 Create a Razorpay order for Pro upgrade.
 
+**Body:**
+```json
+{ "amount": 49900 }
+```
+
+Rate limited to **5 req/min** per IP.
+
 ### POST /api/payments/verify
 
 Verify Razorpay payment signature and upgrade user to Pro tier.
 
+**Body:**
+```json
+{
+  "razorpay_order_id": "order_...",
+  "razorpay_payment_id": "pay_...",
+  "razorpay_signature": "..."
+}
+```
+
+Rate limited to **5 req/min** per IP.
+
 ### POST /api/payments/webhook
 
-Razorpay webhook handler (no auth — validated by HMAC signature). Processes payment events and triggers Pro upgrades.
+Razorpay webhook handler (no auth — validated by HMAC signature). Processes payment events and triggers Pro upgrades. Rate limited to **10 req/min**.
 
 ---
 
@@ -539,7 +634,7 @@ No authentication required.
 ```json
 {
   "success": true,
-  "checks": { "pdflatex": true, "redis": true },
+  "checks": { "pdflatex": true },
   "timestamp": "..."
 }
 ```

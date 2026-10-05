@@ -105,7 +105,7 @@ const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
             <span className="truncate flex-1">{file.name}</span>
             <button
               onClick={() => setFile(null)}
-              className="text-red-500 hover:text-red-700"
+              className="text-red-600 hover:text-red-700"
             >
               ✕
             </button>
@@ -127,7 +127,7 @@ const LinkedInImport = ({ onImportSuccess }: LinkedInImportProps) => {
         </div>
       )}
 
-      <p className="text-xs text-slate-400 mt-4">
+      <p className="text-xs text-slate-500 mt-4">
         Go to LinkedIn Profile {">"} More {">"} Save to PDF
       </p>
     </div>

@@ -1,5 +1,12 @@
 const BASE_URL = "https://texfolio.vercel.app";
 const AUTHOR_URL = "https://gautam-kr.vercel.app";
+// One stable @id for Gautam Kumar across every schema block — the static
+// WebApplication in index.html, personSchema() and organizationSchema.founder
+// all describe the same human, so crawlers merge them instead of seeing two
+// conflicting Person entities. It is the author's own site: a real, resolvable
+// URL that is already the `url` field of all three blocks, so no fragment or
+// invented path is needed.
+const PERSON_ID = AUTHOR_URL;
 
 export const websiteSchema = {
   "@context": "https://schema.org",
@@ -28,6 +35,7 @@ export const organizationSchema = {
     "AI-Powered LaTeX Resume Builder SaaS platform.",
   founder: {
     "@type": "Person",
+    "@id": PERSON_ID,
     name: "Gautam Kumar",
     url: AUTHOR_URL,
     jobTitle: "Full-Stack Developer | Solo-shipped SaaS Products | AI Integration",
@@ -41,22 +49,6 @@ export const organizationSchema = {
     "https://github.com/theunstopabble/TexFolio",
     "https://www.linkedin.com/in/gautamkr62",
   ],
-};
-
-export const webAppSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "TexFolio",
-  url: BASE_URL,
-  description:
-    "Build professional, ATS-friendly LaTeX resumes in minutes with AI assistance. Built with React 19, Hono, and LangGraph.",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "All",
-  author: {
-    "@type": "Person",
-    name: "Gautam Kumar",
-    url: AUTHOR_URL,
-  },
 };
 
 export function howToSchema(steps: { step: string; title: string; desc: string }[]) {
@@ -127,6 +119,7 @@ export function personSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": PERSON_ID,
     name: "Gautam Kumar",
     url: AUTHOR_URL,
     jobTitle: "Full-Stack Developer | Solo-shipped SaaS Products | AI Integration",

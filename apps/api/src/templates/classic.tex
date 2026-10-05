@@ -32,7 +32,8 @@
     <<#PHONE>> $|$ <<&PHONE>><</PHONE>>%
     <<#LOCATION>> $|$ <<&LOCATION>><</LOCATION>>%
     <<#LINKEDIN_DISPLAY>> $|$ \href{<<&LINKEDIN>>}{<<&LINKEDIN_DISPLAY>>}<</LINKEDIN_DISPLAY>>%
-    <<#GITHUB_DISPLAY>> $|$ \href{<<&GITHUB>>}{<<&GITHUB_DISPLAY>>}<</GITHUB_DISPLAY>>
+    <<#GITHUB_DISPLAY>> $|$ \href{<<&GITHUB>>}{<<&GITHUB_DISPLAY>>}<</GITHUB_DISPLAY>>%
+    <<#PROFILE_LINKS>> $|$ \href{<<&URL>>}{<<&LABEL>>}<</PROFILE_LINKS>>
 \end{center}
 
 % DYNAMIC SECTIONS
@@ -108,7 +109,7 @@
 \begin{itemize}[leftmargin=0.15in, label={}]
 <<#CERTIFICATIONS>>
     \item \textbf{<<&NAME>>}<<#ISSUER>>
-    (<<&ISSUER>>)<</ISSUER>>
+    (<<&ISSUER>>)<</ISSUER>><<#DATE>> -- <<&DATE>><</DATE>>
 <</CERTIFICATIONS>>
 \end{itemize}
 <</IS_CERTIFICATIONS>>

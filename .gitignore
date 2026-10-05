@@ -38,27 +38,44 @@ coverage/
 # Docker
 docker-compose.override.yml
 
-# OS files
+# OS & temporary files
 Thumbs.db
+desktop.ini
+Desktop.ini
 *.tmp
+nul
+edge_tmp/
 
-# TypeScript cache
+# TypeScript cache & build tools
 *.tsbuildinfo
+.turbo/
+
+# LaTeX build artifacts & temporary files
+temp/
+**/temp/
+*.pdf
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
 
 # Personal Notes
 LEARNING_NOTES.md
 
-# Temporary API files
-apps/api/temp/
-
-# Agent local files
+# Agent & AI local files
 .agent/
 PROJECT_STATUS.md
-
 .windsurf/
 AGENTS.md
 graphify-out
 .graphifyignore
 audit-findings.json
 .opencode
+.system_generated/
+.user_uploaded/
+brain/
+scratch/
+
 

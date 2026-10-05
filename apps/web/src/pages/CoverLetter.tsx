@@ -14,25 +14,34 @@ const CoverLetter = () => {
   const [generatedLetter, setGeneratedLetter] = useState("");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  // A failed fetch used to leave `resumes` empty, so the page told a network
+  // error apart from nothing: "No resumes found. Create one first!" — the user
+  // then created a resume to fix a problem that was not theirs.
+  const [loadError, setLoadError] = useState(false);
+
+  const fetchResumes = async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const response = await resumeApi.getAll();
+      const resumeList = response.data.data || [];
+      setResumes(resumeList);
+      if (resumeList.length > 0) {
+        setSelectedResumeId(resumeList[0]._id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch resumes:", error);
+      setLoadError(true);
+      toast.error("Failed to load resumes");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchResumes = async () => {
-      setLoading(true);
-      try {
-        const response = await resumeApi.getAll();
-        const resumeList = response.data.data || [];
-        setResumes(resumeList);
-        if (resumeList.length > 0) {
-          setSelectedResumeId(resumeList[0]._id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch resumes:", error);
-        toast.error("Failed to load resumes");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchResumes();
+    // fetchResumes is deliberately not a dependency: it is recreated each
+    // render and re-running on identity change would refetch in a loop.
   }, []);
 
   const handleGenerate = async () => {
@@ -85,7 +94,7 @@ const CoverLetter = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
           AI Cover Letter Generator ✍️
@@ -107,7 +116,7 @@ const CoverLetter = () => {
               id="resume-select"
               value={selectedResumeId}
               onChange={(e) => setSelectedResumeId(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="form-select w-full"
               aria-label="Select your resume"
             >
               {resumes.map((resume) => (
@@ -116,11 +125,21 @@ const CoverLetter = () => {
                 </option>
               ))}
             </select>
-            {resumes.length === 0 && (
-              <p className="text-xs text-red-500 mt-1">
+            {loadError ? (
+              <div role="alert" className="mt-3 p-4 bg-red-50 border border-red-200 rounded-lg text-sm">
+                <p className="text-red-700 mb-3">
+                  Couldn't load your resumes — this is a network/server problem,
+                  not an empty account.
+                </p>
+                <button type="button" onClick={fetchResumes} className="btn btn-secondary text-sm">
+                  Retry
+                </button>
+              </div>
+            ) : resumes.length === 0 ? (
+              <p className="text-xs text-red-600 mt-1">
                 No resumes found. Create one first!
               </p>
-            )}
+            ) : null}
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -150,8 +169,11 @@ const CoverLetter = () => {
           </button>
         </div>
 
-        {/* Output Section */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full min-h-[500px]">
+        {/* Output Section. `md:min-h-[500px]`: once the grid stacks below md
+            a fixed 500px minimum just parked half a blank screen under the
+            Generate button — the height only matters when both columns sit
+            side by side and should match the input column. */}
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-full md:min-h-[500px]">
           <div className="flex justify-between items-center mb-4">
             <label className="block text-sm font-medium text-slate-700">
               Generated Letter
@@ -174,7 +196,7 @@ const CoverLetter = () => {
               aria-label="Generated cover letter"
             />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+            <div className="flex-1 flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
               <div className="text-6xl mb-4">📝</div>
               <p>Your cover letter will appear here</p>
             </div>

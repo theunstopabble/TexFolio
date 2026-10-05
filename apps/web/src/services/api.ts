@@ -13,6 +13,40 @@ const api = axios.create({
   timeout: 60000, // 60 seconds timeout for PDF generation
 });
 
+/**
+ * Normalise an error payload into a string a toast can render.
+ *
+ * `@hono/zod-validator` answers validation failures with `c.json(result, 400)`,
+ * so `data.error` is the raw SafeParseError OBJECT (`{ issues: [...] }`).
+ * Passing that to toast.error() rendered "[object Object]" and can crash the
+ * toast subtree — this turns it into e.g. "salary: Expected number".
+ */
+const extractErrorMessage = (value: unknown): string | undefined => {
+  if (typeof value === "string") return value.trim() || undefined;
+
+  if (value && typeof value === "object") {
+    const issues = (
+      value as {
+        issues?: Array<{ path?: Array<string | number>; message?: string }>;
+      }
+    ).issues;
+
+    if (Array.isArray(issues) && issues.length > 0) {
+      const first = issues[0];
+      const path =
+        Array.isArray(first.path) && first.path.length > 0
+          ? `${first.path.join(".")}: `
+          : "";
+      return `${path}${first.message || "Invalid input"}`;
+    }
+
+    const message = (value as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message.trim();
+  }
+
+  return undefined;
+};
+
 // Token provider to be set by the app
 let getToken: (() => Promise<string | null>) | null = null;
 let getActiveOrgId: (() => string | null) | null = null;
@@ -55,45 +89,84 @@ api.interceptors.response.use(
       if (config?.responseType === "blob" && data instanceof Blob) {
         try {
           const text = await data.text();
-          const parsed = JSON.parse(text) as { error?: string; message?: string };
-          message = parsed.error || parsed.message;
+          const parsed = JSON.parse(text) as { error?: unknown; message?: unknown };
+          message =
+            extractErrorMessage(parsed.error) || extractErrorMessage(parsed.message);
         } catch {
           message = undefined;
         }
       }
-      message = message || data?.error || data?.message || "An unexpected error occurred";
+      message =
+        message ||
+        extractErrorMessage(data?.error) ||
+        extractErrorMessage(data?.message) ||
+        "An unexpected error occurred";
+      // Distinguishes "the server told us something useful" from the fallback
+      // above, so the specific-code branches can prefer the real reason.
+      const serverMessage =
+        message !== "An unexpected error occurred" ? message : undefined;
 
-      // Handle specific error codes
+      // Handle specific error codes. 403/404 prefer the server's own text: the
+      // Pro-template gate answers 403 with why ("Premium templates require a
+      // Pro subscription") and the resume routes answer 404 with which resource
+      // was missing — a fixed sentence hid both.
       switch (status) {
         case 401:
           toast.error("Session expired. Please sign in again.");
           break;
         case 403:
-          toast.error("You don't have permission to perform this action.");
+          toast.error(
+            serverMessage ||
+              "You don't have permission to perform this action.",
+          );
           break;
         case 404:
-          toast.error("Resource not found.");
+          toast.error(serverMessage || "Resource not found.");
           break;
         case 429:
           toast.error("Too many requests. Please wait a moment.");
           break;
         case 500:
-          toast.error(message || "Server error. Please try again later.");
+          toast.error(serverMessage || "Server error. Please try again later.");
           break;
         default:
-          toast.error(message || "An unexpected error occurred");
+          toast.error(serverMessage || "An unexpected error occurred");
       }
     } else if (error.request) {
-      // Network error - no response from server
-      toast.error("Network error. Please check your connection.");
+      // No response at all. ECONNABORTED is axios's own timeout rather than a
+      // dropped connection — the PDF route compiles LaTeX synchronously, so a
+      // 2-minute timeout can be hit by a legitimately slow build, which
+      // "check your connection" misdiagnoses as a network fault.
+      if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+        toast.error(
+          "The request timed out. Please try again — PDF generation can take up to 2 minutes.",
+        );
+      } else {
+        toast.error("Network error. Please check your connection.");
+      }
     } else {
       // Other errors
       toast.error(error.message || "An unexpected error occurred");
     }
 
+    // Every branch above has already shown a toast. Tag the rejection so
+    // callers wrapping this promise can tell "already reported" from
+    // "unhandled" — without it each failure produced two identical
+    // notifications, one here and one in the caller's catch.
+    Object.assign(error, { reported: true });
+
     return Promise.reject(error);
   }
 );
+
+/**
+ * True when the response interceptor already surfaced `error` to the user.
+ *
+ * Used by the download paths, which both let axios report HTTP/network
+ * failures and would otherwise add their own toast on top of it.
+ */
+export const isReportedError = (error: unknown): boolean =>
+  typeof error === "object" && error !== null && "reported" in error;
 
 // Resume APIs
 export const resumeApi = {
@@ -124,15 +197,32 @@ export const resumeApi = {
       return URL.createObjectURL(response.data);
     } catch (error) {
       // Server errors arrive as JSON even when responseType is "blob" — surface
-      // the real message instead of the generic "An unexpected error occurred".
+      // the real message instead of the generic "Failed to generate PDF".
+      //
+      // The parse and the throw are deliberately in SEPARATE blocks: throwing
+      // inside the try used to get caught by its own catch, so every server
+      // message (including "LaTeX compile failed …" and the Pro-template 403)
+      // was replaced by the fallback before it could leave this function.
       if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+        let parsed: { error?: unknown; message?: unknown } | undefined;
         try {
           const text = await error.response.data.text();
-          const parsed = JSON.parse(text) as { error?: string; message?: string };
-          throw new Error(parsed.error || parsed.message || "Failed to generate PDF");
+          parsed = JSON.parse(text) as { error?: unknown; message?: unknown };
         } catch {
-          throw new Error("Failed to generate PDF");
+          // Not JSON at all (an HTML error page, a truncated body) — fall
+          // through to the generic message below.
+          parsed = undefined;
         }
+        throw Object.assign(
+          new Error(
+            extractErrorMessage(parsed?.error) ||
+              extractErrorMessage(parsed?.message) ||
+              "Failed to generate PDF",
+          ),
+          // The interceptor read this same blob and toasted it a moment ago;
+          // reporting it again here would double the notification.
+          { reported: true },
+        );
       }
       throw error;
     }
@@ -145,6 +235,9 @@ export const resumeApi = {
 
   // Toggle Visibility
   toggleVisibility: (id: string) => api.patch(`/resumes/${id}/visibility`),
+
+  saveAtsScore: (id: string, atsScore: number) =>
+    api.patch(`/resumes/${id}/ats-score`, { atsScore }),
 
   // Send Email
   sendEmail: (id: string, email: string) =>
@@ -162,18 +255,65 @@ export const analyticsApi = {
   getStats: () => api.get("/analytics"),
 };
 
+import type { ResumeFormData } from "../features/resume-editor/types";
+import {
+  normalizeForCoverLetter,
+  normalizeForATSCheck,
+} from "../features/resume-editor/lib/normalizeForAI";
+
+export interface ATSAnalysisResult {
+  score: number;
+  summary: string;
+  keywords_found: string[];
+  keywords_missing: string[];
+  formatting_issues: string[];
+  suggestions: string[];
+  /** Set when the model replied with unreadable JSON (score is not meaningful). */
+  parseFailed?: boolean;
+  /** Set when the AI service itself failed. */
+  serviceUnavailable?: boolean;
+}
+
 export const aiApi = {
-  analyze: (data: Record<string, unknown>) => api.post("/ai/analyze", data),
+  /**
+   * POST /ai/analyze — send the resume payload directly (NOT wrapped in
+   * `{ resumeData }`). The caller must pass an already-normalized object
+   * (use `normalizeResumeForAI(formState)` before calling).
+   */
+  analyze: (normalizedResume: ResumeFormData) =>
+    api.post<unknown, { data: { data: ATSAnalysisResult } }>("/ai/analyze", normalizedResume),
+
+  /**
+   * POST /ai/cover-letter — accepts raw form state; normalises internally.
+   */
   generateCoverLetter: (data: {
-    resume: Record<string, unknown>;
+    resume: ResumeFormData;
     jobDescription: string;
     jobTitle?: string;
     company?: string;
-  }) => api.post("/ai/cover-letter", data),
-  improveText: (text: string) => api.post("/ai/improve", { text }),
-  generateBullets: (jobTitle: string) =>
-    api.post("/ai/generate-bullets", { jobTitle }),
-  checkATSScore: (data: Record<string, unknown>) => api.post("/ai/ats-check", data),
+  }) => {
+    const normalized = normalizeForCoverLetter(
+      data.resume,
+      data.jobDescription,
+      data.jobTitle,
+      data.company,
+    );
+    return api.post("/ai/cover-letter", normalized);
+  },
+
+  improveText: (text: string, type?: "grammar" | "professional") =>
+    api.post("/ai/improve", { text, type }),
+
+  generateBullets: (jobTitle: string, skills?: string[]) =>
+    api.post("/ai/generate-bullets", { jobTitle, skills }),
+
+  /**
+   * POST /ai/ats-check — accepts raw form state; normalises internally.
+   */
+  checkATSScore: (formState: ResumeFormData, jobDescription?: string) => {
+    const normalized = normalizeForATSCheck(formState, jobDescription);
+    return api.post<unknown, { data: { data: ATSAnalysisResult } }>("/ai/ats-check", normalized);
+  },
 };
 
 export const paymentApi = {

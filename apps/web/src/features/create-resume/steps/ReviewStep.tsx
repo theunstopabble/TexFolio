@@ -1,3 +1,6 @@
+import { CARD_CLASS, HEADING_CLASS } from "../../resume-editor/components/sections/formStyles";
+import { PLATFORM_META, type ProfilePlatform } from "@texfolio/shared";
+import { survivingEntries } from "../entryValidation";
 import type { ResumeFormData } from "../../resume-editor/types";
 
 interface ReviewStepProps {
@@ -5,11 +8,34 @@ interface ReviewStepProps {
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
-  const { personalInfo, summary, experience, education, skills, projects, certifications } = formData;
+  const { personalInfo, summary } = formData;
+  // Exactly the entries `onSubmit` will send. The raw arrays include the blank
+  // defaults the wizard starts with, so reviewing them showed a count like
+  // "Education (1)" for an empty row — and a half-filled row too, which the
+  // submit filter then discarded without a word.
+  const education = survivingEntries("education", formData.education);
+  const experience = survivingEntries("experience", formData.experience);
+  const skills = survivingEntries("skills", formData.skills);
+  const projects = survivingEntries("projects", formData.projects);
+  const certifications = survivingEntries("certifications", formData.certifications);
+  const profileLinks = survivingEntries("profileLinks", formData.profileLinks || []);
+  // Everything clickable, in the order the header shows it.
+  const contactLinks: { label: string; url: string }[] = [];
+  if (personalInfo?.linkedin) contactLinks.push({ label: "LinkedIn", url: personalInfo.linkedin });
+  if (personalInfo?.github) contactLinks.push({ label: "GitHub", url: personalInfo.github });
+  if (personalInfo?.portfolio) contactLinks.push({ label: "Portfolio", url: personalInfo.portfolio });
+  profileLinks.forEach((p) => {
+    if (p.platform) {
+      contactLinks.push({
+        label: p.label || (PLATFORM_META[p.platform as ProfilePlatform]?.label ?? p.platform),
+        url: p.url,
+      });
+    }
+  });
 
   return (
-    <div className="card animate-fade-in shadow-lg">
-      <h2 className="card-title mb-6">✅ Review Your Resume</h2>
+    <div className={`${CARD_CLASS} animate-fade-in`}>
+      <h2 className={HEADING_CLASS}>✅ Review Your Resume</h2>
       <div className="space-y-6">
         <div>
           <h3 className="font-semibold text-slate-700 mb-2">👤 Personal Information</h3>
@@ -18,6 +44,12 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             <p><span className="font-medium">Email:</span> {personalInfo?.email || "—"}</p>
             <p><span className="font-medium">Phone:</span> {personalInfo?.phone || "—"}</p>
             <p><span className="font-medium">Location:</span> {personalInfo?.location || "—"}</p>
+            {contactLinks.map(({ label, url }) => (
+              <p key={label} className="break-all">
+                <span className="font-medium">{label}:</span>{" "}
+                <span className="text-blue-700">{url}</span>
+              </p>
+            ))}
           </div>
         </div>
         {summary && (

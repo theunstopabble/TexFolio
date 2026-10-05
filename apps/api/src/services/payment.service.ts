@@ -52,7 +52,7 @@ class PaymentService {
       ) {
         return true;
       }
-    } catch (e) {
+    } catch {
       // If buffers are of different lengths or invalid
       return false;
     }

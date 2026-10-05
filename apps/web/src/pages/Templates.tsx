@@ -42,6 +42,19 @@ const templates = [
     ],
     color: "from-emerald-500 to-teal-600",
   },
+  {
+    id: "developer",
+    name: "Developer Pro",
+    description:
+      "Ultra-compact 1-page engineering layout. 9pt font, small-caps headers, direct blue hyperlinks.",
+    features: [
+      "Ultra-Compact 1-Page",
+      "Small-Caps Headers",
+      "Direct Clickable Links",
+      "ATS-Optimized 9pt",
+    ],
+    color: "from-indigo-600 to-blue-700",
+  },
 ];
 
 const Templates = () => {
@@ -71,7 +84,7 @@ const Templates = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {templates.map((template) => (
             <div
               key={template.id}

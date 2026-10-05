@@ -6,7 +6,6 @@ import { authMiddleware } from "../middleware.hono/auth.middleware.js";
 import { requireRole } from "../middleware.hono/rbac.middleware.js";
 import { organizationService } from "../services/organization.service.js";
 import { auditService } from "../services/audit.service.js";
-import type { IAuditLog } from "../models/audit-log.model.js";
 
 const getAuditMeta = (c: Context, statusCode: number) => ({
   requestId: (c.get("requestId") as string) || "unknown",

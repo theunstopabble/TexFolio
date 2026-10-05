@@ -22,6 +22,9 @@ export interface AuthContextType {
   isLoading: boolean;
   logout: () => void;
   getToken: () => Promise<string | null>;
+  /** Re-run the Clerk → `/api/auth/me` sync. Payment success calls this so
+   *  `isPro` flips without a page reload. */
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,45 +40,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch Mongo User (with isPro) when Clerk user is ready
-  useEffect(() => {
-    const syncUser = async () => {
-      if (clerkUser) {
-        try {
-          // Ensure token is ready first
-          await getToken();
-          // Dynamically import to avoid circular dep if needed, or just use authApi
-          const { authApi } = await import("../services/api");
-          const res = await authApi.getMe();
+  // Fetch Mongo User (with isPro) when Clerk user is ready. Extracted from the
+  // effect body so payment verification can trigger the same sync again.
+  const syncUser = async () => {
+    if (clerkUser) {
+      try {
+        // Ensure token is ready first
+        await getToken();
+        // Dynamically import to avoid circular dep if needed, or just use authApi
+        const { authApi } = await import("../services/api");
+        const res = await authApi.getMe();
 
-          if (res.data.success) {
-            setMongoUser({
-              id: res.data.data.id || clerkUser.id,
-              name: res.data.data.fullName || res.data.data.name || clerkUser.fullName || "User",
-              email: res.data.data.email || clerkUser.primaryEmailAddress?.emailAddress || "",
-              isPro: res.data.data.isPro || false,
-              imageUrl: clerkUser.imageUrl,
-            });
-          }
-        } catch (err) {
-          console.error("Failed to sync backend user:", err);
-          // Fallback to basic clerk data
+        if (res.data.success) {
           setMongoUser({
-            id: clerkUser.id,
-            name: clerkUser.fullName || "User",
-            email: clerkUser.primaryEmailAddress?.emailAddress || "",
-            isPro: false,
+            id: res.data.data.id || clerkUser.id,
+            name: res.data.data.fullName || res.data.data.name || clerkUser.fullName || "User",
+            email: res.data.data.email || clerkUser.primaryEmailAddress?.emailAddress || "",
+            isPro: res.data.data.isPro || false,
             imageUrl: clerkUser.imageUrl,
           });
         }
-      } else {
-        setMongoUser(null);
+      } catch (err) {
+        console.error("Failed to sync backend user:", err);
+        // Fallback to basic clerk data
+        setMongoUser({
+          id: clerkUser.id,
+          name: clerkUser.fullName || "User",
+          email: clerkUser.primaryEmailAddress?.emailAddress || "",
+          isPro: false,
+          imageUrl: clerkUser.imageUrl,
+        });
       }
-    };
+    } else {
+      setMongoUser(null);
+    }
+  };
 
+  useEffect(() => {
     if (isUserLoaded) {
       syncUser();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clerkUser, isUserLoaded, getToken]);
 
   const logout = () => {
@@ -92,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isLoading: Boolean(!isUserLoaded || (clerkUser && !mongoUser)), // Wait for mongo sync
         logout,
         getToken,
+        refreshUser: syncUser,
       }}
     >
       {children}

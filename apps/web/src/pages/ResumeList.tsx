@@ -137,7 +137,7 @@ const ResumeList = () => {
                     href={`https://interviewminds.vercel.app`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn text-xs sm:text-sm px-3 sm:px-4 py-2 whitespace-nowrap flex-1 sm:flex-none justify-center bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 rounded-lg font-semibold transition-all no-underline inline-flex items-center gap-1"
+                    className="btn text-xs sm:text-sm px-3 sm:px-4 py-2 whitespace-nowrap flex-1 sm:flex-none justify-center bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 focus:ring-emerald-500 rounded-lg font-semibold transition-all no-underline inline-flex items-center gap-1"
                   >
                     🎤 Practice
                   </a>

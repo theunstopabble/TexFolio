@@ -74,6 +74,7 @@ function sanitizeString(str: string): string {
     str = str.replace(/\0/g, "");
     
     // Remove control characters except newlines and tabs
+    // eslint-disable-next-line no-control-regex -- matching control chars is the point
     str = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
     
     // Limit string length to prevent ReDoS and memory exhaustion

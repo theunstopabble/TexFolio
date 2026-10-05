@@ -1,6 +1,6 @@
 # Database Schema
 
-**Version:** 2.0.0 | **Last Updated:** May 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 MongoDB database schema documentation. All models use Mongoose and are located in `apps/api/src/models/`.
 
@@ -27,11 +27,11 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 | Field | Type | Required | Description |
 |:--|:--|:--|:--|
 | `email` | String | ✅ | Unique, lowercase, validated |
-| `password` | String | ✅ | Hashed, `select: false` |
+| `password` | String | ✅ | Random placeholder (`crypto.randomUUID()`), `select: false` — never used for login, auth is handled by Clerk |
 | `fullName` | String | ✅ | Max 100 chars |
 | `isPro` | Boolean | — | Default: `false` |
 | `clerkId` | String | — | Unique, sparse (Clerk user ID) |
-| `subscriptionId` | String | — | Razorpay subscription reference |
+| `subscriptionId` | String | — | Razorpay one-time payment ID |
 | `createdAt` | Date | auto | Mongoose timestamps |
 | `updatedAt` | Date | auto | Mongoose timestamps |
 
@@ -53,10 +53,10 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 | `userId` | String | ✅ | Clerk user ID (indexed) |
 | `title` | String | ✅ | Default: "My Resume", max 100 |
 | `templateId` | String | — | Default: "classic" |
-| `sectionOrder` | String[] | — | Ordered section keys |
-| `customization` | Object | — | `{ primaryColor, fontFamily }` |
+| `sectionOrder` | String[] | — | Ordered section keys, default: `["summary","experience","education","skills","projects","certifications"]` |
+| `customization` | Object | — | `{ primaryColor, fontFamily }`, defaults `#2563EB` / `serif` |
 | `personalInfo` | Object | ✅ | Contact details (see below) |
-| `summary` | String | — | Max 2000 chars |
+| `summary` | String | — | Max 2000 chars (model) — API rejects >1500 (see note below) |
 | `experience` | Experience[] | — | Work history |
 | `education` | Education[] | — | Academic background |
 | `projects` | Project[] | — | Portfolio projects |
@@ -67,9 +67,11 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 | `isPublic` | Boolean | — | Default: `false` |
 | `shareId` | String | — | Unique, sparse (nanoid) |
 | `organizationId` | String | — | Org scope (indexed, sparse) |
-| `visibility` | Enum | — | `private` \| `organization` \| `public` |
+| `visibility` | Enum | — | `private` \| `organization` \| `public` (default: `private`) |
 | `createdAt` | Date | auto | |
 | `updatedAt` | Date | auto | |
+
+> **Note on `summary`:** the Mongoose model caps it at **2000** chars, but the application-level zod schema (`packages/shared/src/schemas/resume.schema.ts`) caps it at **1500**. Payloads over 1500 are rejected by the API before they reach MongoDB, so 1500 is the effective limit for new writes.
 
 ### Sub-documents
 
@@ -77,14 +79,37 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 ```typescript
 {
   fullName: string;    // required
-  email: string;       // required
-  phone: string;       // required
+  email: string;       // required (trimmed, lowercase domain)
+  phone: string;       // required — 7-15 digits, +/()/-/spaces allowed
   location: string;    // required
-  linkedin?: string;
-  github?: string;
-  portfolio?: string;
+  linkedin?: string;   // canonical URL (see Profile links below)
+  github?: string;     // canonical URL
+  portfolio?: string;  // canonical URL
 }
 ```
+
+**profileLinks[] (no _id)** — extra developer platforms (LeetCode, CodeChef,
+Codeforces, HackerRank, Kaggle, GitLab, X, Behance, Dribbble, Stack Overflow):
+```typescript
+{
+  platform: string;  // enum, see shared developerLinks.ts
+  url: string;       // canonical https:// URL
+}
+```
+Defaults to `[]`; resumes predating the field simply lack it.
+
+**Profile links — username in, canonical URL out.**
+The form asks for a username (`gautam-kr`, or `in/gautam-kr` for LinkedIn) and
+stores `https://github.com/gautam-kr`. One source of truth —
+`packages/shared/src/developerLinks.ts`, `normalizeProfileLink()` — runs in
+three places so they cannot drift: the zod schema (normalise-at-write, so API
+clients and imports are covered), the inputs' blur handler (the user watches
+the handle become the real link), and the preview/PDF/TXT renderers
+(defensive re-normalise for legacy rows; it is idempotent). Stack Overflow and
+Portfolio take a full URL only — there is no handle→URL rule for them, and an
+unresolvable value is rejected rather than guessed into a dead link.
+`phone` is validated (`isPhone`) but never rewritten: the spacing is
+presentation, the digits are the number.
 
 **experience[] (no _id):**
 ```typescript
@@ -95,6 +120,7 @@ MongoDB database schema documentation. All models use Mongoose and are located i
   endDate?: string;
   description: string[];
   location?: string;
+  isCurrent?: boolean;  // default: false
 }
 ```
 
@@ -147,6 +173,7 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 - `{ organizationId: 1, createdAt: -1 }` — org resumes sorted
 - `{ organizationId: 1, visibility: 1 }` — org-visible resumes
 - `{ shareId: 1 }` — unique, sparse (public sharing)
+- `{ organizationId: 1 }` — single field, sparse (field-level `index: true, sparse: true`)
 
 ---
 
@@ -169,8 +196,8 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 | `updatedAt` | Date | auto | |
 
 **Indexes:**
-- `{ slug: 1 }` — unique
-- `{ ownerId: 1 }`
+- `slug`: unique (field-level `unique: true`)
+- `ownerId`: single field (field-level `index: true`)
 
 ---
 
@@ -183,7 +210,7 @@ MongoDB database schema documentation. All models use Mongoose and are located i
 |:--|:--|:--|:--|
 | `organizationId` | String | ✅ | References Organization (indexed) |
 | `userId` | String | ✅ | Clerk user ID (indexed) |
-| `role` | Enum | ✅ | `owner` \| `admin` \| `editor` \| `viewer` |
+| `role` | Enum | ✅ | `owner` \| `admin` \| `editor` \| `viewer` (default: viewer) |
 | `invitedBy` | String | ✅ | Clerk user ID of inviter |
 | `status` | Enum | — | `active` \| `pending` (default: active) |
 | `createdAt` | Date | auto | |
@@ -221,7 +248,7 @@ owner: 4 → admin: 3 → editor: 2 → viewer: 1
 | `metadata.path` | String | ✅ | Request path |
 | `metadata.statusCode` | Number | ✅ | Response status |
 | `metadata.durationMs` | Number | — | Request duration |
-| `createdAt` | Date | auto | Only createdAt (immutable) |
+| `createdAt` | Date | auto | Only `createdAt` is tracked (`updatedAt` disabled) |
 
 **Actions:** `CREATE`, `UPDATE`, `DELETE`, `READ`, `SHARE`, `EXPORT`, `LOGIN`, `PAYMENT`, `INVITE_MEMBER`, `UPDATE_MEMBER_ROLE`, `REMOVE_MEMBER`
 
@@ -247,7 +274,7 @@ owner: 4 → admin: 3 → editor: 2 → viewer: 1
 | `name` | String | ✅ | Human-readable label, max 100 |
 | `userId` | String | ✅ | Owner's Clerk ID (indexed) |
 | `organizationId` | String | — | Org scope (sparse index) |
-| `scopes` | String[] | ✅ | Permission scopes |
+| `scopes` | String[] | ✅ | Permission scopes, default: `["read:resumes"]` |
 | `lastUsedAt` | Date | — | Updated on each use |
 | `expiresAt` | Date | — | Optional expiration |
 | `revokedAt` | Date | — | Soft-revoke timestamp |

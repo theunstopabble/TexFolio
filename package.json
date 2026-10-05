@@ -12,6 +12,7 @@
     "build:deploy": "npm run build --workspace=@texfolio/shared && npm run build --workspace=@texfolio/api",
     "start:deploy": "npm run start --workspace=@texfolio/api",
     "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "test": "node --experimental-strip-types --test apps/web/tests/*.test.ts",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\""
   },
   "workspaces": [

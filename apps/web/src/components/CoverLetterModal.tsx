@@ -2,11 +2,12 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@
 import { Fragment, useState } from "react";
 import { aiApi } from "../services/api";
 import toast from "react-hot-toast";
+import type { ResumeFormData } from "../features/resume-editor/types";
 
 interface CoverLetterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resumeData: Record<string, unknown>;
+  resumeData: ResumeFormData;
 }
 
 const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
@@ -30,14 +31,11 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
     setLoading(true);
     try {
       const data = {
-        resume: { ...resumeData },
+        resume: resumeData,
         jobDescription,
         jobTitle,
         company,
       };
-
-      // Remove internal fields from the shallow copy
-      if (data.resume._id) delete data.resume._id;
 
       const res = await aiApi.generateCoverLetter(data);
       if (res.data.success) {
@@ -89,7 +87,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-4 sm:p-6 text-left align-middle shadow-xl transition-all max-h-[90vh] overflow-y-auto">
                 <DialogTitle
                   as="h3"
                   className="text-xl font-bold leading-6 text-gray-900 flex justify-between items-center mb-4"
@@ -110,7 +108,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
                       tailored cover letter matching your resume skills.
                     </p>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label htmlFor="cl-job-title" className="block text-sm font-medium text-slate-700 mb-1">
                           Job Title (Optional)
@@ -141,7 +139,7 @@ const CoverLetterModal: React.FC<CoverLetterModalProps> = ({
 
                     <div>
                       <label htmlFor="cl-job-desc" className="block text-sm font-medium text-slate-700 mb-1">
-                        Job Description <span className="text-red-500">*</span>
+                        Job Description <span className="text-red-600">*</span>
                       </label>
                       <textarea
                         id="cl-job-desc"

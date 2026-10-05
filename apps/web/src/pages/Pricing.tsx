@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi } from "../services/api";
 import { useAuth } from "../hooks/useAuth";
 import { useRazorpay } from "../hooks/useRazorpay";
 import toast from "react-hot-toast";
@@ -12,24 +11,20 @@ import {
 } from "../lib/structuredData";
 
 const Pricing = () => {
-  const { user } = useAuth();
+  // `isPro` comes from AuthContext's /api/auth/me sync — the extra
+  // authApi.getMe() round-trip this page used to fire was the same endpoint
+  // the context already calls, a duplicate request that could disagree with it
+  // for the length of a stale response.
+  const { user, isPro } = useAuth();
   const navigate = useNavigate();
   const { handlePayment, loading } = useRazorpay();
 
   useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const res = await authApi.getMe();
-        if (res.data?.data?.isPro) {
-          toast.success("You are already a Pro member!");
-          navigate("/dashboard");
-        }
-      } catch {
-        console.error("Failed to check status");
-      }
-    };
-    if (user) checkStatus();
-  }, [user, navigate]);
+    if (user && isPro) {
+      toast.success("You are already a Pro member!");
+      navigate("/dashboard");
+    }
+  }, [user, isPro, navigate]);
 
   const handleUpgrade = () => {
     if (!user) {
@@ -109,7 +104,7 @@ const Pricing = () => {
             <h3 className="text-xl sm:text-2xl font-bold mb-2">Pro</h3>
             <div className="text-3xl sm:text-4xl font-bold mb-4 sm:mb-6">
               ₹499
-              <span className="text-base sm:text-lg font-normal text-slate-400">
+              <span className="text-base sm:text-lg font-normal text-slate-500">
                 /lifetime
               </span>
             </div>

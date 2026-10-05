@@ -1,6 +1,9 @@
 # Base image with Node.js
 # Use LTS version with security patches
-FROM node:20-bullseye-slim
+# NOTE: Debian 11 (bullseye) went EOL in Aug 2026 and its security archive now
+# serves stale pool paths — `apt-get install texlive-*` fails with mass 404s.
+# bookworm (Debian 12) is the current oldstable and still receives updates.
+FROM node:20-bookworm-slim
 
 # Add non-root user for security
 RUN groupadd -r texfolio && useradd -r -g texfolio -d /app -s /sbin/nologin texfolio

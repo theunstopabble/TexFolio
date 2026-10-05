@@ -1,0 +1,131 @@
+\documentclass[a4paper,9pt]{extarticle}
+
+\usepackage[utf8]{inputenc}
+\usepackage[empty]{fullpage}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{xcolor}
+
+\geometry{left=0.45in, top=0.45in, right=0.45in, bottom=0.17in}
+\setlength{\parindent}{0pt}
+
+\titleformat{\section}{
+  \vspace{-7pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\titlerule \vspace{-4pt}]
+
+\setlist[itemize]{leftmargin=*, nosep, topsep=0pt, itemsep=0pt, parsep=0pt}
+
+\begin{document}
+
+%----------HEADER----------
+\begin{center}
+    {\Huge \textbf{<<&FULL_NAME>>}} \\ \vspace{2pt}
+    <<#RESUME_TITLE>>{\normalsize \textbf{<<&RESUME_TITLE>>}} \\ \vspace{2pt}<</RESUME_TITLE>>
+    \small
+    \href{mailto:<<&EMAIL_RAW>>}{<<&EMAIL>>}%
+    <<#PHONE>> $|$ \href{tel:<<&PHONE_RAW>>}{<<&PHONE>>}<</PHONE>>%
+    <<#LOCATION>> $|$ <<&LOCATION>><</LOCATION>>%
+    <<#HAS_SECONDARY_LINKS>> \\
+    <<#SECONDARY_LINKS>><<&SEPARATOR>>\href{<<&URL>>}{<<&DISPLAY>>}<</SECONDARY_LINKS>>%
+    <</HAS_SECONDARY_LINKS>>
+\end{center}
+
+\vspace{-6pt}
+
+%----------DYNAMIC SECTIONS----------
+<<#DYNAMIC_SECTIONS>>
+
+% SUMMARY
+<<#IS_SUMMARY>>
+\section{<<&TITLE>>}
+<<&SUMMARY>>
+
+\vspace{-3pt}
+<</IS_SUMMARY>>
+
+% EDUCATION
+<<#IS_EDUCATION>>
+\section{<<&TITLE>>}
+<<#EDUCATION>>
+\textbf{<<&INSTITUTION>>} \hfill <<&LOCATION>> \\
+\textit{<<&DEGREE>><<#FIELD>> in <<&FIELD>><</FIELD>>} \hfill <<&START_DATE>><<#END_DATE>> -- <<&END_DATE>><</END_DATE>>%
+<<#GPA>> \\
+\textit{<<#GPA_LABEL>><<&GPA_LABEL>><</GPA_LABEL>><<^GPA_LABEL>>GPA:<</GPA_LABEL>>} <<&GPA>><</GPA>>
+\vspace{2pt}
+<</EDUCATION>>
+
+\vspace{-3pt}
+<</IS_EDUCATION>>
+
+% SKILLS
+<<#IS_SKILLS>>
+\section{<<&TITLE>>}
+\begin{itemize}
+<<#SKILLS>>
+    \item \textbf{<<&CATEGORY>>:} <<&SKILLS_LIST>>
+<</SKILLS>>
+\end{itemize}
+
+\vspace{-3pt}
+<</IS_SKILLS>>
+
+% EXPERIENCE
+<<#IS_EXPERIENCE>>
+\section{<<&TITLE>>}
+<<#EXPERIENCE>>
+\textbf{<<&COMPANY>>} \hfill <<&LOCATION>> \\
+\textit{<<&POSITION>>} \hfill <<&START_DATE>><<#END_DATE>> -- <<&END_DATE>><</END_DATE>>
+\begin{itemize}
+<<#DESCRIPTION>>
+    \item <<&.>>
+<</DESCRIPTION>>
+\end{itemize}
+\vspace{3pt}
+<</EXPERIENCE>>
+
+\vspace{-3pt}
+<</IS_EXPERIENCE>>
+
+% PROJECTS
+<<#IS_PROJECTS>>
+\section{<<&TITLE>>}
+<<#PROJECTS>>
+\noindent\textbf{<<&NAME>>} \hfill <<#SOURCE_CODE>>\href{<<&SOURCE_CODE>>}{GitHub}<</SOURCE_CODE>><<#SOURCE_CODE>><<#LIVE_URL>> $|$ <</LIVE_URL>><</SOURCE_CODE>><<#LIVE_URL>>\href{<<&LIVE_URL>>}{Live}<</LIVE_URL>>\\
+<<#TECHNOLOGIES>>\textit{<<&TECHNOLOGIES>>}<</TECHNOLOGIES>>
+<<#HAS_DESCRIPTION_ITEMS>>
+\begin{itemize}
+<<#DESCRIPTION_ITEMS>>
+    \item <<&.>>
+<</DESCRIPTION_ITEMS>>
+\end{itemize}
+<</HAS_DESCRIPTION_ITEMS>>
+<<^HAS_DESCRIPTION_ITEMS>>
+<<#DESCRIPTION>>
+\begin{itemize}
+    \item <<&DESCRIPTION>>
+\end{itemize}
+<</DESCRIPTION>>
+<</HAS_DESCRIPTION_ITEMS>>
+\vspace{6pt}
+<</PROJECTS>>
+
+\vspace{-3pt}
+<</IS_PROJECTS>>
+
+% CERTIFICATIONS
+<<#IS_CERTIFICATIONS>>
+\section{<<&TITLE>>}
+\begin{itemize}
+<<#CERTIFICATIONS>>
+    \item \textbf{<<&NAME>>}<<#ISSUER>> (<<&ISSUER>>)<</ISSUER>><<#DATE>> -- <<&DATE>><</DATE>>
+<</CERTIFICATIONS>>
+\end{itemize}
+
+\vspace{-3pt}
+<</IS_CERTIFICATIONS>>
+
+<</DYNAMIC_SECTIONS>>
+
+\end{document}

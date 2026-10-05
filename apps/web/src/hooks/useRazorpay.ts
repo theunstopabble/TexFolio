@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { paymentApi } from "../services/api";
+import { queryClient } from "../lib/queryClient";
+import { useAuth } from "./useAuth";
 import toast from "react-hot-toast";
 
 interface RazorpayResponse {
@@ -39,6 +41,10 @@ declare global {
 
 export const useRazorpay = () => {
   const [loading, setLoading] = useState(false);
+  // `isPro` in AuthContext is a snapshot of /api/auth/me taken at sign-in —
+  // without this, a successful payment left the user free-tier until F5 and
+  // proTemplateGate answered 403 on the template they had just paid for.
+  const { refreshUser } = useAuth();
 
   const loadScript = () => {
     return new Promise((resolve) => {
@@ -91,6 +97,11 @@ export const useRazorpay = () => {
           const result = await paymentApi.verifyPayment(data);
 
           if (result.data.success) {
+            // Re-sync the mongo user (flips isPro) and drop cached queries so
+            // resume/analytics lists refetch with the new entitlement — all
+            // before the success callback navigates away.
+            await refreshUser();
+            await queryClient.invalidateQueries();
             toast.success("Payment Successful! Welcome to Pro 🚀");
             onSuccess();
           } else {

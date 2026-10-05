@@ -1,5 +1,5 @@
 # Lightweight Debian image (V2.0)
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 # Install minimal TeX Live
 RUN apt-get update && apt-get install -y --no-install-recommends \

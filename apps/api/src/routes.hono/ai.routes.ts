@@ -117,7 +117,7 @@ aiRoutes.post("/improve", zValidator("json", improveTextSchema), async (c) => {
     const improvedText = await aiService.improveText(text, type);
 
     return c.json({ success: true, data: { improvedText } });
-  } catch (error) {
+  } catch {
     return c.json({ success: false, error: "Failed to improve text" }, 500);
   }
 });
@@ -133,7 +133,7 @@ aiRoutes.post(
       const bullets = await aiService.generateBullets(jobTitle, skills);
 
       return c.json({ success: true, data: { bullets } });
-    } catch (error) {
+    } catch {
       return c.json(
         { success: false, error: "Failed to generate bullets" },
         500,

@@ -143,7 +143,7 @@ export default function OrganizationDetailPage() {
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
         <h2 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
-          <FileText className="w-5 h-5 text-slate-400" />
+          <FileText className="w-5 h-5 text-slate-500" />
           Organization Resumes
         </h2>
         {resumes.length === 0 ? (

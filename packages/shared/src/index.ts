@@ -33,6 +33,7 @@ export {
   verifyPaymentRequestSchema,
   // Zod-inferred types (use these for new code)
   type PersonalInfo,
+  type ProfileLink,
   type Experience,
   type Education,
   type Project,
@@ -55,3 +56,22 @@ export {
   type ATSScoreResult,
   type ATSCheckRequest,
 } from "./schemas/index.js";
+
+// Cross-app constants (Pro template gating — enforced by both API and UI)
+export {
+  PRO_TEMPLATES,
+  FREE_TEMPLATE_ID,
+  isProTemplate,
+  type ProTemplateId,
+} from "./constants.js";
+
+// Developer-platform profile links: username → canonical URL, one source of
+// truth for the schema, the form inputs and the renderers.
+export {
+  PROFILE_PLATFORMS,
+  PLATFORM_META,
+  normalizeProfileLink,
+  isHttpUrl,
+  isPhone,
+  type ProfilePlatform,
+} from "./developerLinks.js";

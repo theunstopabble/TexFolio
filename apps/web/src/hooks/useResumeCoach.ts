@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import api from "../services/api";
+import type { ResumeFormData } from "../features/resume-editor/types";
+import { normalizeForAgent } from "../features/resume-editor/lib/normalizeForAI";
 
 // ============================================
 // Types
@@ -44,10 +46,11 @@ export interface QuickScoreResult {
  * Run full Resume Coach Agent analysis
  */
 async function runCoachAnalysis(
-  resumeData: Record<string, unknown>,
+  resumeData: ResumeFormData,
   jobDescription: string | undefined,
 ): Promise<CoachAnalysisResult> {
-  const response = await api.post("/agents/coach", { resumeData, jobDescription });
+  const normalized = normalizeForAgent(resumeData, jobDescription);
+  const response = await api.post("/agents/coach", normalized);
   return response.data.data;
 }
 
@@ -55,10 +58,11 @@ async function runCoachAnalysis(
  * Get quick ATS score
  */
 async function getQuickScore(
-  resumeData: Record<string, unknown>,
+  resumeData: ResumeFormData,
   jobDescription: string | undefined,
 ): Promise<QuickScoreResult> {
-  const response = await api.post("/agents/quick-score", { resumeData, jobDescription });
+  const normalized = normalizeForAgent(resumeData, jobDescription);
+  const response = await api.post("/agents/quick-score", normalized);
   return response.data.data;
 }
 
@@ -72,7 +76,7 @@ export function useResumeCoach() {
       resumeData,
       jobDescription,
     }: {
-      resumeData: Record<string, unknown>;
+      resumeData: ResumeFormData;
       jobDescription?: string;
     }) => {
       return runCoachAnalysis(resumeData, jobDescription);
@@ -92,7 +96,7 @@ export function useQuickScore() {
       resumeData,
       jobDescription,
     }: {
-      resumeData: Record<string, unknown>;
+      resumeData: ResumeFormData;
       jobDescription?: string;
     }) => {
       return getQuickScore(resumeData, jobDescription);

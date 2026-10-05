@@ -192,7 +192,7 @@ export default function OrganizationsPage() {
                       <Shield className="w-3 h-3" />
                       {role}
                     </span>
-                    <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
                       <Users className="w-3 h-3" />
                       {role === "owner" || role === "admin"
                         ? "Manage members"
@@ -210,7 +210,7 @@ export default function OrganizationsPage() {
                 </button>
                 <button
                   onClick={() => navigate(`/organizations/${organization._id}`)}
-                  className="p-2 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                  className="p-2 text-slate-500 hover:text-slate-600 transition-colors shrink-0"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>

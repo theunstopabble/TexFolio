@@ -113,7 +113,8 @@ export class ResumeService {
    * Update a resume with ownership or org-editor access.
    */
   async update(id: string, userId: string, data: Partial<IResume>, orgCtx?: OrgContext) {
-    const resume = await this.assertWriteAccess(id, userId, orgCtx);
+    // Side-effect access check (throws on unauthorized) — result unused by design
+    await this.assertWriteAccess(id, userId, orgCtx);
 
     // Prevent ownership transfer or injected fields
     const safeData = { ...data };

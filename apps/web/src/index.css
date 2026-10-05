@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css");
 @import "tailwindcss";
 
 /* ===== Custom Theme ===== */
@@ -26,49 +27,82 @@ body {
     sans-serif;
 }
 
-/* ===== Custom Components ===== */
-.btn {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer;
-}
+/* ===== Custom Components =====
+   These MUST live in `components` (declared by `@import "tailwindcss"` as
+   `@layer theme, base, components, utilities`). Left unlayered they beat every
+   Tailwind utility regardless of specificity, which silently killed overrides
+   such as `lg:p-8` on `.card`, `text-2xl` on `.card-title` and the red error
+   ring from `inputError()`. Layer order fixes that: utilities always win. */
+@layer components {
+  /* `focus:ring-blue-500` is a deliberate default: `.btn` alone never set a ring
+     COLOUR, and Tailwind v4 falls back to `currentColor` — which on these
+     white-text buttons is white, i.e. an invisible focus ring on a white page.
+     `.btn-*` variants below override it inside this same layer; ad-hoc buttons
+     (e.g. the purple/teal header actions) override it with a ring utility. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer;
+  }
 
-.btn-primary {
-  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
-}
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+  }
 
-.btn-secondary {
-  @apply bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 focus:ring-slate-500;
-}
+  .btn-secondary {
+    @apply bg-slate-100 text-slate-700 border border-slate-300 hover:bg-slate-200 focus:ring-slate-500;
+  }
 
-.btn-success {
-  @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
-}
+  .btn-success {
+    @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+  }
 
-.btn-danger {
-  @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
-}
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
 
-/* ===== Form Styles ===== */
-.form-input {
-  @apply w-full px-4 py-2 text-slate-900 bg-white border border-slate-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-400;
-}
+  /* ===== Form Styles =====
+     Border + focus-ring colours live only here, never in the utility strings
+     (see formStyles.ts). Same-layer + declared-later is what lets
+     `.form-input-error` reliably win over `.form-input`, whereas two competing
+     `focus:ring-*` utilities would be ordered by Tailwind's own sort, not by
+     the class attribute. */
+  .form-input {
+    @apply w-full px-3 py-2 text-slate-900 bg-white border border-slate-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500;
+  }
 
-.form-label {
-  @apply block text-sm font-medium text-slate-700 mb-1;
-}
+  .form-label {
+    @apply block text-sm font-medium text-slate-700 mb-1;
+  }
 
-.form-group {
-  @apply mb-4;
-}
+  .form-group {
+    @apply mb-4;
+  }
 
-/* ===== Card ===== */
-.card {
-  @apply bg-white rounded-xl shadow-md p-6;
-}
+  .form-textarea {
+    @apply w-full p-3 text-slate-900 bg-white border border-slate-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-slate-500 resize-y;
+  }
 
-.card-header {
-  @apply mb-4 pb-4 border-b border-slate-200;
-}
+  .form-select {
+    @apply w-full px-3 py-2 text-slate-900 bg-white border border-slate-300 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
 
-.card-title {
-  @apply text-xl font-semibold text-slate-900;
+  /* Red error state — declared after every field base above so it wins within
+     this layer. Applied by `inputError()` in formStyles.ts. */
+  .form-input-error {
+    @apply border-red-400 focus:ring-red-500 focus:border-red-400;
+  }
+
+  /* Keyboard-only focus ring for text-style action links (Remove, etc.).
+     WCAG 2.4.7: every interactive element must show a visible focus indicator. */
+  .focus-ring-danger {
+    @apply rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1;
+  }
+
+  /* ===== Card ===== */
+  .card {
+    @apply bg-white rounded-xl shadow-md p-6;
+  }
+
+  .card-title {
+    @apply text-xl font-semibold text-slate-900;
+  }
 }

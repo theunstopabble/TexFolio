@@ -1,6 +1,13 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+import { PROFILE_PLATFORMS } from "@texfolio/shared";
 
 // Sub-document interfaces
+export interface IProfileLink {
+  platform: string;
+  url: string;
+  label?: string;
+}
+
 interface IExperience {
   company: string;
   position: string;
@@ -8,6 +15,7 @@ interface IExperience {
   endDate?: string;
   description: string[];
   location?: string;
+  isCurrent?: boolean;
 }
 
 interface IEducation {
@@ -60,6 +68,8 @@ export interface IResume extends Document {
     github?: string;
     portfolio?: string;
   };
+  /** Extra developer-platform handles (LeetCode, CodeChef, …) as canonical URLs. */
+  profileLinks: IProfileLink[];
   summary?: string;
   experience: IExperience[];
   education: IEducation[];
@@ -77,6 +87,15 @@ export interface IResume extends Document {
 }
 
 // Sub-schemas
+const profileLinkSchema = new Schema<IProfileLink>(
+  {
+    platform: { type: String, enum: [...PROFILE_PLATFORMS], required: true },
+    url: { type: String, required: true },
+    label: { type: String },
+  },
+  { _id: false },
+);
+
 const experienceSchema = new Schema<IExperience>(
   {
     company: { type: String, required: true },
@@ -85,6 +104,7 @@ const experienceSchema = new Schema<IExperience>(
     endDate: { type: String },
     description: [{ type: String }],
     location: { type: String },
+    isCurrent: { type: Boolean, default: false },
   },
   { _id: false },
 );
@@ -174,6 +194,7 @@ const resumeSchema = new Schema<IResume>(
       github: { type: String },
       portfolio: { type: String },
     },
+    profileLinks: [profileLinkSchema],
     summary: { type: String, maxlength: 2000 },
     experience: [experienceSchema],
     education: [educationSchema],

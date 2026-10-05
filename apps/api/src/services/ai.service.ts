@@ -253,13 +253,32 @@ export class AIService {
         })
       );
 
-      const content = response.choices[0]?.message?.content || "{}";
-      return JSON.parse(content);
+      const raw = response.choices[0]?.message?.content || "{}";
+      // Same cleanup as analyzeResume(): models frequently wrap JSON in
+      // markdown fences, which used to throw and silently report score 0.
+      const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        console.error("ATS Score: model returned unparseable JSON");
+        return {
+          score: 0,
+          parseFailed: true,
+          summary:
+            "The AI returned an unreadable response, so no score was calculated.",
+          keywords_found: [],
+          keywords_missing: [],
+          formatting_issues: [],
+          suggestions: ["Please run the ATS check again."],
+        };
+      }
     } catch (error) {
       console.error("ATS Score Calculation Failed:", error);
       // Return a dummy result on failure
       return {
         score: 0,
+        serviceUnavailable: true,
         summary: "Could not calculate score due to AI service error.",
         keywords_found: [],
         keywords_missing: [],

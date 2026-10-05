@@ -49,7 +49,7 @@ export const AIWriterButton = ({
       type="button"
       onClick={handleAI}
       disabled={loading}
-      className="text-xs flex items-center gap-1 text-purple-600 hover:text-purple-700 font-semibold mb-1"
+      className="flex items-center gap-1 rounded px-2 py-1 min-h-[24px] text-xs font-semibold text-purple-600 hover:text-purple-700 hover:bg-purple-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-1"
     >
       {loading ? (
         <span className="animate-pulse">✨ Thinking...</span>

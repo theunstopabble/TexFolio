@@ -1,6 +1,6 @@
 # AI Discoverability & Search Optimization Frameworks
 
-**Version:** 2.0.0 | **Last Updated:** June 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 A comprehensive documentation of the six discoverability frameworks implemented in TexFolio to ensure maximum visibility across traditional search engines, generative AI platforms, large language models, and AI-powered search experiences.
 
@@ -27,21 +27,27 @@ Maximize organic visibility on traditional search engines (Google, Bing, Yandex)
 
 #### 1.1 Global Meta Tags (`apps/web/index.html`)
 
+`index.html` no longer carries `<title>`, `description`, `keywords` or `canonical` —
+they were stripped after Bing Webmaster flagged four duplicate tags, and are now
+injected at runtime by `SeoMeta` (§1.2). What `index.html` still declares is
+infrastructure only:
+
 ```html
-<title>TexFolio | AI-Powered LaTeX Resume Builder</title>
-<meta
-  name="description"
-  content="Build professional, ATS-friendly LaTeX resumes..."
-/>
-<meta
-  name="keywords"
-  content="resume builder, AI resume, LaTeX resume, ATS friendly..."
-/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="author" content="Gautam Kumar" />
+<meta name="theme-color" content="#2563eb" />
+<meta name="google-site-verification" content="..." />
 <meta name="robots" content="index, follow" />
 <meta name="language" content="English" />
-<link rel="canonical" href="https://texfolio.vercel.app/" />
+<meta name="revisit-after" content="7 days" />
+<meta name="msvalidate.01" content="BingWebmasterVerificationCode" />
+<link rel="alternate" href="https://texfolio.vercel.app/" hreflang="en" />
+<link rel="alternate" href="https://texfolio.vercel.app/" hreflang="x-default" />
 ```
+
+It also carries one deliberate `WebApplication` JSON-LD block for non-JS crawlers
+(§1.9).
 
 #### 1.2 Dynamic Per-Page Meta Tags (`apps/web/src/components/SeoMeta.tsx`)
 
@@ -50,11 +56,11 @@ A reusable `SeoMeta` component wraps `react-helmet-async` to inject page-specifi
 | Page          | Title                           | Description                                                   |
 | ------------- | ------------------------------- | ------------------------------------------------------------- |
 | `/`           | AI-Powered LaTeX Resume Builder | Build professional, ATS-friendly LaTeX resumes...             |
-| `/templates`  | Resume Templates                | Choose from FAANGPath, Premium, and Classic...                |
-| `/pricing`    | Pricing                         | Start for free, upgrade to Pro for ₹499/lifetime...           |
-| `/about`      | About                           | Learn about TexFolio — the AI-powered LaTeX resume builder... |
-| `/privacy`    | Privacy Policy                  | How we collect, use, and protect your personal data...        |
-| `/terms`      | Terms of Service                | Terms and conditions for using TexFolio...                    |
+| `/templates`  | Resume Templates - FAANG & LaTeX Designs | Choose from FAANGPath, Premium, and Classic...      |
+| `/pricing`    | Pricing - AI-Powered LaTeX Resume Builder | Start for free, upgrade to Pro for ₹499/lifetime... |
+| `/about`      | About TexFolio - AI-Powered LaTeX Resume Builder | Learn about TexFolio — the AI-powered LaTeX resume builder... |
+| `/privacy`    | Privacy Policy - Data Protection & GDPR | How we collect, use, and protect your personal data...        |
+| `/terms`      | Terms of Service - Usage Terms & Policies | Terms and conditions for using TexFolio...                    |
 | `/r/:shareId` | {Name} - Resume                 | Dynamic per-resume meta tags with candidate name              |
 
 #### 1.3 Open Graph & Twitter Cards
@@ -133,11 +139,17 @@ Sitemap: https://texfolio.vercel.app/sitemap.xml
 
 #### 1.9 Structured Data (index.html)
 
-Three inline JSON-LD blocks at the global level:
+One `WebApplication` JSON-LD block remains at the global level (kept for non-JS
+crawlers). It carries `name`, `url`, `description`, `applicationCategory`,
+`operatingSystem` and an `author` Person — no `offers` and no `version`:
 
-1. **WebApplication** — Full app metadata with author, offers, version
-2. **Organization** — Knowledge Graph entity with founder and sameAs
-3. **WebSite** — Sitelinks search box enablement
+1. **WebApplication** — app metadata + author
+
+`Organization` and `WebSite` — and `Person`, `Product`, `FAQPage`, `BreadcrumbList`
+— are injected at runtime by `SeoMeta` from `apps/web/src/lib/structuredData.ts`
+(see §4.1). All three Person blocks (`index.html` author,
+`organizationSchema.founder`, `personSchema()`) share
+`"@id": "https://gautam-kr.vercel.app"` so crawlers resolve them to a single entity.
 
 ---
 
@@ -151,7 +163,7 @@ Structure content so it can be extracted as featured snippets, "People also ask"
 
 #### 2.1 FAQPage Schema (`apps/web/src/pages/HomePage.tsx`)
 
-Eight question-answer pairs embedded as `FAQPage` JSON-LD via the `faqSchema()` helper:
+Nine question-answer pairs embedded as `FAQPage` JSON-LD via the `faqSchema()` helper:
 
 ```typescript
 // apps/web/src/lib/structuredData.ts
@@ -181,6 +193,7 @@ export function faqSchema(questions: { question: string; answer: string }[]) {
 6. _Can I import my LinkedIn profile?_
 7. _Is my data secure and private?_
 8. _What templates are available?_
+9. _Can I practice interviews after building my resume?_
 
 #### 2.2 Visual FAQ Section
 
@@ -188,11 +201,12 @@ The same questions are rendered as an interactive `<details>` / `<summary>` acco
 
 #### 2.3 Step-by-Step "How It Works" Section
 
-A four-step guide targets "How-to" featured snippets:
+A five-step guide targets "How-to" featured snippets:
 
 ```
 1. Choose a Template → 2. Fill in Your Details
 → 3. Optimize with AI → 4. Export as PDF
+→ 5. Practice with AI (InterviewMinds)
 ```
 
 #### 2.4 Concise, Answerable Content
@@ -214,16 +228,18 @@ Optimize content for citation and reference by generative AI engines (ChatGPT, G
 Multiple interconnected schema.org types create a rich knowledge graph:
 
 ```json
-// WebApplication (describes the SaaS product)
-{ "@type": "WebApplication", "name": "TexFolio", "offers": { "price": "0" } }
+// WebApplication (describes the SaaS product — index.html, no offers)
+{ "@type": "WebApplication", "name": "TexFolio" }
 
-// Organization (business entity)
-{ "@type": "Organization", "name": "TexFolio", "founder": { "@type": "Person" } }
+// Organization (business entity — structuredData.ts)
+{ "@type": "Organization", "name": "TexFolio",
+  "founder": { "@type": "Person", "@id": "https://gautam-kr.vercel.app" } }
 
-// Person (creator / author)
-{ "@type": "Person", "name": "Gautam Kumar", "sameAs": ["GitHub", "LinkedIn", ...] }
+// Person (creator / author — same @id in every block)
+{ "@type": "Person", "@id": "https://gautam-kr.vercel.app",
+  "name": "Gautam Kumar", "sameAs": ["GitHub", "LinkedIn", ...] }
 
-// Product (paid tier)
+// Product (paid tier — Pricing.tsx)
 { "@type": "Product", "name": "TexFolio Pro", "offers": { "price": "499" } }
 ```
 
@@ -279,28 +295,31 @@ Format content and metadata so LLMs (GPT-4, Claude, Gemini) can efficiently extr
 
 #### 4.1 Comprehensive JSON-LD Knowledge Graph
 
-Five schema.org types provide full entity coverage:
+Seven schema.org types provide full entity coverage:
 
-| Schema Type      | Location                           | Purpose                                  |
-| ---------------- | ---------------------------------- | ---------------------------------------- |
-| `WebApplication` | `index.html`                       | Product description, pricing, tech stack |
-| `Organization`   | `index.html`                       | Business entity, founder, social links   |
-| `WebSite`        | `index.html`                       | Search action enablement                 |
-| `Person`         | `HomePage.tsx`, `PublicResume.tsx` | Author/resume owner expertise            |
-| `Product`        | `Pricing.tsx`                      | Paid tier offering                       |
-| `FAQPage`        | `HomePage.tsx`                     | Question-answer pairs for training       |
-| `BreadcrumbList` | `Templates.tsx`, `Pricing.tsx`     | Navigation hierarchy                     |
+| Schema Type      | Location                                | Purpose                          |
+| ---------------- | --------------------------------------- | -------------------------------- |
+| `WebApplication` | `index.html`                            | Product description (no pricing) |
+| `Organization`   | `structuredData.ts` (via `SeoMeta`)     | Business entity, founder         |
+| `WebSite`        | `structuredData.ts` (via `SeoMeta`)     | Search action enablement         |
+| `Person`         | `structuredData.ts`, `PublicResume.tsx` | Author/resume owner expertise    |
+| `Product`        | `Pricing.tsx`                           | Paid tier offering               |
+| `FAQPage`        | `HomePage.tsx`                          | Question-answer pairs            |
+| `BreadcrumbList` | `Templates.tsx`, `Pricing.tsx`          | Navigation hierarchy             |
 
 #### 4.2 Person Schema with Expertise (`apps/web/src/lib/structuredData.ts`)
 
 ```typescript
 export function personSchema() {
   return {
+    "@context": "https://schema.org",
     "@type": "Person",
+    "@id": "https://gautam-kr.vercel.app",
     name: "Gautam Kumar",
     url: "https://gautam-kr.vercel.app",
-    jobTitle: "Full-Stack Developer"
-",
+    jobTitle: "Full-Stack Developer | Solo-shipped SaaS Products | AI Integration",
+    description:
+      "Full-stack developer and AI engineer specializing in React, TypeScript, LangChain, and LLM-powered applications.",
     knowsAbout: [
       "React", "TypeScript", "Node.js", "LangChain",
       "Large Language Models", "MongoDB", "LaTeX",
@@ -325,8 +344,10 @@ Shared resume URLs (`/r/:shareId`) inject a personalized `Person` schema with th
 <SeoMeta
   jsonLd={[
     {
+      "@context": "https://schema.org",
       "@type": "Person",
       name: personName,
+      description: resume?.summary?.slice(0, 200) || "",
       knowsAbout: resume?.skills?.flatMap(...) || [],
     },
     personSchema(),
@@ -340,13 +361,34 @@ This ensures individual resume pages are discoverable as personal entity pages.
 
 - Each schema object is self-contained with `@context` and `@type`
 - Entities link to each other through sameAs, author, founder references
-- No conflicting or duplicate entity definitions
+- All three `Person` blocks (`index.html` author, `organizationSchema.founder`,
+  `personSchema()`) share one `@id` (`https://gautam-kr.vercel.app`), so crawlers
+  merge them into a single entity instead of seeing duplicates
 
 #### 4.5 Structured Content for LLM Parsing
 
 - FAQ content uses discrete Q&A pairs (ideal for LLM fine-tuning)
 - Feature descriptions follow consistent pattern (icon + title + description)
 - Pricing tables have clear key-value structure
+
+#### 4.6 `llms.txt` (`apps/web/public/llms.txt`)
+
+A plain-text, LLM-friendly index of the site: an H1 title, a one-line
+description, and a `## Pages` list of key URLs with short descriptions, plus a
+`## Creator` block linking the author's portfolio, GitHub and LinkedIn.
+
+```
+# TexFolio
+> AI-Powered LaTeX Resume Builder...
+
+## Pages
+- [Home](https://texfolio.vercel.app/): ...
+- [Templates](https://texfolio.vercel.app/templates): ...
+...
+```
+
+Because the web app is a SPA, the file is served through a rewrite in
+`apps/web/vercel.json` so `/llms.txt` returns the file instead of `index.html`.
 
 ---
 
@@ -363,7 +405,7 @@ Optimize for AI-powered search experiences (Google SGE, Bing Chat, Perplexity, Y
 | Requirement         | Implementation                                   |
 | ------------------- | ------------------------------------------------ |
 | Structured Data     | WebApplication, Product, FAQPage, BreadcrumbList |
-| Content Freshness   | Weekly sitemap updates for `/` and `/templates`  |
+| Content Freshness   | Static sitemap (`apps/web/public/sitemap.xml`)   |
 | Mobile Optimization | Full responsive design via Tailwind CSS          |
 | Page Speed          | Vite code-splitting, lazy loading, DNS prefetch  |
 | Secure Connection   | HTTPS via Vercel + Hono security headers         |
@@ -394,7 +436,7 @@ Breadcrumb JSON-LD helps AI search engines understand site hierarchy and page co
 
 #### 5.4 FAQPage for AI Answer Boxes
 
-The `FAQPage` schema (8 questions) is specifically designed for AI search engines to pull direct answers into their response interfaces — whether Google SGE answer cards, Perplexity citations, or Bing Chat responses.
+The `FAQPage` schema (9 questions) is specifically designed for AI search engines to pull direct answers into their response interfaces — whether Google SGE answer cards, Perplexity citations, or Bing Chat responses.
 
 #### 5.5 Semantic HTML Structure
 
@@ -428,7 +470,7 @@ Demonstrate first-hand experience, deep expertise, authoritative presence, and t
 | Real User Base       | Authentication via Clerk, MongoDB Atlas            |
 | Monetization         | Razorpay payment integration (₹499 Pro tier)       |
 | Production AI        | LangGraph agents + NVIDIA NIM + Groq in production |
-| Years of Development | Multiple version releases (V2.0+)                  |
+| Years of Development | Root package version `1.0.0`; iterated in public |
 
 Demonstrated in:
 
@@ -437,14 +479,13 @@ Demonstrated in:
 
 #### 6.2 Expertise
 
-| Signal                  | Implementation                                  |
-| ----------------------- | ----------------------------------------------- | ---------------------------- | -------------- |
-| Author Credentials      | Full-Stack Developer | Solo-shipped SaaS Products | AI Integration |
-| (in JSON-LD)            |
-| Technology Mastery      | React 19, Hono v4, LangChain, MongoDB, LaTeX    |
-| AI Expertise            | LangGraph multi-agent systems, NVIDIA NIM, Groq |
-| Resume/Domain Knowledge | ATS analysis, LaTeX typography, FAANG templates |
-| Open Source             | Public GitHub repository                        |
+| Signal                  | Implementation                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| Author Credentials      | `Full-Stack Developer \| Solo-shipped SaaS Products \| AI Integration` (JSON-LD `jobTitle`) |
+| Technology Mastery      | React 19, Hono v4, LangChain, MongoDB, LaTeX                                               |
+| AI Expertise            | LangGraph multi-agent systems, NVIDIA NIM, Groq                                            |
+| Resume/Domain Knowledge | ATS analysis, LaTeX typography, FAANG templates                                            |
+| Open Source             | Public GitHub repository                                                                   |
 
 Files demonstrating expertise:
 
@@ -485,13 +526,13 @@ Schema representation:
 | **Privacy Policy**       | Full 9-section policy covering data collection, AI processing, GDPR rights, cookies, security | `/privacy`                                |
 | **Terms of Service**     | Full 10-section terms covering accounts, payments, AI content, liability                      | `/terms`                                  |
 | **GDPR Compliance**      | Data export/deletion routes (`/api/me/export`, `/api/me/delete`)                              | `apps/api/src/routes.hono/gdpr.routes.ts` |
-| **Data Encryption**      | TLS/SSL, MongoDB Atlas encryption at rest                                                     | `apps/api/src/hono.ts:40`                 |
-| **Security Headers**     | Helmet secureHeaders middleware                                                               | `apps/api/src/hono.ts:40`                 |
+| **Data Encryption**      | TLS/SSL in transit; MongoDB Atlas encryption at rest (deployment-level)                       | Vercel / Atlas                           |
+| **Security Headers**     | `secureHeaders()` from `hono/secure-headers`                                                  | `apps/api/src/hono.ts:40`                 |
 | **CORS Hardening**       | Origin whitelist per environment                                                              | `apps/api/src/hono.ts:48-63`              |
-| **Rate Limiting**        | Tiered (Free/Pro/Anonymous) + strict for auth/payments                                        | `apps/api/src/hono.ts:66-86`              |
-| **Input Sanitization**   | Global middleware for XSS prevention                                                          | `apps/api/src/hono.ts:89-94`              |
-| **Audit Logging**        | Enterprise audit trail for all operations                                                     | `apps/api/src/services/audit.service.ts`  |
-| **Authentication**       | Clerk with Google/GitHub SSO                                                                  | `apps/web/src/App.tsx:98`                 |
+| **Rate Limiting**        | In-memory sliding window (global `/api/*`) + strict limiters for auth/payments                | `apps/api/src/hono.ts:66-86`              |
+| **Input Sanitization**   | Sanitizer registered globally (output not consumed by handlers)                               | `apps/api/src/hono.ts:89-94`              |
+| **Audit Logging**        | Audit trail for resume + organization operations                                             | `apps/api/src/services/audit.service.ts`  |
+| **Authentication**       | Clerk with Google/GitHub SSO                                                                  | `apps/web/src/App.tsx:103`                |
 | **Payment Security**     | Razorpay (no credit card storage)                                                             | `apps/web/src/hooks/useRazorpay.ts`       |
 | **Contact Availability** | Developer portfolio and social links                                                          | Footer + About page                       |
 | **AI Transparency**      | Clear disclosure of AI-generated content limitations                                          | Terms of Service Section 6                |
@@ -510,8 +551,8 @@ Schema representation:
 ```
 TexFolio
 ├── Product: Templates, Pricing, About
-├── Resources: About TexFolio, Resume Templates, Pricing
-└── Legal: Privacy Policy, Terms of Service
+├── Support: Contact, AI Interview Practice, Help
+└── Connect: GitHub, LinkedIn, Portfolio
     └── Built by: Gautam Kumar (GitHub | LinkedIn)
 ```
 
@@ -549,14 +590,14 @@ TexFolio
 ### Build Validation
 
 ```bash
-# Frontend type check
-cd apps/web && npx tsc --noEmit
+# Frontend type check (project references)
+cd apps/web && npx tsc -b
 
 # Frontend production build
 cd apps/web && npx vite build
 
 # Backend type check
-cd apps/api && npx tsc --noEmit
+cd apps/api && npx tsc -b
 
 # Vulnerability scan
 npm audit
@@ -574,7 +615,7 @@ Use the following tools to validate all JSON-LD implementations:
 
 | Page          | Expected Rich Result                                             |
 | ------------- | ---------------------------------------------------------------- |
-| `/`           | FAQ (8 questions), WebApplication, Person, Organization, WebSite |
+| `/`           | FAQ (9 questions), WebApplication, Person, Organization, WebSite |
 | `/templates`  | BreadcrumbList                                                   |
 | `/pricing`    | Product, BreadcrumbList, Organization                            |
 | `/about`      | Person, Organization                                             |
@@ -602,7 +643,7 @@ Use the following tools to validate all JSON-LD implementations:
 
 ### Deployment Checklist
 
-- [ ] TypeScript compiles (`tsc --noEmit` in both apps)
+- [ ] TypeScript compiles (`tsc -b` in both apps)
 - [ ] Vite production build succeeds
 - [ ] Zero npm vulnerabilities
 - [ ] sitemap.xml includes all public routes

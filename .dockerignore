@@ -1,0 +1,23 @@
+# Build outputs — the Dockerfile compiles these itself (shared → api), and a
+# stale host copy would silently mask a compile failure.
+node_modules
+**/node_modules
+**/dist
+
+# Incremental build state. tsc treats a present tsbuildinfo as "outputs are
+# already built" and skips emit entirely — with `dist` excluded above but this
+# file copied in, the image produced no declarations at all and the API build
+# died with TS6305. It lives next to tsconfig.json, not in `dist`, which is
+# exactly why it needs its own line.
+**/*.tsbuildinfo
+
+# Host-only state: the image must build from a clean checkout.
+.git
+.gitignore
+.env
+.env.*
+*.log
+
+# Runtime scratch space and caches — not part of the image.
+apps/api/temp
+graphify-out

@@ -7,7 +7,7 @@ if (env.NODE_ENV === "development") {
   try {
     dns.setServers(["8.8.8.8", "8.8.4.4"]);
     console.log("🌐 Dev Mode: Using Google DNS (8.8.8.8)");
-  } catch (e) {
+  } catch {
     // Ignore error if setServers is not supported
   }
 }

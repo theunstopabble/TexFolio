@@ -30,7 +30,6 @@ jobs:
         continue-on-error: true
       - name: Lint check
         run: npm run lint --workspace=@texfolio/api && npm run lint --workspace=@texfolio/web
-        continue-on-error: true
       - name: Build deployment
         run: npm run build:deploy
 
@@ -59,5 +58,5 @@ jobs:
       - name: Check for build artifacts
         run: |
           echo "Verifying build output..."
-          test -d apps/api/dist || echo "API build missing!"
-          test -d apps/web/dist || echo "Web build missing!"
+          test -d apps/api/dist || { echo "API build missing!"; exit 1; }
+          test -d apps/web/dist || { echo "Web build missing!"; exit 1; }

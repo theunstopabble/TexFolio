@@ -2,10 +2,12 @@ import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from "@
 import { Fragment } from "react";
 import { useResumeCoach } from "../hooks/useResumeCoach";
 
+import type { ResumeFormData } from "../features/resume-editor/types";
+
 interface AICoachModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resumeData: Record<string, unknown>;
+  resumeData: ResumeFormData;
 }
 
 export default function AICoachModal({
@@ -62,21 +64,21 @@ export default function AICoachModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
+              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all max-h-[90vh] flex flex-col">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4">
-                  <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+                <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 sm:px-6 py-4 shrink-0">
+                  <DialogTitle className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                     🤖 AI Resume Coach
                     <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
                       Powered by NVIDIA
                     </span>
                   </DialogTitle>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-purple-100 text-xs sm:text-sm mt-1">
                     Get comprehensive AI analysis of your resume
                   </p>
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6 overflow-y-auto flex-1">
                   {!data && !isPending && (
                     <div className="text-center py-8">
                       <div className="text-6xl mb-4">📊</div>
@@ -148,7 +150,7 @@ export default function AICoachModal({
                       </div>
 
                       {/* Breakdown */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         {data.breakdown.content && (
                           <div className="p-4 bg-slate-50 rounded-xl">
                             <div className="flex items-center justify-between mb-2">

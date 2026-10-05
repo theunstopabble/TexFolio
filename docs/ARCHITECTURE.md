@@ -1,47 +1,48 @@
 # System Architecture
 
-**Version:** 2.0.0 | **Last Updated:** May 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 ---
 
 ## High-Level Overview
 
-TexFolio is a **Turborepo monorepo** following a Service-Oriented Architecture with clear separation between the React frontend, Hono API backend, and infrastructure services.
+TexFolio is an **npm-workspaces monorepo** following a Service-Oriented Architecture with clear separation between the React frontend, Hono API backend, and infrastructure services.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         CLIENT (Browser)                             │
 │  React 19 + Vite (Rolldown) + Tailwind v4 + Zustand + React Query  │
 └────────────────────────────────┬────────────────────────────────────┘
-                                 │ HTTPS (Clerk JWT / API Key)
+                                 │ HTTPS (Clerk JWT)
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      HONO v4 API SERVER                              │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
 │  │Request ID│→│  Logger  │→│  CORS +  │→│Tiered RL │→│  Input   │ │
-│  │Middleware│ │Structured│ │ SecHdrs  │ │  (Redis) │ │Sanitizer │ │
+│  │Middleware│ │Structured│ │ SecHdrs  │ │ (memory) │ │Sanitizer │ │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │
 │                              │                                       │
 │  ┌───────────────────────────┼───────────────────────────────────┐  │
 │  │                     ROUTE HANDLERS                             │  │
 │  │  /resumes  /ai  /agents  /organizations  /payments  /me       │  │
+│  │  /auth  /analytics  /audit-logs  /api-keys  /public            │  │
 │  └───────────────────────────┼───────────────────────────────────┘  │
 │                              │                                       │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
-│  │   Auth   │ │   RBAC   │ │ API Key  │ │  Audit   │              │
-│  │(Clerk JWT│ │requireRole│ │  (HMAC)  │ │  Trail   │              │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
-└────────┬──────────────┬──────────────┬──────────────┬──────────────┘
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                           │
+│  │   Auth   │ │   RBAC   │ │  Audit   │                           │
+│  │(Clerk JWT│ │requireRole│ │  Trail   │                           │
+│  └──────────┘ └──────────┘ └──────────┘                           │
+└────────┬──────────────┬──────────────┬──────────────┬───────────────┘
          │              │              │              │
          ▼              ▼              ▼              ▼
 ┌──────────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐
 │  MongoDB     │ │   Redis   │ │  BullMQ   │ │  External APIs    │
 │  Atlas       │ │   Cloud   │ │  Workers  │ │                   │
 │              │ │           │ │           │ │ • NVIDIA NIM       │
-│ • Users      │ │ • Rate    │ │ • PDF Gen │ │ • Google Gemini   │
-│ • Resumes    │ │   Limits  │ │ • Retries │ │ • Groq            │
-│ • Orgs       │ │ • Queue   │ │ • Progress│ │ • Clerk           │
-│ • AuditLogs  │ │   Backend │ │           │ │ • Razorpay        │
+│ • Users      │ │ • Queue   │ │ • PDF Gen │ │ • Google Gemini   │
+│ • Resumes    │ │   Backend │ │ • Retries │ │ • Groq            │
+│ • Orgs       │ │           │ │ • Progress│ │ • Clerk           │
+│ • AuditLogs  │ │           │ │           │ │ • Razorpay        │
 │ • ApiKeys    │ │           │ │           │ │ • Brevo           │
 └──────────────┘ └───────────┘ └─────┬─────┘ └───────────────────┘
                                      │
@@ -66,28 +67,28 @@ TexFolio/
 │   │       ├── agents/         # LangGraph AI pipelines
 │   │       ├── config/         # Zod-validated env, DB connection
 │   │       ├── middleware.hono/ # Auth, RBAC, rate limit, sanitizer
-│   │       ├── models/         # Mongoose schemas (7 models)
+│   │       ├── models/         # Mongoose schemas (6 models)
 │   │       ├── queues/         # BullMQ PDF worker
 │   │       ├── routes.hono/    # REST endpoints (11 route files)
-│   │       ├── schemas/        # Zod validation schemas
-│   │       ├── services/       # Business logic (10 services)
+│   │       ├── services/       # Business logic (9 services)
 │   │       ├── templates/      # LaTeX .tex templates + .cls
 │   │       └── utils/          # Circuit breaker
 │   ├── web/                    # React 19 frontend
 │   │   └── src/
+│   │       ├── assets/         # Static assets
 │   │       ├── components/     # Shared UI (Header, OrganizationSwitcher)
 │   │       ├── context/        # AuthContext, OrganizationContext
-│   │       ├── features/       # Feature modules (resume editor)
+│   │       ├── features/       # Feature modules (create-resume, resume-editor)
 │   │       ├── hooks/          # React Query hooks
-│   │       ├── pages/          # Route views (14 pages)
+│   │       ├── lib/            # Query client, structured data, helpers
+│   │       ├── pages/          # Route views (17 pages)
 │   │       ├── services/       # API client (Axios)
-│   │       └── stores/         # Zustand stores (UI, org, resume)
+│   │       └── stores/         # Zustand stores (UI, org)
 │   └── latex-renderer/         # Docker container for pdflatex
 │       └── Dockerfile
 ├── packages/
-│   └── shared/                 # @texfolio/shared — Zod schemas + TS types
+│   └── shared/                 # @texfolio/shared — Zod schemas + constants
 │       └── src/
-│           ├── types/          # Legacy TypeScript interfaces
 │           └── schemas/        # Zod schemas (single source of truth)
 ├── docker-compose.yml          # Redis + LaTeX renderer orchestration
 ├── package.json                # Workspace root (npm workspaces)
@@ -107,13 +108,12 @@ Request
   ├─ 2. structuredLogger        → JSON log with correlation ID
   ├─ 3. secureHeaders()         → CSP, X-Frame-Options, nosniff, referrer
   ├─ 4. cors()                  → Origin whitelist, credential support
-  ├─ 5. tieredRateLimiter       → Redis fixed-window (Pro: 300/min, Free: 60/min)
+  ├─ 5. tieredRateLimiter       → In-memory sliding window (Pro 300 / Free 60 / anon 20 per min)
   ├─ 6. inputSanitizer          → XSS/prototype pollution prevention
-  │
+
   ├─ [Route-level middleware]
   │   ├─ authMiddleware         → Clerk JWT verification + user sync
-  │   ├─ requireRole("admin")   → RBAC enforcement
-  │   └─ apiKeyMiddleware       → HMAC key verification + scope check
+  │   └─ requireRole("admin")   → RBAC enforcement
   │
   └─ Route Handler → Service → Model → Response
 ```
@@ -129,7 +129,6 @@ Client Request
   │
   ├─ Auth + ownership check
   ├─ Fetch resume from MongoDB
-  ├─ Resolve org branding (lockedTemplateId, primaryColor, enforceCompanyFont)
   ├─ Transform resume data → Mustache template variables
   ├─ Escape LaTeX special characters
   ├─ Render .tex via Mustache (delimiters: << >>)
@@ -143,6 +142,10 @@ Client Request
 ```
 
 ### Asynchronous Path (`POST /api/resumes/:id/pdf/queue`)
+
+Production-only (Redis-backed); the web client currently uses the synchronous path above.
+Org branding (`lockedTemplateId`, `primaryColor`, `enforceCompanyFont`) is resolved only
+here, inside the worker.
 
 ```
 Client Request
@@ -237,7 +240,7 @@ NVIDIA NIM (Llama 3.1 70B)  ──[fail]──→  Google Gemini 1.5 Flash  ─�
 HTTP Request
   │
   ├─ authMiddleware (Clerk JWT verification)
-  │   ├─ Verify token via clerkClient.verifyToken()
+  │   ├─ Verify token via verifyToken() (@clerk/backend)
   │   ├─ Sync/create user in MongoDB
   │   └─ If X-Organization-Id header present:
   │       └─ Lookup OrganizationMember → attach { organizationId, role }
@@ -249,35 +252,36 @@ HTTP Request
   │   └─ 403 if insufficient role
   │
   └─ Route Handler
-      ├─ resumeService.findAll(userId, { orgId, role })
-      │   └─ Query: user's resumes + org resumes (if role >= viewer)
+      ├─ resumeService.findAll(userId, { orgId })
+      │   └─ Query: user's resumes + org resumes with visibility in (organization, public)
       ├─ auditService.log({ actorId, action, resourceType })
       └─ Response
 ```
 
 ---
 
-## Distributed Rate Limiting
+## Rate Limiting
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                    Rate Limit Flow                             │
 │                                                               │
 │  Request → Extract key (userId or IP)                         │
-│         → Compute windowId = floor(now / windowMs)            │
-│         → Redis key: ratelimit:{key}:{windowId}               │
-│         → INCR + PEXPIRE (atomic pipeline)                    │
+│         → In-memory Map, per process                          │
+│         → Sliding window: keep hits newer than windowStart    │
 │         → Compare hits vs tier limit                          │
 │         → Set X-RateLimit-* headers                           │
 │         → 429 if exceeded, else continue                      │
 │                                                               │
-│  Tiers:                                                       │
+│  Tiers (configured):                                          │
 │    Pro users:      300 req/min                                │
 │    Free users:      60 req/min                                │
 │    Anonymous (IP):  20 req/min                                │
 │    Sensitive routes: 5 req/min (auth, payments)               │
 │                                                               │
-│  Fail-Open: If Redis unreachable → allow request              │
+│  Note: the limiter runs before route-level auth, so every      │
+│  request currently resolves to the anonymous tier. State is    │
+│  per-instance and not shared across API instances.            │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -290,7 +294,7 @@ App.tsx
   │
   ├─ ClerkProvider (auth)
   ├─ OrganizationProvider (context)
-  │   └─ organizationStore (Zustand + persist)
+  │   └─ organizationStore (Zustand + devtools)
   ├─ QueryClientProvider (React Query)
   │
   └─ React Router v7
@@ -306,7 +310,8 @@ App.tsx
       ├─ /pricing             → Pricing (Razorpay)
       ├─ /cover-letter        → CoverLetter
       ├─ /templates           → Templates
-      ├─ /profile             → UserProfile
+      ├─ /profile/*           → UserProfile
+      ├─ /login/*, /register/* → Clerk auth screens
       ├─ /privacy             → Privacy
       ├─ /terms               → Terms
       ├─ /about               → About
@@ -317,9 +322,8 @@ App.tsx
 
 | Store | Library | Purpose |
 |:--|:--|:--|
-| `organizationStore` | Zustand (persist) | Active org, role, org list |
-| `resumeStore` | Zustand | Current resume editing state |
-| `uiStore` | Zustand | Sidebar, modals, theme |
+| `organizationStore` | Zustand (devtools) | Active org, role, org list |
+| `uiStore` | Zustand | Active tab, saving/loading flags, mobile menu, modal |
 | Server state | React Query | API data caching, mutations |
 
 ---
@@ -338,7 +342,6 @@ App.tsx
                     ┌──────┴───────┐
                     │ Redis Cloud  │
                     │              │
-                    │ • Rate Limits│
-                    │ • BullMQ     │
+                    │  • BullMQ    │
                     └──────────────┘
 ```

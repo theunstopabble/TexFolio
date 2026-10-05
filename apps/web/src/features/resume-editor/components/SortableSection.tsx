@@ -29,7 +29,7 @@ export function SortableSection({
     <div ref={setNodeRef} style={style} {...attributes} className="mb-6 group">
       <div
         {...listeners}
-        className="absolute -left-8 top-6 cursor-move p-2 text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute -left-8 top-6 cursor-move p-2 text-slate-500 hover:text-slate-700 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
         title="Drag to reorder"
       >
         <span>

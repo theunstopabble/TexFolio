@@ -64,7 +64,7 @@ export default function OrganizationSwitcher() {
               className="w-full flex items-center justify-between px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <div className="flex items-center gap-2 min-w-0">
-                <Building2 className="w-4 h-4 text-slate-400 shrink-0" />
+                <Building2 className="w-4 h-4 text-slate-500 shrink-0" />
                 <span className="truncate">{organization.name}</span>
               </div>
               {activeOrg?._id === organization._id && (

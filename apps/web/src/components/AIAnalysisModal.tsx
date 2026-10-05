@@ -65,6 +65,13 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                     </div>
                   ) : result ? (
                     <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+                      {(result.parseFailed || result.serviceUnavailable) && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                          ⚠️ No reliable score was produced. The number below is a
+                          placeholder — please run the check again.
+                        </div>
+                      )}
+
                       {/* Score Circle */}
                       <div className="flex flex-col items-center">
                         <div
@@ -161,7 +168,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <p className="text-red-500 text-center">
+                    <p className="text-red-600 text-center">
                       Something went wrong. Please try again.
                     </p>
                   )}

@@ -1,8 +1,10 @@
 # Technology Stack
 
-**Version:** 2.0.0 | **Last Updated:** May 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 Complete technology inventory for the TexFolio platform with versions and rationale.
+
+> **Versions** below are the *declared* ranges from each workspace's `package.json` (what npm resolves on a fresh install); the lockfile may pin newer patch versions (e.g. `hono` 4.13.1, `mongoose` 8.24.2).
 
 ---
 
@@ -14,18 +16,19 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | Vite (Rolldown) | 7.2.5 | Build tool | Rolldown bundler for 10x faster builds than esbuild |
 | TypeScript | 5.9 | Type safety | Strict mode, shared types with backend |
 | Tailwind CSS | 4.1 | Styling | Utility-first, v4 with CSS-first config |
-| Zustand | 5.0 | Client state | Minimal boilerplate, persist middleware |
+| Zustand | 5.0 | Client state | Minimal boilerplate, `devtools` middleware |
 | React Query | 5.90 | Server state | Caching, mutations, optimistic updates |
 | React Hook Form | 7.71 | Form handling | Performant uncontrolled forms |
 | Headless UI | 2.2 | Accessible components | Unstyled, WAI-ARIA compliant |
 | Lucide React | 0.563 | Icons | Tree-shakeable, consistent design |
-| React Router | 7.13 | Routing | File-based routing, loaders |
+| React Router | 7.13 | Routing | Declarative `<BrowserRouter>` + `<Routes>` |
 | Clerk React SDK | 5.60 | Authentication | Drop-in auth UI, session management |
 | dnd-kit | 6.3 / 10.0 | Drag and drop | Section reordering in editor |
 | Recharts | 3.7 | Charts | Analytics dashboard visualizations |
 | Axios | 1.13 | HTTP client | Interceptors for org header injection |
 | React Hot Toast | 2.6 | Notifications | Lightweight toast system |
 | Vercel Analytics | 1.6 | Web analytics | Zero-config performance tracking |
+| react-helmet-async | 3.0 | SEO meta tags | Per-page title/description/canonical/OG via `SeoMeta` |
 
 ---
 
@@ -34,20 +37,25 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | Technology | Version | Purpose | Rationale |
 |:--|:--|:--|:--|
 | Hono | 4.11 | Web framework | Ultra-fast (Web Standards), middleware-first |
-| @hono/node-server | 1.19 | Node.js adapter | Production HTTP server for Hono |
+| @hono/node-server | 2.1 | Node.js adapter | Production HTTP server for Hono |
 | @hono/zod-validator | 0.7 | Request validation | Type-safe validation at route level |
 | TypeScript | 5.7 | Type safety | Shared types via `@texfolio/shared` |
-| Mongoose | 8.9 | MongoDB ODM | Schema validation, middleware, population |
+| Mongoose | 8.9 | MongoDB ODM | Schema validation, middleware, timestamps |
 | BullMQ | 5.76 | Job queue | Reliable async PDF generation with retries |
-| ioredis | 5.10 | Redis client | Distributed rate limiting, queue backend |
+| ioredis | 5.10 | Redis client | BullMQ queue backend only (not rate limiting) |
 | Zod | 3.24 | Schema validation | Env config + request body validation |
 | Mustache | 4.2 | Template engine | LaTeX template rendering (logic-less) |
 | nanoid | 3.3 | ID generation | Short unique IDs for share links, request IDs |
-| jsonwebtoken | 9.0 | JWT handling | Token verification utilities |
-| Helmet | 8.0 | Security headers | CSP, X-Frame-Options (via Hono secureHeaders) |
+| JSON (Clerk `verifyToken`) | JWT handling | Token verification via `@clerk/backend` (the `jsonwebtoken` package is declared but unused) |
+| Hono `secureHeaders` | Security headers | CSP, X-Frame-Options (the `helmet` package is declared but unused) |
 | dotenv | 16.4 | Env loading | Development environment variables |
 | pdf-parse | 1.1 | PDF parsing | LinkedIn PDF import extraction |
 | tsx | 4.19 | Dev runner | TypeScript execution without compilation |
+| @clerk/backend | 3.7 | Auth (server) | Clerk JWT verification + user lookup |
+
+### Declared but unused
+
+`cors` (Hono's `hono/cors` is used instead), `helmet`, `jsonwebtoken`.
 
 ---
 
@@ -58,7 +66,6 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | LangChain Core | 1.1 | LLM framework | Composable chains, structured output |
 | LangGraph | 1.1 | Agent orchestration | Multi-node state graph for resume coach |
 | @langchain/openai | 1.2 | OpenAI-compatible | Adapter for NVIDIA NIM, Groq, Gemini |
-| @langchain/google-genai | 2.1 | Google Gemini | Secondary LLM provider |
 | Groq SDK | 0.37 | Groq API | Direct SDK for AI service (circuit-breaker wrapped) |
 | NVIDIA NIM | — | Primary LLM | Llama 3.1 70B, best free tier performance |
 | Google Gemini | — | Secondary LLM | Gemini 1.5 Flash via OpenAI-compatible endpoint |
@@ -71,7 +78,7 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | NVIDIA NIM | `meta/llama-3.1-70b-instruct` | LangGraph agent (primary) |
 | Google Gemini | `gemini-1.5-flash` | LangGraph agent (secondary) |
 | Groq | `llama-3.1-70b-versatile` | LangGraph agent (fallback) |
-| Groq | `llama-3.1-8b-instant` | AI service (improve, bullets, ATS) |
+| Groq | `llama-3.1-8b-instant` | AI service (improve, bullets, ATS, analyze, cover letter) |
 
 ---
 
@@ -80,7 +87,7 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | Technology | Version | Purpose | Rationale |
 |:--|:--|:--|:--|
 | pdflatex | TeX Live | LaTeX → PDF compilation | Industry-standard typesetting |
-| Docker (debian:bullseye-slim) | — | Isolated LaTeX environment | Security isolation, reproducible builds |
+| Docker (node:20-bookworm-slim) | — | Isolated LaTeX environment | Security isolation, reproducible builds |
 | texlive-latex-base | — | Core LaTeX packages | Minimal footprint |
 | texlive-fonts-recommended | — | Standard fonts | Professional typography |
 | texlive-latex-extra | — | Extended packages | hyperref, xcolor, geometry |
@@ -90,9 +97,9 @@ Complete technology inventory for the TexFolio platform with versions and ration
 
 | Template | File | Description |
 |:--|:--|:--|
-| Classic | `templates/classic.tex` | Clean, traditional layout |
-| FAANGPath | `templates/faangpath.tex` | Tech-industry optimized (uses `resume.cls`) |
-| Premium | `templates/premium.tex` | Modern design with color accents |
+| Classic | `apps/api/src/templates/classic.tex` | Clean, traditional layout |
+| FAANGPath | `apps/api/src/templates/faangpath.tex` | Tech-industry optimized (uses `resume.cls`) |
+| Premium | `apps/api/src/templates/premium.tex` | Modern design with color accents |
 
 ---
 
@@ -101,7 +108,7 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | Technology | Purpose | Rationale |
 |:--|:--|:--|
 | MongoDB Atlas | Database | Managed, auto-scaling, global clusters |
-| Redis Cloud | Cache + Queue | Managed Redis for rate limits + BullMQ |
+| Redis Cloud | Queue backend | Managed Redis for BullMQ (rate limiting is in-process) |
 | Vercel | Frontend hosting | Edge CDN, automatic deployments |
 | Render | Backend hosting | Docker support, auto-deploy from Git |
 | Docker Compose | Local orchestration | Redis + LaTeX renderer for development |
@@ -133,11 +140,21 @@ Complete technology inventory for the TexFolio platform with versions and ration
 
 | Technology | Version | Purpose |
 |:--|:--|:--|
-| Turborepo | — | Monorepo build orchestration |
 | npm workspaces | — | Package management |
 | ESLint | 9.39 | Code linting |
 | Concurrently | 8.2 | Parallel dev scripts |
 | GitHub Actions | — | CI/CD pipeline |
+
+### Testing
+
+| Technology | Version | Purpose |
+|:--|:--|:--|
+| `node:test` + `node:assert` | built-in | Test runner and assertions |
+| jsdom | 30.1 | DOM environment for component tests |
+
+Run with `node --experimental-strip-types --test apps/web/tests/*.test.ts` — there is no
+`test` script in any workspace `package.json`. Nine test files live under
+`apps/web/tests/`.
 
 ---
 
@@ -146,8 +163,8 @@ Complete technology inventory for the TexFolio platform with versions and ration
 | Export | Purpose |
 |:--|:--|
 | Zod schemas | Single source of truth for validation (resume, API, AI) |
-| TypeScript types | Legacy interfaces for backward compatibility |
 | Inferred types | `z.infer<>` types derived from Zod schemas |
+| Constants | `PRO_TEMPLATES`, `isProTemplate()`, `FREE_TEMPLATE_ID` |
 
 ---
 
@@ -157,11 +174,11 @@ Complete technology inventory for the TexFolio platform with versions and ration
 |:--|:--|:--|:--|
 | Web framework | Hono v4 | Express, Fastify | Web Standards, 3x faster, built-in middleware |
 | Bundler | Rolldown (via Vite) | esbuild, webpack | 10x faster builds, Vite-compatible |
-| State management | Zustand | Redux, Jotai | Minimal API, persist middleware, no boilerplate |
+| State management | Zustand | Redux, Jotai | Minimal API, `devtools` middleware, no boilerplate |
 | PDF rendering | pdflatex (spawn) | Puppeteer, wkhtmltopdf | True LaTeX quality, ATS-friendly output |
 | Job queue | BullMQ | Agenda, pg-boss | Redis-backed, progress tracking, rate limiting |
-| Rate limiting | Custom Redis | express-rate-limit | Distributed, survives restarts, tiered |
+| Rate limiting | Custom in-memory (sliding window) | express-rate-limit | Tiered, zero infrastructure; per-instance (not shared, not restart-safe) |
 | AI orchestration | LangGraph | Custom chains | State machine, multi-agent, debuggable |
 | Template engine | Mustache | Handlebars, EJS | Logic-less (safe for LaTeX), custom delimiters |
 | Auth | Clerk | Auth0, Firebase Auth | Best DX, React SDK, JWT verification |
-| Monorepo | Turborepo + npm | pnpm, Nx | Simple, fast caching, npm-native |
+| Monorepo | npm workspaces | pnpm, Nx, Turborepo | Simple, npm-native, no extra tooling |

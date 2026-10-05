@@ -145,12 +145,12 @@ const HomePage = () => {
                 How TexFolio Works
               </h2>
               <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto px-4">
-                Build a standout resume in four simple steps with our AI-powered
+                Build a standout resume in five simple steps with our AI-powered
                 platform.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
               {howToSteps.map((item) => (
                 <div
                   key={item.step}
@@ -267,7 +267,7 @@ const HomePage = () => {
                 >
                   <summary className="flex items-center justify-between px-5 py-4 cursor-pointer list-none text-sm sm:text-base font-semibold text-slate-900 hover:text-blue-700 transition-colors">
                     {item.question}
-                    <span className="text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2">
+                    <span className="text-slate-500 group-open:rotate-180 transition-transform shrink-0 ml-2">
                       <svg
                         width="20"
                         height="20"
@@ -311,7 +311,7 @@ const HomePage = () => {
                   <div className="text-4xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">
                     React 19
                   </div>
-                  <div className="text-lg font-bold text-slate-400">
+                  <div className="text-lg font-bold text-slate-500">
                     + Hono v4
                   </div>
                 </div>
@@ -328,7 +328,7 @@ const HomePage = () => {
                   <div className="text-4xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">
                     LangGraph
                   </div>
-                  <div className="text-lg font-bold text-slate-400">
+                  <div className="text-lg font-bold text-slate-500">
                     + NVIDIA NIM
                   </div>
                 </div>
@@ -345,7 +345,7 @@ const HomePage = () => {
                   <div className="text-4xl font-black text-slate-900 group-hover:text-purple-600 transition-colors">
                     GDPR
                   </div>
-                  <div className="text-lg font-bold text-slate-400">
+                  <div className="text-lg font-bold text-slate-500">
                     + RBAC
                   </div>
                 </div>

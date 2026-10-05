@@ -12,7 +12,65 @@ import { pdfQueue } from "../queues/pdf.queue.js";
 import {
   createResumeSchema,
   updateResumeSchema,
+  isProTemplate,
 } from "@texfolio/shared";
+
+/**
+ * Server-side entitlement check for Pro templates.
+ *
+ * `TemplateSelector` only disables the buttons, so this is the real gate —
+ * previously nothing on the server looked at `templateId` at all, and a crafted
+ * request could persist (and later compile) a locked design on a free account.
+ *
+ * Returns the response body+status when the check fails, `null` when it passes,
+ * so callers can `if (gate) return gate;` without duplicating the message.
+ *
+ * `orgCtx` is what exempts organization resumes: a org's own plan — not any
+ * individual member's personal Pro flag — is the relevant entitlement there,
+ * and `branding.lockedTemplateId` is documented (docs/API.md) as being able to
+ * force e.g. `faangpath` org-wide. Gating those on `user.isPro` would have
+ * turned a supported feature into a 403.
+ */
+const proTemplateGate = (
+  user: HonoUser,
+  templateId?: string | null,
+  orgCtx?: { orgId: string; role: string },
+): { body: { success: false; error: string }; status: 403 } | null =>
+  !orgCtx && isProTemplate(templateId) && !user.isPro
+    ? {
+        body: {
+          success: false,
+          error: "Premium templates require a Pro subscription",
+        },
+        status: 403,
+      }
+    : null;
+
+/**
+ * Error payload for a failed PDF compile.
+ *
+ * The LaTeX pipeline throws descriptive messages ("LaTeX compile failed and no
+ * PDF was produced: …") that were being swallowed by a bare `Failed to generate
+ * PDF`, so the client could not tell a bad template from a missing binary. The
+ * message is only passed through outside production — the same rule the global
+ * handler in `hono.ts` applies — so file paths and stack-derived detail never
+ * reach a production client.
+ */
+const pdfErrorResponse = (c: Context, error: unknown) => {
+  console.error("Error in generatePdf:", error);
+  const isProduction = process.env.NODE_ENV === "production";
+  const message =
+    error instanceof Error && error.message
+      ? error.message
+      : "Failed to generate PDF";
+  return c.json(
+    {
+      success: false,
+      error: isProduction ? "Failed to generate PDF" : message,
+    },
+    500,
+  );
+};
 
 // Helper to extract audit metadata from Hono context
 const getAuditMeta = (c: Context, statusCode: number) => ({
@@ -89,6 +147,9 @@ resumeRoutes.post("/", zValidator("json", createResumeSchema), async (c) => {
     const user = c.get("user");
     const body = c.req.valid("json");
 
+    const gate = proTemplateGate(user, body.templateId, getOrgCtx(user));
+    if (gate) return c.json(gate.body, gate.status);
+
     const resume = await resumeService.create(body, user.userId, getOrgCtx(user));
 
     await auditService.log({
@@ -132,6 +193,14 @@ resumeRoutes.put("/:id", zValidator("json", updateResumeSchema), async (c) => {
     const body = c.req.valid("json");
 
     const existing = await resumeService.findById(id, user.userId, getOrgCtx(user));
+
+    // Updates are partial: an absent `templateId` keeps the stored one, so gate
+    // on the value that will actually be in effect — otherwise a PUT that omits
+    // the field would still have to be treated as "not changing the template",
+    // and a PUT that sets it was unchecked.
+    const gate = proTemplateGate(user, body.templateId ?? existing?.templateId, getOrgCtx(user));
+    if (gate) return c.json(gate.body, gate.status);
+
     const resume = await resumeService.update(id, user.userId, body, getOrgCtx(user));
 
     if (!resume) {
@@ -257,14 +326,56 @@ resumeRoutes.patch("/:id/visibility", async (c) => {
   }
 });
 
+// Persist the latest ATS score (set by the client after a successful check).
+resumeRoutes.patch(
+  "/:id/ats-score",
+  zValidator("json", z.object({ atsScore: z.number().min(0).max(100) })),
+  async (c) => {
+    try {
+      const user = c.get("user");
+      const id = c.req.param("id");
+      const { atsScore } = c.req.valid("json");
+
+      const updated = await resumeService.update(
+        id,
+        user.userId,
+        { atsScore } as Partial<IResume>,
+        getOrgCtx(user),
+      );
+
+      if (!updated) {
+        return c.json({ success: false, error: "Resume not found" }, 404);
+      }
+
+      return c.json({ success: true, data: { atsScore: updated.atsScore } });
+    } catch (error) {
+      console.error("Error persisting ATS score:", error);
+      return c.json(
+        {
+          success: false,
+          error:
+            error instanceof Error ? error.message : "Failed to save ATS score",
+        },
+        500,
+      );
+    }
+  },
+);
+
 // Generate PDF
 resumeRoutes.get("/:id/pdf", async (c) => {
   try {
     const user = c.get("user");
     const id = c.req.param("id");
 
-    const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
+    // Fetched before compiling so a locked template is refused without paying
+    // for a LaTeX run first (and so the not-found error surfaces here rather
+    // than out of the compiler).
     const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
+    const gate = proTemplateGate(user, resume?.templateId, getOrgCtx(user));
+    if (gate) return c.json(gate.body, gate.status);
+
+    const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
 
     // Sanitize filename to prevent header injection
     const sanitizeFilename = (name: string) =>
@@ -292,14 +403,15 @@ resumeRoutes.get("/:id/pdf", async (c) => {
       },
     });
   } catch (error) {
-    console.error("Error in generatePdf:", error);
     if (error instanceof Error && error.message === "Invalid resume ID") {
       return c.json({ success: false, error: "Invalid resume ID" }, 400);
     }
     if (error instanceof Error && error.message === "Resume not found") {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
-    return c.json({ success: false, error: "Failed to generate PDF" }, 500);
+    // Real cause out of dev, generic text out of production — was a hardcoded
+    // "Failed to generate PDF" for every non-404 failure.
+    return pdfErrorResponse(c, error);
   }
 });
 
@@ -314,6 +426,8 @@ resumeRoutes.post("/:id/pdf/queue", async (c) => {
     if (!resume) {
       return c.json({ success: false, error: "Resume not found" }, 404);
     }
+    const queueGate = proTemplateGate(user, resume.templateId, getOrgCtx(user));
+    if (queueGate) return c.json(queueGate.body, queueGate.status);
 
     if (!pdfQueue) {
       return c.json({ success: false, error: "PDF generation not available (local development)" }, 503);
@@ -392,6 +506,13 @@ resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
       return c.json({ success: false, error: "Unauthorized" }, 403);
     }
 
+    // Resolve (and gate) before touching the temp file: a resume can be moved
+    // onto a Pro template between enqueue and download, and the queued PDF is
+    // deleted as soon as it is served.
+    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
+    const downloadGate = proTemplateGate(user, resume?.templateId, getOrgCtx(user));
+    if (downloadGate) return c.json(downloadGate.body, downloadGate.status);
+
     const state = await job.getState();
     if (state !== "completed") {
       return c.json(
@@ -412,7 +533,6 @@ resumeRoutes.get("/:id/pdf/queue/:jobId/download", async (c) => {
     // Clean up the generated PDF after serving (non-blocking cleanup)
     fs.unlink(result.outputPath).catch(() => {});
 
-    const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
     const sanitizeFilename = (name: string) =>
       name.replace(/[^a-zA-Z0-9\u00C0-\u017F\s._-]/g, "").trim() || "Resume";
     const filename = resume
@@ -444,13 +564,17 @@ resumeRoutes.post(
       const id = c.req.param("id");
       const { email } = c.req.valid("json");
 
-      // 1. Generate PDF
-      const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
+      // Resolve before compiling: a locked template must be refused before the
+      // LaTeX run, and `findById` already throws on a missing resume.
       const resume = await resumeService.findById(id, user.userId, getOrgCtx(user));
-
       if (!resume) {
         return c.json({ success: false, error: "Resume not found" }, 404);
       }
+      const emailGate = proTemplateGate(user, resume.templateId, getOrgCtx(user));
+      if (emailGate) return c.json(emailGate.body, emailGate.status);
+
+      // 1. Generate PDF
+      const pdfPath = await resumeService.generatePdf(id, user.userId, getOrgCtx(user));
 
       // 2. Read PDF Buffer
       const fs = await import("fs/promises");

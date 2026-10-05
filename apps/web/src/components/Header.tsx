@@ -134,7 +134,7 @@ const Header = () => {
 
                 <button
                   onClick={logout}
-                  className="text-slate-400 hover:text-red-600 transition-colors p-1.5 md:p-2 rounded-full hover:bg-red-50 shrink-0"
+                  className="text-slate-500 hover:text-red-600 transition-colors p-1.5 md:p-2 rounded-full hover:bg-red-50 shrink-0"
                   title="Logout"
                   aria-label="Logout"
                 >

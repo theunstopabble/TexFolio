@@ -3,9 +3,16 @@ import path from "path";
 import { spawn } from "child_process";
 import { randomUUID } from "crypto";
 import Mustache from "mustache";
+import {
+  PLATFORM_META,
+  normalizeProfileLink,
+  type ProfilePlatform,
+} from "@texfolio/shared";
 import { IResume } from "../models/index.js";
 import { env } from "../config/env.js";
 import { fileURLToPath } from "url";
+
+import fsSync from "fs";
 
 // Get directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -16,11 +23,34 @@ const __dirname = path.dirname(__filename);
 // On Local Windows, configure via PDFLATEX_PATH env var or it defaults to pdflatex in PATH.
 const PDFLATEX_PATH = env.PDFLATEX_PATH || "pdflatex";
 
-// Templates directory
-const TEMPLATES_DIR = path.join(__dirname, "../templates");
+// Templates directory (handles both src/services and dist/services execution)
+const resolveTemplatesDir = (): string => {
+  const localDir = path.join(__dirname, "../templates");
+  if (fsSync.existsSync(localDir)) return localDir;
+  const srcDir = path.join(__dirname, "../../src/templates");
+  if (fsSync.existsSync(srcDir)) return srcDir;
+  return localDir;
+};
+const TEMPLATES_DIR = resolveTemplatesDir();
 
 // Temp directory for generated files
 const TEMP_DIR = path.join(__dirname, "../../temp");
+
+const escapeLatexSimple = (str: string): string => {
+  return str
+    .replace(/\\/g, "\\textbackslash{}")
+    .replace(/&/g, "\\&")
+    .replace(/%/g, "\\%")
+    .replace(/\$/g, "\\$")
+    .replace(/#/g, "\\#")
+    .replace(/_/g, "\\_")
+    .replace(/\{/g, "\\{")
+    .replace(/\}/g, "\\}")
+    .replace(/~/g, "\\textasciitilde{}")
+    .replace(/\^/g, "\\textasciicircum{}")
+    .replace(/</g, "\\textless{}")
+    .replace(/>/g, "\\textgreater{}");
+};
 
 // Escape special LaTeX characters (also drops emoji/control chars pdflatex can't render)
 const escapeLatex = (text: string): string => {
@@ -47,10 +77,31 @@ const escapeLatex = (text: string): string => {
 
   // Drop characters pdflatex (utf8 inputenc) cannot render: emoji, symbols,
   // and non-Latin-1 unicode. Allows Latin-1 supplement (é, ü, …) + Latin Extended-A.
+  // eslint-disable-next-line no-control-regex -- intentional \u0000 lower bound
   decoded = decoded.replace(/[^\u0000-\u017F]/g, "?");
 
+  // Extract bold formatting tokens: both markdown **text** and \textbf{text}
+  const bolds: string[] = [];
+  let tokenized = decoded
+    .replace(/\\textbf\{([^}]+)\}/g, (_, m) => {
+      bolds.push(m);
+      return `TOKENBOLD${bolds.length - 1}END`;
+    })
+    .replace(/\*\*([^*]+)\*\*/g, (_, m) => {
+      bolds.push(m);
+      return `TOKENBOLD${bolds.length - 1}END`;
+    });
+
+  // Extract italic formatting tokens: \textit{text}
+  const italics: string[] = [];
+  tokenized = tokenized
+    .replace(/\\textit\{([^}]+)\}/g, (_, m) => {
+      italics.push(m);
+      return `TOKENITALIC${italics.length - 1}END`;
+    });
+
   // Then escape for LaTeX
-  return decoded
+  let escaped = tokenized
     .replace(/\\/g, "\\textbackslash{}")
     .replace(/&/g, "\\&")
     .replace(/%/g, "\\%")
@@ -60,7 +111,19 @@ const escapeLatex = (text: string): string => {
     .replace(/\{/g, "\\{")
     .replace(/\}/g, "\\}")
     .replace(/~/g, "\\textasciitilde{}")
-    .replace(/\^/g, "\\textasciicircum{}");
+    .replace(/\^/g, "\\textasciicircum{}")
+    .replace(/</g, "\\textless{}")
+    .replace(/>/g, "\\textgreater{}");
+
+  // Re-inject bold and italic
+  bolds.forEach((b, i) => {
+    escaped = escaped.replace(`TOKENBOLD${i}END`, `\\textbf{${escapeLatexSimple(b)}}`);
+  });
+  italics.forEach((it, i) => {
+    escaped = escaped.replace(`TOKENITALIC${i}END`, `\\textit{${escapeLatexSimple(it)}}`);
+  });
+
+  return escaped;
 };
 
 // Escape a URL for use inside \href{...}: strip chars LaTeX can't handle,
@@ -71,6 +134,25 @@ const escapeLatexUrl = (url: string): string => {
     .replace(/&/g, "%26")
     .replace(/%/g, "%25")
     .replace(/#/g, "%23");
+};
+
+// Some rows (legacy/imported resumes) may hold a comma- or newline-separated
+// string where the schema expects an array of strings. Normalise before
+// escaping so one odd row can never 500 the whole PDF job.
+const toStringList = (value: unknown, separator: string): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(separator)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+  return [];
 };
 
 // Transform resume data to template variables
@@ -103,34 +185,42 @@ const transformResumeData = (resume: IResume) => {
       LOCATION: escapeLatex(exp.location || ""),
       START_DATE: escapeLatex(exp.startDate || ""),
       END_DATE: escapeLatex(
-        exp.endDate
-          ? exp.endDate
-          : exp.startDate
-            ? "Present"
-            : "",
+        exp.isCurrent
+          ? "Present"
+          : exp.endDate
+            ? exp.endDate
+            : exp.startDate
+              ? "Present"
+              : "",
       ),
-      DESCRIPTION: exp.description?.map((d) => escapeLatex(d)) || [],
+      DESCRIPTION: toStringList(exp.description, "\n").map((d) => escapeLatex(d)),
     })),
   });
 
   const buildEducation = () => ({
     IS_EDUCATION: true,
     TITLE: "Education",
-    EDUCATION: resume.education?.map((edu) => ({
-      INSTITUTION: escapeLatex(edu.institution),
-      DEGREE: escapeLatex(edu.degree),
-      FIELD: escapeLatex(edu.field),
-      LOCATION: escapeLatex(edu.location || ""),
-      START_DATE: escapeLatex(edu.startDate || ""),
-      END_DATE: escapeLatex(
-        edu.endDate
-          ? edu.endDate
-          : edu.startDate
-            ? "Present"
-            : "",
-      ),
-      GPA: edu.gpa ? escapeLatex(edu.gpa) : null,
-    })),
+    EDUCATION: resume.education?.map((edu) => {
+      const gpaRaw = (edu.gpa || "").trim();
+      const isCoursework = /^coursework/i.test(gpaRaw);
+      const cleanGpa = gpaRaw.replace(/^(gpa|coursework)[:\s]*/i, "");
+      return {
+        INSTITUTION: escapeLatex(edu.institution),
+        DEGREE: escapeLatex(edu.degree),
+        FIELD: escapeLatex(edu.field),
+        LOCATION: escapeLatex(edu.location || ""),
+        START_DATE: escapeLatex(edu.startDate || ""),
+        END_DATE: escapeLatex(
+          edu.endDate
+            ? edu.endDate
+            : edu.startDate
+              ? "Present"
+              : "",
+        ),
+        GPA: gpaRaw ? escapeLatex(cleanGpa || gpaRaw) : null,
+        GPA_LABEL: isCoursework ? "Coursework:" : "GPA:",
+      };
+    }),
   });
 
   const buildSkills = () => ({
@@ -138,27 +228,30 @@ const transformResumeData = (resume: IResume) => {
     TITLE: "Technical Skills",
     SKILLS: resume.skills?.map((skill) => ({
       CATEGORY: escapeLatex(skill.category),
-      SKILLS_LIST: escapeLatex(
-        Array.isArray(skill.skills) ? skill.skills.join(", ") : skill.skills,
-      ),
+      SKILLS_LIST: escapeLatex(toStringList(skill.skills, ",").join(", ")),
     })),
   });
 
   const buildProjects = () => ({
     IS_PROJECTS: true,
     TITLE: "Projects",
-    PROJECTS: resume.projects?.map((proj) => ({
-      NAME: escapeLatex(proj.name),
-      DESCRIPTION: proj.description ? escapeLatex(proj.description) : null,
-      TECHNOLOGIES: escapeLatex(
-        Array.isArray(proj.technologies)
-          ? proj.technologies.join(", ")
-          : proj.technologies,
-      ),
-      SOURCE_CODE: escapeLatexUrl(proj.sourceCode || ""),
-      LIVE_URL: escapeLatexUrl(proj.liveUrl || ""),
-      HAS_LINKS: Boolean(proj.sourceCode || proj.liveUrl),
-    })),
+    PROJECTS: resume.projects?.map((proj) => {
+      const descItems = toStringList(proj.description, "\n").map((d) =>
+        escapeLatex(d),
+      );
+      return {
+        NAME: escapeLatex(proj.name),
+        DESCRIPTION: proj.description ? escapeLatex(proj.description) : null,
+        DESCRIPTION_ITEMS: descItems,
+        HAS_DESCRIPTION_ITEMS: descItems.length > 0,
+        TECHNOLOGIES: escapeLatex(
+          toStringList(proj.technologies, ",").join(", "),
+        ),
+        SOURCE_CODE: escapeLatexUrl(proj.sourceCode || ""),
+        LIVE_URL: escapeLatexUrl(proj.liveUrl || ""),
+        HAS_LINKS: Boolean(proj.sourceCode || proj.liveUrl),
+      };
+    }),
   });
 
   const buildCertifications = () => ({
@@ -167,6 +260,7 @@ const transformResumeData = (resume: IResume) => {
     CERTIFICATIONS: resume.certifications?.map((cert) => ({
       NAME: escapeLatex(cert.name),
       ISSUER: cert.issuer ? escapeLatex(cert.issuer) : null,
+      DATE: cert.date ? escapeLatex(cert.date) : null,
     })),
   });
 
@@ -233,18 +327,93 @@ const transformResumeData = (resume: IResume) => {
     return "https://" + url;
   };
 
+  // Link rows built once as `{ URL, LABEL }` so every template renders them
+  // with the same `\href` shape — no per-template link maths to drift.
+  const profileLinks = (resume.profileLinks ?? [])
+    .filter((link) => Boolean(link.platform && link.url))
+    .map((link) => {
+      const platform = link.platform as ProfilePlatform;
+      const url = normalizeProfileLink(platform, link.url);
+      if (!url) return null;
+      return {
+        URL: ensureUrlPrefix(escapeLatexUrl(url)),
+        LABEL: escapeLatex(link.label || (PLATFORM_META[platform]?.label ?? platform)),
+      };
+    })
+    .filter((link): link is { URL: string; LABEL: string } => link !== null);
+
+  const linkedinUrl = ensureUrlPrefix(
+    escapeLatexUrl(normalizeProfileLink("linkedin", personalInfo.linkedin || "")),
+  );
+  const linkedinDisplay = cleanUrlForDisplay(
+    escapeLatex(normalizeProfileLink("linkedin", personalInfo.linkedin || "")),
+  );
+  const githubUrl = ensureUrlPrefix(
+    escapeLatexUrl(normalizeProfileLink("github", personalInfo.github || "")),
+  );
+  const githubDisplay = cleanUrlForDisplay(
+    escapeLatex(normalizeProfileLink("github", personalInfo.github || "")),
+  );
+  const portfolioUrl = ensureUrlPrefix(
+    escapeLatexUrl(normalizeProfileLink("portfolio", personalInfo.portfolio || "")),
+  );
+  const portfolioDisplay = cleanUrlForDisplay(
+    escapeLatex(normalizeProfileLink("portfolio", personalInfo.portfolio || "")),
+  );
+
+  const secondaryLinks: { URL: string; DISPLAY: string; SEPARATOR: string }[] = [];
+  if (linkedinDisplay && linkedinUrl) {
+    secondaryLinks.push({
+      URL: linkedinUrl,
+      DISPLAY: linkedinDisplay,
+      SEPARATOR: "",
+    });
+  }
+  if (githubDisplay && githubUrl) {
+    secondaryLinks.push({
+      URL: githubUrl,
+      DISPLAY: githubDisplay,
+      SEPARATOR: secondaryLinks.length > 0 ? " $|$ " : "",
+    });
+  }
+  if (portfolioDisplay && portfolioUrl) {
+    secondaryLinks.push({
+      URL: portfolioUrl,
+      DISPLAY: portfolioDisplay,
+      SEPARATOR: secondaryLinks.length > 0 ? " $|$ " : "",
+    });
+  }
+  profileLinks.forEach((link) => {
+    secondaryLinks.push({
+      URL: link.URL,
+      DISPLAY: link.LABEL,
+      SEPARATOR: secondaryLinks.length > 0 ? " $|$ " : "",
+    });
+  });
+
   return {
     PRIMARY_COLOR: primaryColorHex,
     IS_SANS: isSans,
     FULL_NAME: escapeLatex(personalInfo.fullName),
+    RESUME_TITLE: escapeLatex(resume.title || "").replace(
+      /\s*\|\s*/g,
+      " $\\mid$ ",
+    ),
     EMAIL: escapeLatex(personalInfo.email),
     EMAIL_RAW: escapeLatexUrl(personalInfo.email), // Raw email for mailto:
     PHONE: escapeLatex(personalInfo.phone),
+    PHONE_RAW: escapeLatexUrl((personalInfo.phone || "").replace(/\s+/g, "")),
     LOCATION: escapeLatex(personalInfo.location),
-    LINKEDIN: ensureUrlPrefix(escapeLatexUrl(personalInfo.linkedin || "")), // URL with https:// for href
-    LINKEDIN_DISPLAY: cleanUrlForDisplay(escapeLatex(personalInfo.linkedin || "")), // Clean URL for display
-    GITHUB: ensureUrlPrefix(escapeLatexUrl(personalInfo.github || "")), // URL with https:// for href
-    GITHUB_DISPLAY: cleanUrlForDisplay(escapeLatex(personalInfo.github || "")), // Clean URL for display
+    LINKEDIN: linkedinUrl,
+    LINKEDIN_DISPLAY: linkedinDisplay,
+    GITHUB: githubUrl,
+    GITHUB_DISPLAY: githubDisplay,
+    PORTFOLIO: portfolioUrl,
+    PORTFOLIO_DISPLAY: portfolioDisplay,
+    SECONDARY_LINKS: secondaryLinks,
+    HAS_SECONDARY_LINKS: secondaryLinks.length > 0,
+    // LeetCode, CodeChef, … — normalised username → canonical URL
+    PROFILE_LINKS: profileLinks,
 
     // Dynamic Sections
     DYNAMIC_SECTIONS: dynamicSections,
@@ -318,7 +487,7 @@ export const generatePDF = async (
   }
 
   try {
-    const useDocker = process.env.USE_DOCKER_LATEX === "true";
+    const useDocker = (env.USE_DOCKER_LATEX ?? process.env.USE_DOCKER_LATEX) === "true";
 
     // SECURITY FIX: Use spawn instead of exec to prevent command injection
     console.log(
@@ -458,7 +627,7 @@ export const generatePDF = async (
           const timer2 = setTimeout(() => {
             if (!settled2) { settled2 = true; childProcess2.kill("SIGKILL"); reject(new Error("Second pass timed out")); }
           }, 60000);
-          childProcess2.on("close", (code) => {
+          childProcess2.on("close", () => {
             if (!settled2) { settled2 = true; clearTimeout(timer2); resolve(); }
           });
           childProcess2.on("error", (err) => {

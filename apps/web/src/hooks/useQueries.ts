@@ -2,6 +2,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { analyticsApi, aiApi } from "../services/api";
 import { queryKeys } from "../lib/queryClient";
 import toast from "react-hot-toast";
+import type { ResumeFormData } from "../features/resume-editor/types";
+import { normalizeResumeForAI } from "../features/resume-editor/lib/normalizeForAI";
 
 // ============================================
 // Analytics Queries
@@ -29,8 +31,9 @@ export function useAnalytics() {
  */
 export function useAnalyzeResume() {
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
-      const response = await aiApi.analyze(data);
+    mutationFn: async (resumeData: ResumeFormData) => {
+      const normalized = normalizeResumeForAI(resumeData);
+      const response = await aiApi.analyze(normalized);
       return response.data.data;
     },
     onError: (error) => {
@@ -46,7 +49,7 @@ export function useAnalyzeResume() {
 export function useGenerateCoverLetter() {
   return useMutation({
     mutationFn: async (data: {
-      resume: Record<string, unknown>;
+      resume: ResumeFormData;
       jobDescription: string;
       jobTitle?: string;
       company?: string;
@@ -98,8 +101,8 @@ export function useGenerateBullets() {
  */
 export function useATSCheck() {
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
-      const response = await aiApi.checkATSScore(data);
+    mutationFn: async (data: { resumeData: ResumeFormData; jobDescription?: string }) => {
+      const response = await aiApi.checkATSScore(data.resumeData, data.jobDescription);
       return response.data.data;
     },
     onError: (error) => {

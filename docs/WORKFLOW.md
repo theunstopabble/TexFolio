@@ -1,6 +1,6 @@
 # Development Workflow
 
-**Version:** 2.0.0 | **Last Updated:** May 2026
+**Version:** 2.0.0 | **Last Updated:** September 2026
 
 Development workflows, pipeline documentation, and operational procedures for the TexFolio platform.
 
@@ -21,7 +21,7 @@ cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
 # Fill in API keys (see DEPLOYMENT.md for details)
 
-# 3. Start infrastructure (Redis + LaTeX renderer)
+# 3. Start infrastructure (LaTeX renderer; Redis only matters in production)
 docker-compose up -d
 
 # 4. Run both frontend and backend
@@ -32,9 +32,10 @@ npm run dev
 
 | Script | Command | Description |
 |:--|:--|:--|
-| `npm run dev` | `concurrently "dev:api" "dev:web"` | Start both services |
-| `npm run dev:api` | `tsx watch src/hono.ts` | API with hot reload |
+| `npm run dev` | `concurrently "npm run dev:api" "npm run dev:web"` | Start both services |
+| `npm run dev:api` | `npm run dev --workspace=@texfolio/api` → `tsx watch src/hono.ts` | API with hot reload |
 | `npm run dev:web` | `vite` | Frontend with HMR |
+| `npm test` | `node --experimental-strip-types --test apps/web/tests/*.test.ts` | Run unit test suite |
 | `npm run build` | Build shared → API → Web | Full production build |
 | `npm run build:deploy` | Build shared → API | Backend-only deploy build |
 | `npm run build:shared` | `tsc` in shared package | Compile shared types |
@@ -49,11 +50,27 @@ npm run dev
 
 ---
 
-## BullMQ PDF Generation Pipeline
+## PDF Generation
+
+### Primary Flow (Synchronous)
+
+**Source:** `apps/api/src/routes.hono/resume.routes.ts`, `apps/web/src/services/api.ts`
+
+The web client generates PDFs with `GET /api/resumes/:id/pdf`, which compiles LaTeX
+and streams the binary back in one request (120s client timeout). This is the path
+the product actually uses.
+
+```
+Client ──GET /api/resumes/:id/pdf──▶ API ──spawn pdflatex──▶ PDF binary
+```
+
+### Async Pipeline (BullMQ)
 
 **Source:** `apps/api/src/queues/pdf.queue.ts`
 
-### Flow Diagram
+The queue endpoints exist but are **not called by the web client**. They are
+production-only: without Redis the route returns `503 "PDF generation not
+available (local development)"`.
 
 ```
 ┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐
@@ -94,8 +111,8 @@ WAITING → ACTIVE → COMPLETED
       type: "exponential",     // 2s → 4s → 8s
       delay: 2000,
     },
-    removeOnComplete: { count: 100 },  // Keep last 100 completed
-    removeOnFail: { count: 50 },       // Keep last 50 failed
+    removeOnComplete: { count: 20 },   // Keep last 20 completed
+    removeOnFail: { count: 10 },       // Keep last 10 failed
   }
 }
 ```
@@ -110,10 +127,9 @@ WAITING → ACTIVE → COMPLETED
 
 ### Error Handling
 
-- **Resume not found:** Job fails immediately (no retry)
+- **Resume not found:** Job throws; BullMQ retries it under `attempts: 3`
 - **pdflatex timeout (60s):** Process killed with SIGKILL, job retried
 - **pdflatex non-zero exit:** Check if PDF was still created (LaTeX warnings are non-fatal)
-- **Redis connection lost:** Worker pauses, resumes when reconnected
 
 ---
 
@@ -184,18 +200,18 @@ If any node fails to parse LLM output, it returns a zero score and continues to 
    - X-Organization-Id: <org_id> (optional)
 
 2. authMiddleware:
-   ├─ Verify JWT via clerkClient.verifyToken()
+   ├─ Verify JWT via verifyToken() (@clerk/backend)
    ├─ Extract clerkId (sub claim)
    ├─ Find/create user in MongoDB
    ├─ If X-Organization-Id present:
-   │   └─ Lookup OrganizationMember { orgId, userId, status: "active" }
+   │   └─ Lookup OrganizationMember { organizationId, userId, status: "active" }
    │       └─ Attach { organizationId, role } to context
    └─ Set user context: { userId, mongoUserId, email, isPro, organizationId?, role? }
 
 3. requireRole("admin") (route-level):
    ├─ Check if org role already resolved (from step 2)
    ├─ OR resolve from route param :id:
-   │   └─ Lookup OrganizationMember { orgId: param.id, userId }
+   │   └─ Lookup OrganizationMember { organizationId: param.id, userId }
    ├─ Compare: ORG_ROLE_WEIGHT[actual] >= ORG_ROLE_WEIGHT[required]
    │   owner(4) >= admin(3) → PASS
    │   editor(2) >= admin(3) → FAIL (403)
@@ -225,7 +241,7 @@ If any node fails to parse LLM output, it returns a zero score and continues to 
 2. Service validates caller is current owner
 3. Target member promoted to `owner`
 4. Previous owner demoted to `admin`
-5. Audit log records both role changes
+5. Audit log records the target's role change (the demotion is written directly, without a second audit entry)
 
 ---
 
@@ -249,8 +265,8 @@ If any node fails to parse LLM output, it returns a zero score and continues to 
 │  └─────────┘  └──────────────┘  └──────┘  └────────────┘  │
 │                                                             │
 │  • npm audit --production --audit-level=high (non-blocking) │
-│  • ESLint on @texfolio/api and @texfolio/web                │
-│  • npm run build:deploy (shared + API)                      │
+│  • ESLint on @texfolio/api and @texfolio/web (gate)         │
+│  • npm run build:deploy (shared + API, gate)                │
 └──────────────────────────────┬──────────────────────────────┘
                                │ depends on
                                ▼
@@ -262,8 +278,8 @@ If any node fails to parse LLM output, it returns a zero score and continues to 
 │  └─────────┘  └──────────────┘  └───────┘  │ artifacts │  │
 │                                              └───────────┘  │
 │  • Full build (shared + API + Web)                          │
-│  • Check apps/api/dist/ exists                              │
-│  • Check apps/web/dist/ exists                              │
+│  • Check apps/api/dist/ exists (fails the job if missing)   │
+│  • Check apps/web/dist/ exists (fails the job if missing)   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -279,7 +295,11 @@ CI uses Node.js 20 with npm caching enabled.
 
 ### Logged Actions
 
-Every state-changing operation is logged with:
+Audit entries are written for resume and organization operations. Not every route
+audits — payment, api-key, GDPR, AI, agent and analytics routes do not write audit
+entries, nor do the resume share/email/ATS-score paths.
+
+Each entry records:
 
 ```typescript
 await auditService.log({
@@ -354,7 +374,7 @@ auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 }
 |:--|:--|
 | `GET /health` | API liveness |
 | `GET /health/ai` | Circuit breaker state, Groq key configured |
-| `GET /health/pdf` | pdflatex binary/Docker available, Redis connected |
+| `GET /health/pdf` | pdflatex binary/Docker available (no Redis check) |
 
 ### Request Tracing
 

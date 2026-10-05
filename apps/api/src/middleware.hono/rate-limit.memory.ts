@@ -113,7 +113,6 @@ export const rateLimiter = (options: RateLimitOptions) => {
     }
 
     if (skipSuccessfulRequests || skipFailedRequests) {
-      const originalNext = next;
       await next();
       const status = c.res.status;
       const isSuccess = status >= 200 && status < 400;

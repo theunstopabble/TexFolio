@@ -16,6 +16,7 @@ interface Resume {
   templateId: string;
   createdAt: string;
   updatedAt: string;
+  atsScore?: number;
 }
 
 interface AnalyticsData {
@@ -111,14 +112,27 @@ const Dashboard = () => {
   const { user, isPro } = useAuth();
 
   // TanStack Query hooks - parallel data fetching
-  const { data: resumes = [], isLoading: resumesLoading } = useResumes();
+  const {
+    data: resumes = [],
+    isLoading: resumesLoading,
+    isError: resumesError,
+    refetch: refetchResumes,
+  } = useResumes();
   const { mutate: sendEmail, isPending: isSendingEmail } = useSendEmail();
-  const { data: stats, isLoading: statsLoading } = useAnalytics() as {
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useAnalytics() as {
     data: AnalyticsData | undefined;
     isLoading: boolean;
+    isError: boolean;
+    refetch: () => unknown;
   };
 
   const loading = resumesLoading || statsLoading;
+  const errored = resumesError || statsError;
   const recentResumes = (resumes as Resume[]).slice(0, 3);
 
   if (loading) {
@@ -129,6 +143,35 @@ const Dashboard = () => {
             <span className="sr-only">Loading</span>
           </div>
           <p className="text-slate-600 text-sm sm:text-base">Loading your analytics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // A failed fetch used to fall through to the zero-state: the user saw
+  // "0 resumes / 0% ATS" and "No resumes yet" for what was actually a network
+  // error, and the only fix (reload) was invisible.
+  if (errored) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 text-center min-h-[60vh] flex items-center justify-center">
+        <div role="alert">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">
+            Couldn't load your dashboard
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base mb-6">
+            This is a network or server problem — your resumes are safe.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              refetchResumes();
+              refetchStats();
+            }}
+            className="btn btn-primary"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -146,9 +189,16 @@ const Dashboard = () => {
             Here's what's happening with your resumes.
           </p>
         </div>
-        <Link to="/create" className="btn btn-primary w-full sm:w-auto">
-          ➕ Create New
-        </Link>
+        {/* The /cover-letter page was fully built and routed but linked from
+            nowhere — the only way in was knowing the URL. */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Link to="/create" className="btn btn-primary w-full sm:w-auto">
+            ➕ Create New
+          </Link>
+          <Link to="/cover-letter" className="btn btn-secondary w-full sm:w-auto">
+            ✍️ Cover Letter
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -300,9 +350,24 @@ const Dashboard = () => {
                 <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center text-xl shrink-0">
                   📄
                 </div>
-                <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600 shrink-0">
-                  Latex
-                </span>
+                <div className="flex gap-1 shrink-0">
+                  {typeof resume.atsScore === "number" && (
+                    <span
+                      className={`text-xs font-mono px-2 py-1 rounded ${
+                        resume.atsScore >= 80
+                          ? "bg-emerald-100 text-emerald-700"
+                          : resume.atsScore >= 60
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      ATS {resume.atsScore}
+                    </span>
+                  )}
+                  <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600">
+                    Latex
+                  </span>
+                </div>
               </div>
               <h3 className="font-semibold text-slate-900 mb-1 truncate text-sm sm:text-base">
                 {resume.title}
@@ -317,6 +382,8 @@ const Dashboard = () => {
                 >
                   Edit
                 </Link>
+                {/* w-11 (44px): the old w-8 was a 32px touch target, under the
+                    minimum for a finger even though it is fine with a mouse. */}
                 <button
                   onClick={() => {
                     if (user?.email) {
@@ -324,7 +391,7 @@ const Dashboard = () => {
                     }
                   }}
                   disabled={isSendingEmail}
-                  className="w-8 sm:w-10 btn btn-secondary text-xs sm:text-sm py-2 flex items-center justify-center shrink-0"
+                  className="w-11 sm:w-10 btn btn-secondary text-xs sm:text-sm py-2 flex items-center justify-center shrink-0"
                   title="Email to Me"
                   aria-label="Email this resume to me"
                 >

@@ -160,65 +160,12 @@ app.get("/health/pdf", async (c) => {
   );
 });
 
-// Mount public routes BEFORE rate limiter (unrate-limited)
+// Public (share-link) routes. Mounted after the global /api/* rate limiter and
+// sanitizer registered above, so they share the same limits as the rest of the
+// API.
 app.route("/api/public", publicRoutes);
 
-// ============================================
-// 5. Global Tiered Rate Limiter (user-based, falls back to IP for anonymous)
-// ============================================
-app.use(
-  "/api/*",
-  tieredRateLimiter({
-    windowMs: 60 * 1000, // 1 minute
-    freeMax: 60, // Free users: 60 req/min
-    proMax: 300, // Pro users: 300 req/min
-    unauthenticatedMax: 20, // Anonymous: 20 req/min
-    message: "Too many requests. Upgrade to Pro for higher limits.",
-  }),
-);
-
-// 6. Input Sanitizer (skip webhook routes to preserve raw body for signature verification)
-app.use("/api/*", async (c, next) => {
-  if (c.req.path.includes("/webhook")) {
-    return await next();
-  }
-  return await inputSanitizer()(c, next);
-});
-
-// ============================================
-// Routes
-// ============================================
-
-// Root route
-app.get("/", (c) => {
-  return c.json({
-    success: true,
-    message: "Welcome to TexFolio API 🚀 (Hono)",
-    docs: "https://github.com/theunstopabble/TexFolio",
-  });
-});
-
-// Health check
-app.get("/health", (c) => {
-  return c.json({
-    success: true,
-    message: "TexFolio API is running!",
-    timestamp: new Date().toISOString(),
-    runtime: "Hono",
-  });
-});
-
-// AI Service health (circuit breaker status)
-app.get("/health/ai", (c) => {
-  return c.json({
-    success: true,
-    groqKeyConfigured: Boolean(env.GROQ_API_KEY && env.GROQ_API_KEY !== "your-groq-api-key"),
-    circuitBreaker: aiService.circuitBreakerMetrics,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Remaining API routes (after rate limiter middleware)
+// Remaining API routes (after rate limiter + sanitizer middleware)
 app.route("/api/resumes", resumeRoutes);
 app.route("/api/ai", aiRoutes);
 app.route("/api/analytics", analyticsRoutes);
@@ -292,8 +239,9 @@ const startServer = async (): Promise<void> => {
 
     // Initialize PDF queue (will connect to Redis if available)
     try {
+      // initPdfQueue logs its own status (skipped locally / initialized / Redis
+      // unavailable) — a second log here printed "initialized" right after "skipped".
       initPdfQueue();
-      console.log("📄 PDF Queue initialized");
     } catch (err) {
       console.warn("⚠️ PDF Queue initialization skipped (Redis unavailable):", err instanceof Error ? err.message : String(err));
     }
