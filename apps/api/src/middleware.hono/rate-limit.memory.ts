@@ -65,20 +65,53 @@ function incrementWindow(key: string, windowMs: number): { hits: number; ttlMs: 
   return { hits: entry.count, ttlMs };
 }
 
-function generateDefaultKey(c: Context): string {
+/**
+ * Accurately resolve real client IP behind Cloudflare and reverse proxies (Render, Vercel).
+ * Prioritizes cf-connecting-ip, then first element of x-forwarded-for (the client), then x-real-ip.
+ */
+export function resolveClientIp(c: Context): string {
+  const cfConnectingIp = c.req.header("cf-connecting-ip");
+  if (cfConnectingIp) {
+    return cfConnectingIp.trim();
+  }
+
   const forwardedFor = c.req.header("x-forwarded-for");
   if (forwardedFor) {
-    const ips = forwardedFor.split(",").map((ip) => ip.trim());
-    const clientIp = ips[ips.length - 1];
-    if (clientIp && clientIp !== "unknown") {
-      return `ip:${clientIp}`;
+    const firstIp = forwardedFor.split(",")[0]?.trim();
+    if (firstIp && firstIp !== "unknown") {
+      return firstIp;
     }
   }
 
   const realIp = c.req.header("x-real-ip");
-  if (realIp) return `ip:${realIp}`;
+  if (realIp) {
+    return realIp.trim();
+  }
 
-  return `ip:${c.env?.REMOTE_ADDR || "unknown-ip"}`;
+  return (c.env?.REMOTE_ADDR as string | undefined) || "unknown-ip";
+}
+
+function generateDefaultKey(c: Context): string {
+  return `ip:${resolveClientIp(c)}`;
+}
+
+/**
+ * Fast-extract user ID (sub claim) from Bearer JWT without heavy DB queries,
+ * enabling user-based rate limit tiers before route-level auth middleware runs.
+ */
+function extractUserIdFromBearer(c: Context): string | null {
+  const auth = c.req.header("authorization");
+  if (!auth || !auth.startsWith("Bearer ")) return null;
+  try {
+    const token = auth.slice(7).trim();
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    const json = Buffer.from(parts[1], "base64").toString("utf8");
+    const payload = JSON.parse(json) as { sub?: string };
+    return payload.sub || null;
+  } catch {
+    return null;
+  }
 }
 
 export const rateLimiter = (options: RateLimitOptions) => {
@@ -92,6 +125,11 @@ export const rateLimiter = (options: RateLimitOptions) => {
   } = options;
 
   return async (c: Context, next: Next) => {
+    // CORS preflight requests should never consume rate limit quota
+    if (c.req.method === "OPTIONS") {
+      return await next();
+    }
+
     const key = keyGenerator(c);
     const { hits, ttlMs } = incrementWindow(key, windowMs);
     const resetTime = Date.now() + ttlMs;
@@ -137,38 +175,43 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
     message = "Rate limit exceeded for your plan. Please upgrade or try again later.",
   } = options;
 
-  const unauthenticatedMax = options.unauthenticatedMax ?? Math.min(freeMax, 10);
+  const unauthenticatedMax = options.unauthenticatedMax ?? Math.min(freeMax, 20);
 
   return async (c: Context, next: Next) => {
+    // CORS preflight requests should never consume rate limit quota
+    if (c.req.method === "OPTIONS") {
+      return await next();
+    }
+
     const user = c.get("user");
+    const extractedUserId = extractUserIdFromBearer(c);
+    const effectiveUserId = user?.userId || extractedUserId;
     const isPro = user?.isPro === true;
     const max = isPro ? proMax : freeMax;
 
     let key: string;
-    if (user?.userId) {
-      key = `user:${user.userId}`;
+    if (effectiveUserId) {
+      key = `user:${effectiveUserId}`;
     } else {
-      const forwardedFor = c.req.header("x-forwarded-for");
-      const clientIp = forwardedFor
-        ? forwardedFor.split(",").map((ip) => ip.trim()).pop()
-        : c.req.header("x-real-ip");
-      key = `ip:${clientIp || c.env?.REMOTE_ADDR || "unknown"}`;
+      key = `ip:${resolveClientIp(c)}`;
     }
 
     const { hits, ttlMs } = incrementWindow(key, windowMs);
     const resetTime = Date.now() + ttlMs;
 
-    const effectiveMax = user?.userId ? max : unauthenticatedMax;
+    const effectiveMax = effectiveUserId ? max : unauthenticatedMax;
     c.header("X-RateLimit-Limit", effectiveMax.toString());
     c.header("X-RateLimit-Remaining", Math.max(0, effectiveMax - hits).toString());
     c.header("X-RateLimit-Reset", new Date(resetTime).toISOString());
+
     if (isPro) {
       c.header("X-RateLimit-Tier", "pro");
-    } else if (user?.userId) {
+    } else if (effectiveUserId) {
       c.header("X-RateLimit-Tier", "free");
     } else {
       c.header("X-RateLimit-Tier", "anonymous");
     }
+
     if (hits > effectiveMax) {
       c.header("Retry-After", Math.ceil(ttlMs / 1000).toString());
       return c.json(
@@ -176,7 +219,7 @@ export const tieredRateLimiter = (options: TieredRateLimitOptions) => {
           success: false,
           error: "Rate limit exceeded",
           message,
-          tier: isPro ? "pro" : user?.userId ? "free" : "anonymous",
+          tier: isPro ? "pro" : effectiveUserId ? "free" : "anonymous",
         },
         429,
       );

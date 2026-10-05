@@ -28,6 +28,7 @@ const envSchema = z.object({
   API_KEY_SECRET: z.string().optional(), // HMAC secret for service-to-service API keys
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHAT_ID: z.string().optional(),
+  ENABLE_PDF_QUEUE: z.string().default("false"), // Opt-in BullMQ queue; keeps Upstash commands near 0
 });
 
 // Parse and validate environment variables

@@ -67,17 +67,17 @@ app.use(
   "/api/*",
   tieredRateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    freeMax: 60,   // Free users: 60 req/min
-    proMax: 300,   // Pro users: 300 req/min
-    unauthenticatedMax: 20, // Anonymous: 20 req/min
-    message: "Too many requests. Upgrade to Pro for higher limits.",
+    freeMax: 120, // Free users: 120 req/min
+    proMax: 600, // Pro users: 600 req/min
+    unauthenticatedMax: 60, // Anonymous visitors & recruiters: 60 req/min
+    message: "Too many requests. Please wait a moment or upgrade to Pro for higher limits.",
   }),
 );
 
 // Strict Rate Limiter for Sensitive Routes (Auth, Payments)
 const strictLimiter = rateLimiter({
   windowMs: 60 * 1000, // 1 minute
-  max: 5, // Limit to 5 requests per minute
+  max: 15, // Limit to 15 requests per minute
   message: "Too many attempts, please try again after a minute.",
 });
 

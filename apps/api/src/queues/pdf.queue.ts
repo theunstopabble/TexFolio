@@ -22,14 +22,14 @@ function getRedis(): ReturnType<typeof getRedisConnection> | null {
 }
 
 function initPdfQueueIfProduction(): void {
-  if (!isProduction()) {
-    console.log("📄 PDF Queue skipped (local development - Redis not used)");
+  if (!isProduction() || env.ENABLE_PDF_QUEUE !== "true") {
+    console.log("📄 PDF Queue disabled (set ENABLE_PDF_QUEUE=true in production to enable async worker)");
     return;
   }
 
   const redis = getRedis();
   if (!redis) {
-    console.warn("⚠️ PDF Queue skipped (Redis unavailable)");
+    console.warn("⚠️ PDF Queue skipped (Redis unavailable or disabled)");
     return;
   }
 
@@ -101,6 +101,9 @@ function initPdfQueueIfProduction(): void {
     {
       connection: redis,
       concurrency: 2,
+      drainDelay: 60000, // Poll every 60s when queue is empty (reduces idle commands by 95%+)
+      stalledInterval: 600000, // Check stalled jobs once every 10 min (prevents 24/7 command burn)
+      maxStalledCount: 1,
       limiter: {
         max: 5,
         duration: 60000, // 5 PDFs per minute max

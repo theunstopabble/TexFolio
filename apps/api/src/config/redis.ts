@@ -8,8 +8,8 @@ function isProduction(): boolean {
 }
 
 export function getRedisConnection(): Redis | null {
-  // Skip Redis connection in local development to preserve Upstash free tier
-  if (!isProduction()) {
+  // Skip Redis connection unless explicitly enabled in production to preserve Upstash quotas
+  if (!isProduction() || env.ENABLE_PDF_QUEUE !== "true") {
     return null;
   }
 

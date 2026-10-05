@@ -109,6 +109,8 @@ GOOGLE_AI_API_KEY=AIza...
 # PDF
 PDFLATEX_PATH=pdflatex
 USE_DOCKER_LATEX=true
+# Optional BullMQ queue: leave 'false' (default) to protect Upstash free tier command limits
+ENABLE_PDF_QUEUE=false
 
 # Payments
 RAZORPAY_KEY_ID=rzp_live_...
